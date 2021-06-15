@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <ul id="todos" contenteditable>
+        <li>Enter item</li>
+    </ul>
+
+    <a href="javascript:void(0);" id="clear" class="btn">Clear</a>
+    <a href="javascript:void(0);" id="save" class="btn">Save</a>
+
+{% endblock %}
+
+{% block javascript %}
+  <script type="text/javascript">
+    $(document).ready(function(){
+        var $ul = $('ul#todos');
+
+        $('#save').click( function(){
+            localStorage.setItem('list', $ul.html());
+        });
+
+        $('#clear').click( function(){
+            localStorage.clear('list');
+            location.reload();
+        });
+
+        if(localStorage.getItem('list')){
+            $ul.html(localStorage.getItem('list'));
+        }
+
+        $ul.on('keydown', function(e) {
+            console.log(e.which);
+            console.log($(this).html());
+        });
+    });
+  </script>
+{% endblock %}
