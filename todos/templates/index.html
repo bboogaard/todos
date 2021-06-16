@@ -6,33 +6,23 @@
         <li>Enter item</li>
     </ul>
 
-    <a href="javascript:void(0);" id="clear" class="btn">Clear</a>
-    <a href="javascript:void(0);" id="save" class="btn">Save</a>
+    <br><a href="javascript:void(0);" id="save" class="btn btn-primary">Save</a>&nbsp;
+    <a href="javascript:void(0);" id="delete" class="btn btn-primary">Delete</a>
 
 {% endblock %}
 
 {% block javascript %}
-  <script type="text/javascript">
-    $(document).ready(function(){
-        var $ul = $('ul#todos');
-
-        $('#save').click( function(){
-            localStorage.setItem('list', $ul.html());
+    <script type="text/javascript" src="{% static 'checklist.provider.local.js' %}"></script>
+    <script type="text/javascript" src="{% static 'checklist.jquery.js' %}"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('ul#todos').checkList({
+                saveButton: $('#save'),
+                deleteButton: $('#delete'),
+                provider: new ChecklistProviderLocal({
+                    storageName: 'todo-list'
+                })
+            });
         });
-
-        $('#clear').click( function(){
-            localStorage.clear('list');
-            location.reload();
-        });
-
-        if(localStorage.getItem('list')){
-            $ul.html(localStorage.getItem('list'));
-        }
-
-        $ul.on('keydown', function(e) {
-            console.log(e.which);
-            console.log($(this).html());
-        });
-    });
-  </script>
+    </script>
 {% endblock %}
