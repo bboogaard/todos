@@ -1,7 +1,17 @@
 from django.contrib import admin
 
-# Register your models here.
 from todos import models
 
 
-# admin.site.register(Demo)
+class TodoAdmin(admin.ModelAdmin):
+
+    date_hierarchy = 'activate_date'
+
+    list_display = ('description', 'status', 'activate_date')
+
+    list_filter = ('status',)
+
+    search_fields = ('description',)
+
+
+admin.site.register(models.Todo, TodoAdmin)

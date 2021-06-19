@@ -12,6 +12,19 @@ class Todo(ActivatorModel):
     def __str__(self):
         return self.description
 
+    @property
+    def is_active(self):
+        return self.status == self.ACTIVE_STATUS
+
+    @property
+    def is_inactive(self):
+        return self.status == self.INACTIVE_STATUS
+
+    def activate(self):
+        self.activate_date = None
+        self.status = self.ACTIVE_STATUS
+        self.save()
+
     def soft_delete(self):
         if self.status == self.INACTIVE_STATUS:
             return

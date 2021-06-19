@@ -1,20 +1,23 @@
 function ChecklistProviderRemote(settings) {
-    this.storageName = settings.storageName;
+    this.items = settings.items;
+    this.saveUrl = settings.saveUrl;
 }
 
-ChecklistProviderLocal.prototype = {
+ChecklistProviderRemote.prototype = {
 
     get: function () {
 
-        let raw = localStorage.getItem(this.storageName);
-        return raw ? raw.split('\n') : [];
+        return this.items;
 
     },
 
     save: function (items) {
 
-        let data = items.join('\n');
-        localStorage.setItem(this.storageName, data);
+        let data = {
+            "items": items
+        }
+
+        $.post(this.saveUrl, data);
 
     }
 

@@ -27,21 +27,24 @@ class IndexView(AccessMixin, generic.TemplateView):
 
     template_name = 'index.html'
 
-
-class TodosList(AccessMixin, generic.ListView):
-
-    context_object_name = 'todos'
-
-    redirect_to_login = False
-
-    def render_to_response(self, context, **response_kwargs):
-        return JsonResponse(data={
-            'items': list(context.get('todos'))
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'json_vars': {
+                'items': list(
+                    models.Todo.objects.active().order_by('activate_date').values_list('description', flat=True)
+                ),
+                'saveUrl': reverse('todos:todos_save.json')
+            }
         })
+        return context
+
+
+class TodosSaveJson(AccessMixin, View):
 
     @transaction.atomic()
     def post(self, request, *args, **kwargs):
-        items = request.POST.get('items', [])
+        items = request.POST.getlist('items', [])
         todos = {
             hashlib.md5(item.encode()).hexdigest(): item
             for item in items
@@ -51,10 +54,9 @@ class TodosList(AccessMixin, generic.ListView):
             if todo_id not in todos_in_db:
                 todo = models.Todo(description=item, todo_id=todo_id)
                 todo.save()
+            elif todos_in_db[todo_id].is_inactive:
+                todos_in_db[todo_id].activate()
         for todo_id, todo in todos_in_db.items():
             if todo_id not in todos:
                 todo.soft_delete()
         return JsonResponse(data={})
-
-    def get_queryset(self):
-        return models.Todo.objects.active().order_by('-activate_date')

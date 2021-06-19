@@ -12,16 +12,17 @@
 {% endblock %}
 
 {% block javascript %}
+    {{ json_vars|json_script:"json-vars" }}
     <script type="text/javascript" src="{% static 'checklist.provider.local.js' %}"></script>
+    <script type="text/javascript" src="{% static 'checklist.provider.remote.js' %}"></script>
+    <script type="text/javascript" src="{% static 'checklist.provider.factory.js' %}"></script>
     <script type="text/javascript" src="{% static 'checklist.jquery.js' %}"></script>
     <script type="text/javascript">
         $(document).ready(function(){
             $('ul#todos').checkList({
                 saveButton: $('#save'),
                 deleteButton: $('#delete'),
-                provider: new ChecklistProviderLocal({
-                    storageName: 'todo-list'
-                })
+                provider: checkListProviderFactory.create('remote')
             });
         });
     </script>
