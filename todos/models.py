@@ -1,10 +1,22 @@
+from django_extensions.db.models import ActivatorModel
 from django.db import models
+from django.utils import timezone
 
 
-# Create your models here.
-class Demo(models.Model):
-    demo_title = models.CharField(max_length=200)
-    demo_description = models.CharField(max_length=200)
+class Todo(ActivatorModel):
+
+    description = models.CharField(max_length=100)
+
+    todo_id = models.CharField(max_length=32, unique=True)
 
     def __str__(self):
-        return self.demo_title
+        return self.description
+
+    def soft_delete(self):
+        if self.status == self.INACTIVE_STATUS:
+            return
+
+        self.status = self.INACTIVE_STATUS
+        self.deactivate_date = timezone.now()
+
+        self.save()
