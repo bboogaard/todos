@@ -15,3 +15,5 @@ class TodoAdmin(admin.ModelAdmin):
 
 
 admin.site.register(models.Todo, TodoAdmin)
+admin.site.register(models.Gallery)
+admin.site.register(models.Wallpaper)

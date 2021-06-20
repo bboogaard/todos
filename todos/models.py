@@ -33,3 +33,29 @@ class Todo(ActivatorModel):
         self.deactivate_date = timezone.now()
 
         self.save()
+
+
+class Gallery(models.Model):
+
+    name = models.CharField(max_length=32, unique=True)
+
+    class Meta:
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+
+class Wallpaper(models.Model):
+
+    image = models.ImageField(upload_to='wallpapers/')
+
+    gallery = models.ForeignKey(Gallery, related_name='wallpapers', on_delete=models.CASCADE)
+
+    position = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ('position',)
+
+    def __str__(self):
+        return self.image.file.name

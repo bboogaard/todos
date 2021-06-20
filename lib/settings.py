@@ -1,6 +1,6 @@
 # Dynamic settings provider
 import inspect
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 from django.core.cache import cache
 from django.core.validators import EMPTY_VALUES
@@ -12,6 +12,9 @@ class SettingsField:
         self.default = default
 
     def serialize(self, value: Any) -> str:
+        if value in EMPTY_VALUES:
+            return ''
+
         return str(value)
 
     def deserialize(self, value: str) -> Any:
@@ -22,12 +25,16 @@ class SettingsField:
 
 
 class CharField(SettingsField):
+    pass
 
-    def serialize(self, value: str) -> str:
-        if value in EMPTY_VALUES:
-            return ''
 
-        return value
+class IntegerField(SettingsField):
+
+    def deserialize(self, value: str) -> Optional[int]:
+        if value == '':
+            return None
+
+        return int(value)
 
 
 class BoundField:
@@ -61,13 +68,20 @@ class BaseCacheSettings:
         self._settings = {}
         self._fields = None
 
-    def load(self):
+    def load(self, **defaults):
+
         raw_settings = self.cache.get(self.name, {}) or {}
         if not isinstance(raw_settings, dict):
             raise TypeError("Expected dict for {}, got {}".format(self.name, type(raw_settings)))
 
+        def _load_value(_key: str, _field: SettingsField) -> Any:
+            value = _field.deserialize(raw_settings.get(_key, ''))
+            if value in EMPTY_VALUES and _key in defaults:
+                value = defaults.get(_key)
+            return value
+
         self._settings = {
-            key: field.deserialize(raw_settings.get(key))
+            key: _load_value(key, field)
             for key, field in self.fields
         }
         return BoundSettings({
