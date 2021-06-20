@@ -7,7 +7,8 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import generic, View
 
-from todos import models
+from todos import forms, models
+from todos.settings import cache_settings
 
 
 class AccessMixin(View):
@@ -60,3 +61,15 @@ class TodosSaveJson(AccessMixin, View):
             if todo_id not in todos:
                 todo.soft_delete()
         return JsonResponse(data={})
+
+
+class SettingsSave(AccessMixin, View):
+
+    @transaction.atomic()
+    def post(self, request, *args, **kwargs):
+        form = forms.SettingsForm(request.POST or None)
+        if form.is_valid():
+            print(form.cleaned_data)
+            cache_settings.save(**form.cleaned_data)
+
+        return redirect(reverse('todos:index'))

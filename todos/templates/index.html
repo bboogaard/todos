@@ -12,6 +12,7 @@
 {% endblock %}
 
 {% block javascript %}
+    {{ block.super }}
     {{ json_vars|json_script:"json-vars" }}
     <script type="text/javascript" src="{% static 'checklist.provider.local.js' %}"></script>
     <script type="text/javascript" src="{% static 'checklist.provider.remote.js' %}"></script>
@@ -22,7 +23,7 @@
             $('ul#todos').checkList({
                 saveButton: $('#save'),
                 deleteButton: $('#delete'),
-                provider: checkListProviderFactory.create('remote')
+                provider: checkListProviderFactory.create('{{ settings.todos_provider }}')
             });
         });
     </script>

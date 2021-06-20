@@ -56,6 +56,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'todos.context_processors.settings'
             ],
         },
     },
@@ -71,6 +72,14 @@ import dj_database_url
 
 DATABASES = {
     'default': dj_database_url.config(default='postgresql://postgres:@/todos')
+}
+
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'todos_cache'
+    }
 }
 
 
