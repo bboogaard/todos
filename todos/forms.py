@@ -10,7 +10,13 @@ class SettingsForm(forms.Form):
         ('remote', 'remote'),
     ), required=False)
 
-    gallery = forms.TypedChoiceField(coerce=int, choices=(
-        (id, name)
-        for id, name in models.Gallery.objects.values_list('id', 'name')
+    todos_position = forms.ChoiceField(choices=(
+        ('top', 'top'),
+        ('bottom', 'bottom'),
     ), required=False)
+
+    gallery = forms.TypedChoiceField(coerce=int, choices=(), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['gallery'].choices = list(models.Gallery.objects.values_list('id', 'name'))

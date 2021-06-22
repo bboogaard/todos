@@ -65,25 +65,13 @@ class BaseCacheSettings:
         self.name = name
 
         self.cache = cache
-        self._settings = {}
+        self._settings = None
         self._fields = None
 
     def load(self, **defaults):
+        if self._settings is None:
+            self._settings = self._load_settings(**defaults)
 
-        raw_settings = self.cache.get(self.name, {}) or {}
-        if not isinstance(raw_settings, dict):
-            raise TypeError("Expected dict for {}, got {}".format(self.name, type(raw_settings)))
-
-        def _load_value(_key: str, _field: SettingsField) -> Any:
-            value = _field.deserialize(raw_settings.get(_key, ''))
-            if value in EMPTY_VALUES and _key in defaults:
-                value = defaults.get(_key)
-            return value
-
-        self._settings = {
-            key: _load_value(key, field)
-            for key, field in self.fields
-        }
         return BoundSettings({
             key: BoundField(val, self._get_field(key))
             for key, val in self._settings.items()
@@ -107,6 +95,22 @@ class BaseCacheSettings:
             self._fields = self._get_fields()
 
         return self._fields
+
+    def _load_settings(self, **defaults) -> Dict:
+        raw_settings = self.cache.get(self.name, {}) or {}
+        if not isinstance(raw_settings, dict):
+            raise TypeError("Expected dict for {}, got {}".format(self.name, type(raw_settings)))
+
+        def _load_value(_key: str, _field: SettingsField) -> Any:
+            value = _field.deserialize(raw_settings.get(_key, ''))
+            if value in EMPTY_VALUES and _key in defaults:
+                value = defaults.get(_key)
+            return value
+
+        return {
+            key: _load_value(key, field)
+            for key, field in self.fields
+        }
 
     def _get_fields(self) -> List[Tuple[str, SettingsField]]:
         return inspect.getmembers(self.__class__, lambda attr: isinstance(attr, SettingsField))

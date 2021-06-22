@@ -6,6 +6,8 @@ class CacheSettings(BaseCacheSettings):
 
     todos_provider = CharField(default='local')
 
+    todos_position = CharField(default='top')
+
     gallery = IntegerField()
 
     def load(self, **defaults):

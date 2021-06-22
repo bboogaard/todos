@@ -1,4 +1,7 @@
+import os
+
 from django_extensions.db.models import ActivatorModel
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
@@ -59,3 +62,6 @@ class Wallpaper(models.Model):
 
     def __str__(self):
         return self.image.file.name
+
+    def get_image_url(self):
+        return settings.MEDIA_URL + 'wallpapers/' + os.path.basename(self.image.file.name)
