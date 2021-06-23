@@ -18,20 +18,35 @@ class SettingsField:
         return str(value)
 
     def deserialize(self, value: str) -> Any:
+        return self.to_python(value)
+
+    def to_python(self, value: Any) -> Any:
         return value
 
-    def get_value(self, value: Any) -> str:
-        return str(value) if value not in EMPTY_VALUES else str(self.default)
+    def get_value(self, value: Any) -> Any:
+        value = self.to_python(value)
+        if value in EMPTY_VALUES:
+            value = self.default
+
+        return value
+
+    def as_str(self, value: Any) -> str:
+        return str(self.get_value(value))
 
 
 class CharField(SettingsField):
-    pass
+
+    def to_python(self, value: Any) -> str:
+        if value in EMPTY_VALUES:
+            return ''
+
+        return str(value)
 
 
 class IntegerField(SettingsField):
 
-    def deserialize(self, value: str) -> Optional[int]:
-        if value == '':
+    def to_python(self, value: Any) -> Optional[int]:
+        if value in EMPTY_VALUES:
             return None
 
         return int(value)
@@ -44,10 +59,10 @@ class BoundField:
         self.field = field
 
     def __str__(self):
-        return self.field.get_value(self.value)
+        return self.field.as_str(self.value)
 
     def __eq__(self, other):
-        return self.value == other
+        return self.field.get_value(self.value) == self.field.to_python(other)
 
 
 class BoundSettings:
@@ -87,7 +102,7 @@ class BaseCacheSettings:
             key: field.serialize(self._settings.get(key))
             for key, field in self.fields
         }
-        self.cache.set(self.name, raw_settings)
+        self.cache.set(self.name, raw_settings, timeout=None)
 
     @property
     def fields(self) -> List[Tuple[str, SettingsField]]:

@@ -18,6 +18,6 @@ def wallpapers(request):
     else:
         wallpaper_images = []
     return {
-        'galleries': list(models.Gallery.objects.values_list('id', 'name')),
+        'galleries': list(models.Gallery.objects.with_images().values_list('id', 'name')),
         'wallpapers': wallpaper_images
     }

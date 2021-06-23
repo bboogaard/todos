@@ -16,14 +16,24 @@
             this.setBackground();
 
             setInterval(function() {
-               if (self.index < self.items.length - 1){
-                   self.index += 1;
-               }
-               else {
-                   self.index = 0;
-               }
-               console.log(self.items[self.index]);
+                self.nextBackground();
             }, 30000);
+
+            this.element.on('next-wallpaper', function() {
+                self.nextBackground();
+            });
+
+        },
+
+        nextBackground: function() {
+
+            if (this.index < this.items.length - 1) {
+                this.index += 1;
+            }
+            else {
+                this.index = 0;
+            }
+            this.setBackground();
 
         },
 

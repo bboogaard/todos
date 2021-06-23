@@ -38,9 +38,26 @@ class Todo(ActivatorModel):
         self.save()
 
 
+class GalleryQuerySet(models.QuerySet):
+
+    def with_images(self):
+        queryset = self._clone()
+        queryset = queryset.filter(
+            models.Exists(
+                Wallpaper.objects.filter(
+                    gallery=models.OuterRef('pk')
+                )
+            )
+        )
+
+        return queryset
+
+
 class Gallery(models.Model):
 
     name = models.CharField(max_length=32, unique=True)
+
+    objects = GalleryQuerySet.as_manager()
 
     class Meta:
         ordering = ('name',)

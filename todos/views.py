@@ -69,7 +69,6 @@ class SettingsSave(AccessMixin, View):
     def post(self, request, *args, **kwargs):
         form = forms.SettingsForm(request.POST or None)
         if form.is_valid():
-            print(form.cleaned_data)
             cache_settings.save(**form.cleaned_data)
 
         return redirect(reverse('todos:index'))

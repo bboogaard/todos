@@ -11,7 +11,7 @@ class CacheSettings(BaseCacheSettings):
     gallery = IntegerField()
 
     def load(self, **defaults):
-        gallery = models.Gallery.objects.first()
+        gallery = models.Gallery.objects.with_images().first()
         defaults['gallery'] = gallery.pk if gallery else None
         return super().load(**defaults)
 
