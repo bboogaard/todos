@@ -24,6 +24,9 @@ class Todo(ActivatorModel):
         return self.status == self.INACTIVE_STATUS
 
     def activate(self):
+        if self.status == self.ACTIVE_STATUS:
+            return
+
         self.activate_date = None
         self.status = self.ACTIVE_STATUS
         self.save()
