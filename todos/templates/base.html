@@ -92,7 +92,7 @@
         {%  csrf_token %}
         <input type="hidden" name="todos_provider" id="todos_provider" value="{{ settings.todos_provider }}">
         <input type="hidden" name="todos_position" id="todos_position" value="{{ settings.todos_position }}">
-        <input type="hidden" name="gallery" id="gallery" value="{{ settings.gallery }}">
+        <input type="hidden" name="gallery" id="gallery" value="{{ settings.gallery|default_if_none:'' }}">
       </form>
 
   </main><!-- /.container -->

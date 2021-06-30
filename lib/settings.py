@@ -30,9 +30,6 @@ class SettingsField:
 
         return value
 
-    def as_str(self, value: Any) -> str:
-        return str(self.get_value(value))
-
 
 class CharField(SettingsField):
 
@@ -58,11 +55,8 @@ class BoundField:
         self.value = value
         self.field = field
 
-    def __str__(self):
-        return self.field.as_str(self.value)
-
-    def __eq__(self, other):
-        return self.field.get_value(self.value) == self.field.to_python(other)
+    def get_value(self):
+        return self.field.get_value(self.value)
 
 
 class BoundSettings:
@@ -70,8 +64,9 @@ class BoundSettings:
     def __init__(self, values: Dict[str, BoundField]):
         self.values = values
 
-    def __getitem__(self, item) -> BoundField:
-        return self.values[item]
+    def __getattr__(self, item) -> Any:
+        bound_field = self.values[item]
+        return bound_field.get_value()
 
 
 class BaseCacheSettings:
@@ -80,26 +75,24 @@ class BaseCacheSettings:
         self.name = name
 
         self.cache = cache
-        self._settings = None
         self._fields = None
 
     def load(self, **defaults):
-        if self._settings is None:
-            self._settings = self._load_settings(**defaults)
-
+        settings = self._load_settings(**defaults)
         return BoundSettings({
             key: BoundField(val, self._get_field(key))
-            for key, val in self._settings.items()
+            for key, val in settings.items()
         })
 
     def save(self, **values):
+        settings = self._load_settings()
         for name, value in values.items():
             self._get_field(name)
-            self._settings.update({
+            settings.update({
                 name: value
             })
         raw_settings = {
-            key: field.serialize(self._settings.get(key))
+            key: field.serialize(settings.get(key))
             for key, field in self.fields
         }
         self.cache.set(self.name, raw_settings, timeout=None)

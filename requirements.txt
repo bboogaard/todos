@@ -4,3 +4,4 @@ psycopg2==2.8.5
 django-extensions==3.1.3
 gunicorn==20.1.0
 Pillow==8.2.0
+django-media-fixtures==1.0.0

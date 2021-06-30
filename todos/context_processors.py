@@ -9,7 +9,7 @@ def settings(request):
 
 
 def wallpapers(request):
-    gallery = cache_settings.load()['gallery'].value
+    gallery = cache_settings.load().gallery
     if gallery:
         wallpaper_images = [
             wallpaper.get_image_url()
