@@ -1,6 +1,7 @@
 function ChecklistProviderFactory(json_vars) {
     this.items = json_vars.items;
     this.saveUrl = json_vars.saveUrl;
+    this.activateUrl = json_vars.activateUrl;
 }
 
 ChecklistProviderFactory.prototype = {
@@ -14,7 +15,8 @@ ChecklistProviderFactory.prototype = {
             case "remote":
                 return new ChecklistProviderRemote({
                     items: this.items,
-                    saveUrl: this.saveUrl
+                    saveUrl: this.saveUrl,
+                    activateUrl: this.activateUrl
                 })
         }
 

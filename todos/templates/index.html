@@ -2,12 +2,17 @@
 {% load static %}
 
 {% block content %}
-    <ul id="todos" contenteditable>
+    <ul id="todos"{% if not searching %} contenteditable{% endif %}>
         <li>Enter item</li>
     </ul>
 
-    <br><a href="javascript:void(0);" id="save" class="btn btn-primary">Save</a>&nbsp;
+    <br>&nbsp;
+    {% if not searching %}
+    <a href="javascript:void(0);" id="save" class="btn btn-primary">Save</a>
     <a href="javascript:void(0);" id="delete" class="btn btn-primary">Delete</a>
+    {% else %}
+    <a href="javascript:void(0);" id="activate" class="btn btn-primary">Activate</a>
+    {% endif %}
 
 {% endblock %}
 
@@ -23,6 +28,8 @@
             $('ul#todos').checkList({
                 saveButton: $('#save'),
                 deleteButton: $('#delete'),
+                activateButton: $('#activate'),
+                searching: {{ searching|yesno:'true,false' }},
                 provider: checkListProviderFactory.create('{{ settings.todos_provider }}')
             });
         });

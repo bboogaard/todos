@@ -16,6 +16,8 @@ ChecklistProviderLocal.prototype = {
         let data = items.join('\n');
         localStorage.setItem(this.storageName, data);
 
-    }
+    },
+
+    activate: function (items) {}
 
 }

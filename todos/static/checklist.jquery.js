@@ -4,14 +4,29 @@
         this.list = settings.list;
         this.saveButton = settings.saveButton;
         this.deleteButton = settings.deleteButton;
+        this.activateButton = settings.activateButton;
         this.provider = settings.provider;
 
         this.items = [];
+        this.searching = settings.searching;
     }
 
     CheckListApi.prototype = {
 
         init: function() {
+
+            if (!this.searching) {
+                this.init_edit_handlers();
+            }
+            else {
+                this.init_search_handlers();
+            }
+
+            this.render(true);
+
+        },
+
+        init_edit_handlers: function() {
 
             let self = this;
 
@@ -32,7 +47,15 @@
                 }
             });
 
-            this.render(true);
+        },
+
+        init_search_handlers: function() {
+
+            let self = this;
+
+            this.activateButton.click(function () {
+                self.activate();
+            });
 
         },
 
@@ -43,7 +66,7 @@
             }
 
             this.list.empty();
-            if (!this.items.length) {
+            if (!this.items.length && !this.searching) {
                 this.items.push('Enter item');
             }
 
@@ -65,6 +88,16 @@
 
         },
 
+        activate: function() {
+
+            let items = this.list.find('input[type="checkbox"]:checked').map(function () {
+                return $(this).parent().text().trim();
+            }).get();
+            this.provider.activate(this.items);
+            this.list.find('input[type="checkbox"]:checked').parent().remove();
+
+        },
+
         delete: function(id) {
 
             this.list.find('#' + id).parent().remove();
@@ -79,7 +112,9 @@
             list: $(this),
             saveButton: settings.saveButton,
             deleteButton: settings.deleteButton,
-            provider: settings.provider
+            activateButton: settings.activateButton,
+            provider: settings.provider,
+            searching: settings.searching
         });
         checkList.init();
 

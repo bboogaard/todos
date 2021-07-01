@@ -27,15 +27,27 @@ class IndexView(AccessMixin, generic.TemplateView):
 
     template_name = 'index.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'json_vars': {
-                'items': TodosServiceFactory.create().get_active(),
-                'saveUrl': reverse('todos:todos_save.json')
+    def get(self, request, *args, **kwargs):
+        form = self.get_form(request.GET or None)
+        if form.is_valid():
+            items = TodosServiceFactory.create().search(form.cleaned_data['q'])
+            searching = True
+        else:
+            items = TodosServiceFactory.create().get_active()
+            searching = False
+        context = self.get_context_data(
+            form=form,
+            searching=searching,
+            json_vars={
+                'items': items,
+                'saveUrl': reverse('todos:todos_save.json'),
+                'activateUrl': reverse('todos:todos_activate.json')
             }
-        })
-        return context
+        )
+        return self.render_to_response(context)
+
+    def get_form(self, data=None):
+        return forms.SearchForm(data)
 
 
 class TodosSaveJson(AccessMixin, View):
@@ -44,6 +56,15 @@ class TodosSaveJson(AccessMixin, View):
     def post(self, request, *args, **kwargs):
         items = request.POST.getlist('items', [])
         TodosServiceFactory.create().save(items)
+        return JsonResponse(data={})
+
+
+class TodosActivateJson(AccessMixin, View):
+
+    @transaction.atomic()
+    def post(self, request, *args, **kwargs):
+        items = request.POST.getlist('items', [])
+        TodosServiceFactory.create().activate(items)
         return JsonResponse(data={})
 
 

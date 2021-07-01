@@ -20,3 +20,8 @@ class SettingsForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['gallery'].choices = list(models.Gallery.objects.values_list('id', 'name'))
+
+
+class SearchForm(forms.Form):
+
+    q = forms.CharField(required=False)
