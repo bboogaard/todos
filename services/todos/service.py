@@ -1,11 +1,16 @@
 import operator
+import re
 from abc import ABC
+from datetime import date
 from typing import List
 
 from django.db import transaction
 
 from services.todos.models import Todo
 from todos import models
+
+
+re_date = re.compile(r'(\d{2})-(\d{2})-(\d{4})')
 
 
 class TodoService(ABC):
@@ -32,6 +37,18 @@ class TodoService(ABC):
         return self._to_items(
             list(filter(lambda t: not t.active and search_query.upper() in t.text.upper(), self.todos))
         )
+
+    def upcoming(self) -> List[str]:
+        dated_items = list(
+            filter(lambda x: x[0].active and x[1], map(lambda t: (t, re_date.search(t.text)), self.todos))
+        )
+        today = date.today()
+        upcoming = []
+        for todo, match in dated_items:
+            dt = date(int(match.group(3)), int(match.group(2)), int(match.group(1)))
+            if 0 < (dt - today).days < 7:
+                upcoming.append(todo)
+        return self._to_items(upcoming)
 
     @transaction.atomic()
     def save(self, items: List[str]):

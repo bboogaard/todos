@@ -127,3 +127,9 @@ STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 MEDIA_URL = "/media/"
+
+# Messagebird settings
+MESSAGEBIRD_ACCESS_KEY = os.getenv('MESSAGEBIRD_ACCESS_KEY', 'test_7lxBEe1exwYBRwlr2eF6diV9u')
+MESSAGEBIRD_RECIPIENTS = ['31646560853']
+MESSAGEBIRD_MIN_AMOUNT = 1
+MESSAGEBIRD_FROM_NAME = "Todo's"
