@@ -4,7 +4,9 @@ from abc import ABC
 from datetime import date
 from typing import List
 
+from django.core.cache import cache
 from django.db import transaction
+from django.utils.text import slugify
 
 from services.todos.models import Todo
 from todos import models
@@ -45,9 +47,14 @@ class TodoService(ABC):
         today = date.today()
         upcoming = []
         for todo, match in dated_items:
+            cache_key = self._make_cache_key(todo.text, 'sent')
+            sent = cache.get(cache_key)
+            if sent:
+                continue
             dt = date(int(match.group(3)), int(match.group(2)), int(match.group(1)))
             if 0 < (dt - today).days < 7:
                 upcoming.append(todo)
+                cache.set(cache_key, '1')
         return self._to_items(upcoming)
 
     @transaction.atomic()
@@ -102,3 +109,7 @@ class TodoService(ABC):
     @staticmethod
     def _from_items(items: List[str]) -> List[Todo]:
         return list(map(lambda i: Todo.from_item(i), items))
+
+    @staticmethod
+    def _make_cache_key(text: str, action: str) -> str:
+        return slugify('{}-{}'.format(text, action))
