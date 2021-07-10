@@ -19,125 +19,30 @@
 </head>
 
 <body>
-
-  <!-- Top Navigation -->
-  <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-      <a class="navbar-brand" href="{% url 'todos:index' %}">Home</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-        <ul class="navbar-nav mr-auto">
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Wallpapers</a>
-            <div class="dropdown-menu" aria-labelledby="dropdown01">
-                <a class="dropdown-item" href="#" data-action="next-wallpaper">
-                    Next wallpaper
-                </a>
-            </div>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="dropdown02" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Galleries</a>
-            <div class="dropdown-menu" aria-labelledby="dropdown02">
-                {% for id, gallery in galleries %}
-                <a class="dropdown-item" href="#" data-setting-name="gallery" data-setting-value="{{ id }}">
-                  {% if settings.gallery == id %}
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
-  <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
-                  </svg>
-                  {% endif %}{{ gallery }}</a>
-                 {% endfor %}
-            </div>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Settings</a>
-            <div class="dropdown-menu" aria-labelledby="dropdown03">
-              <a class="dropdown-item" href="#" data-setting-name="todos_provider" data-setting-value="{% if settings.todos_provider == 'local' %}remote{% else %}local{% endif %}">
-                  {% if settings.todos_provider == 'remote' %}
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
-  <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
-</svg>{% endif %}
-              Save todo's in database</a>
-              <a class="dropdown-item" href="#" data-setting-name="todos_position" data-setting-value="{% if settings.todos_position == 'top' %}bottom{% else %}top{% endif %}">
-                  Position todo's at {% if settings.todos_position == 'top' %}bottom{% else %}top{% endif %}
-              </a>
-              <a class="dropdown-item" id="about-link" href="#">About</a>
-            </div>
-          </li>
-        </ul>
-        <form method="get" action="" class="form-inline my-2 my-lg-0">
-          <input class="form-control mr-sm-2" type="text" name="q" placeholder="Search" aria-label="Search" value="{{ form.q.value|default_if_none:'' }}">
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-        </form>
-      </div>
-    </nav>
-
+  {% block nav %}
+  {% endblock %}
 
   <!-- Main Container -->
   <main role="main" class="container">
-
-      <div class="container">
-          <div class="card border-0 shadow position-absolute" style="width: 50%; {{ settings.todos_position }}: 100px">
-            <div class="card-body p-5">
-              <h1 class="font-weight-light">Todo's</h1>
-              {% block content %}
-              {% endblock %}
-              <p class="lead mb-0"></p>
-            </div>
-          </div>
-      </div>
-
-      <form method="post" id="settings-form" action="{% url 'todos:settings_save' %}">
-        {%  csrf_token %}
-        <input type="hidden" name="todos_provider" id="todos_provider" value="{{ settings.todos_provider }}">
-        <input type="hidden" name="todos_position" id="todos_position" value="{{ settings.todos_position }}">
-        <input type="hidden" name="gallery" id="gallery" value="{{ settings.gallery|default_if_none:'' }}">
-      </form>
-
+      {% block main %}
+      {% endblock %}
   </main><!-- /.container -->
-
 
   <!-- Footer -->
   <footer class="container text-center">
     <p></p>
   </footer>
 
-
   <!-- JQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
   <script type="text/javascript" src="{% static 'csrf.jquery.js' %}"></script>
   <!-- Complete Bootstrap JavaScript Bundle -->
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js" integrity="sha384-zDnhMsjVZfS3hiP7oCBRmfjkQC4fzxVxFhBx8Hkz2aZX8gEvA/jsP3eXRCvzTofP" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/emodal@1.2.69/dist/eModal.min.js"></script>
 
   <!-- Complete Bootstrap JavaScript -->
   <!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script> -->
   {% block javascript %}
-      <script type="text/javascript">
-      $(function () {
-          $('[data-setting-name]').click(function (event) {
-              event.preventDefault();
-              $('#settings-form').find('#' + $(this).data('setting-name')).val($(this).data('setting-value'));
-              $('#settings-form').submit();
-          });
-      });
-      </script>
-      {{ wallpapers|json_script:"wallpapers" }}
-      <script type="text/javascript" src="{% static 'wallpaper.jquery.js' %}"></script>
-      <script type="text/javascript">
-          $(function () {
-              $('body').wallPaper({
-                  items: JSON.parse(document.getElementById('wallpapers').textContent)
-              });
-              $('[data-action="next-wallpaper"]').click(function() {
-                  $('body').trigger('next-wallpaper');
-              });
-              $('#about-link').click(function(event) {
-                  event.preventDefault();
-                  alert("Todo's - Version 1.0");
-              });
-          });
-      </script>
   {% endblock %}
 </body>
 
