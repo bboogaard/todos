@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+
+{% block main %}
+<div class="container">
+    <div class="card border-0 shadow position-absolute" style="width: 50%; {{ settings.todos_position }}: 100px">
+      <div class="card-body p-5">
+        <h1 class="font-weight-light">Todo's</h1>
+        {% block content %}
+        {% endblock %}
+        <p class="lead mb-0"></p>
+      </div>
+    </div>
+</div>
+
+<form method="post" id="settings-form" action="{% url 'todos:settings_save' %}">
+  {%  csrf_token %}
+  <input type="hidden" name="todos_provider" id="todos_provider" value="{{ settings.todos_provider }}">
+  <input type="hidden" name="todos_position" id="todos_position" value="{{ settings.todos_position }}">
+  <input type="hidden" name="gallery" id="gallery" value="{{ settings.gallery|default_if_none:'' }}">
+</form>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+  $(function () {
+      $('[data-setting-name]').click(function (event) {
+          event.preventDefault();
+          $('#settings-form').find('#' + $(this).data('setting-name')).val($(this).data('setting-value'));
+          $('#settings-form').submit();
+      });
+  });
+</script>
+  {{ wallpapers|json_script:"wallpapers" }}
+<script type="text/javascript" src="{% static 'wallpaper.jquery.js' %}"></script>
+<script type="text/javascript">
+  $(function () {
+      $('body').wallPaper({
+          items: JSON.parse(document.getElementById('wallpapers').textContent)
+      });
+      $('[data-action="next-wallpaper"]').click(function() {
+          $('body').trigger('next-wallpaper');
+      });
+      $('#about-link').click(function(event) {
+          event.preventDefault();
+          eModal.alert("Todo's - Version 1.0");
+      });
+  });
+</script>
+{% endblock %}
