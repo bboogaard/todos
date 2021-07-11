@@ -3,10 +3,10 @@
 {% block main %}
 <h1>Wallpapers</h1>
 <div class="float-right mb-2">
-    <a class="btn btn-primary" href="">Add wallpaper</a>&nbsp;
-    <a class="btn btn-primary" href="">Delete wallpapers</a>
+    <a class="btn btn-primary" href="{% url 'todos:wallpaper_create' %}">Add wallpaper</a>&nbsp;
+    <a class="btn btn-primary" id="delete-btn" href="">Delete wallpapers</a>
 </div>
-<form method="post" action="">
+<form method="post" action="{% url 'todos:wallpaper_delete' %}">
     {% csrf_token %}
     <table class="table table-striped">
       <thead>
@@ -19,7 +19,7 @@
       <tbody>
         {% for wallpaper in wallpapers %}
         <tr>
-          <td><input type="checkbox" value="{{  wallpaper.id }}"></td>
+          <td><input type="checkbox" name="wallpaper" value="{{ wallpaper.id }}"></td>
           <td>{{ wallpaper.gallery }}</td>
           <td>
               <a href="{% url "todos:wallpaper_update" pk=wallpaper.id %}"><img src="{{ wallpaper.get_image_url }}" width="100">
@@ -29,4 +29,18 @@
       </tbody>
     </table>
 </form>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+$(function() {
+    $('#delete-btn').click(function(event) {
+        event.preventDefault();
+        $('form').submit();
+    });
+    $('#select-all').click(function() {
+        $('input[name="wallpaper"]').prop('checked', $(this).prop('checked'));
+    });
+});
+</script>
 {% endblock %}
