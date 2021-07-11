@@ -1,12 +1,12 @@
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http.response import JsonResponse
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views import generic, View
 
 from services.todos.factory import TodosServiceFactory
-from todos import forms
+from todos import forms, models
 from todos.settings import cache_settings
 
 
@@ -77,3 +77,41 @@ class SettingsSave(AccessMixin, View):
             cache_settings.save(**form.cleaned_data)
 
         return redirect(reverse('todos:index'))
+
+
+class WallpaperListView(AccessMixin, generic.TemplateView):
+
+    template_name = 'wallpapers/wallpaper_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'wallpapers': models.Wallpaper.objects.order_by('gallery', 'position')
+        })
+        return context
+
+
+
+class WallpaperUpdateView(AccessMixin, generic.TemplateView):
+
+    template_name = 'wallpapers/wallpaper_update.html'
+
+    def get(self, request, pk, *args, **kwargs):
+        self.object = get_object_or_404(models.Wallpaper, pk=pk)
+        form = self.get_form(instance=self.object)
+        context = self.get_context_data(wallpaper=self.object, form=form)
+        return self.render_to_response(context)
+
+    def post(self, request, pk, *args, **kwargs):
+        self.object = get_object_or_404(models.Wallpaper, pk=pk)
+        form = self.get_form(request.POST or None, files=request.FILES or None, instance=self.object)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('todos:wallpaper_list'))
+
+        print(form.errors)
+        context = self.get_context_data(wallpaper=self.object, form=form)
+        return self.render_to_response(context)
+
+    def get_form(self, data=None, files=None, **kwargs):
+        return forms.WallpaperForm(data, files=files, **kwargs)
