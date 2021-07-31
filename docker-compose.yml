@@ -15,6 +15,7 @@ services:
     volumes:
       - .:/code
       - ./data/data:/home
+      - ./data/private:/private-media
     ports:
       - "8000:8000"
     depends_on:

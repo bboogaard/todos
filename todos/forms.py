@@ -19,6 +19,8 @@ class SettingsForm(forms.Form):
 
     gallery = forms.TypedChoiceField(coerce=int, choices=(), required=False)
 
+    show_files = forms.BooleanField(required=False)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['gallery'].choices = list(models.Gallery.objects.values_list('id', 'name'))

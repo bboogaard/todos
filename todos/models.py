@@ -4,7 +4,7 @@ from django_extensions.db.models import ActivatorModel
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
-from private_files import PrivateFileField
+from private_storage.fields import PrivateFileField
 
 
 class Todo(ActivatorModel):
@@ -92,10 +92,16 @@ class PrivateFile(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
 
-    file = PrivateFileField(upload_to='private/')
+    file = PrivateFileField()
 
     class Meta:
         ordering = ('-created',)
 
     def __str__(self):
         return self.file.name
+
+    def get_absolute_url(self):
+        return settings.MEDIA_URL + self.file.name
+
+    def get_absolute_name(self):
+        return os.path.join(settings.PRIVATE_STORAGE_ROOT, self.file.name)

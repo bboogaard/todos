@@ -18,4 +18,5 @@ urlpatterns = [
     # Files
     path('files/list', views.FileListView.as_view(), name="file_list"),
     path('files/create', views.FileCreateView.as_view(), name="file_create"),
+    path('files/delete', views.FileDeleteView.as_view(), name="file_delete"),
 ]

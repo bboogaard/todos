@@ -4,6 +4,7 @@ from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views import generic, View
+from private_storage.storage import private_storage
 
 from services.todos.factory import TodosServiceFactory
 from todos import forms, models
@@ -138,7 +139,6 @@ class WallpaperDeleteView(AccessMixin, View):
 
     def post(self, request, *args, **kwargs):
         wallpaper_ids = request.POST.getlist('wallpaper', [])
-        print(wallpaper_ids)
         models.Wallpaper.objects.filter(pk__in=wallpaper_ids).delete()
         return redirect(reverse('todos:wallpaper_list'))
 
@@ -175,3 +175,15 @@ class FileCreateView(AccessMixin, generic.TemplateView):
 
     def get_form(self, data=None, files=None, **kwargs):
         return forms.FileForm(data, files=files, **kwargs)
+
+
+class FileDeleteView(AccessMixin, View):
+
+    def post(self, request, *args, **kwargs):
+        file_ids = request.POST.getlist('file', [])
+        qs = models.PrivateFile.objects.filter(pk__in=file_ids)
+        file_names = [file.file.name for file in qs]
+        qs.delete()
+        for file in file_names:
+            private_storage.delete(file)
+        return redirect(reverse('todos:file_list'))

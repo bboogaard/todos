@@ -8,4 +8,4 @@ Pillow==8.2.0
 django-media-fixtures==1.0.0
 messagebird==2.0.0
 django-crispy-forms==1.12.0
-django-private-files==1.0.1
+django-private-storage==2.3

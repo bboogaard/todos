@@ -10,5 +10,4 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         upcoming = TodosServiceFactory().create().upcoming()
         for todo in upcoming:
-            print(todo)
             MessageServiceFactory().create().send(todo)

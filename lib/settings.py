@@ -49,6 +49,18 @@ class IntegerField(SettingsField):
         return int(value)
 
 
+class BooleanField(SettingsField):
+
+    def serialize(self, value: Any) -> str:
+        return 'true' if value else 'false'
+
+    def to_python(self, value: Any) -> Any:
+        if value is True or value is False:
+            return value
+
+        return value == 'true'
+
+
 class BoundField:
 
     def __init__(self, value: Any, field: SettingsField):

@@ -6,7 +6,7 @@
     <a class="btn btn-primary" href="{% url 'todos:file_create' %}">Add file</a>&nbsp;
     <a class="btn btn-primary" id="delete-btn" href="">Delete files</a>
 </div>
-<form method="post" action="">
+<form method="post" action="{% url 'todos:file_delete' %}">
     {% csrf_token %}
     <table class="table table-striped">
       <thead>
@@ -19,7 +19,7 @@
         {% for file in files %}
         <tr>
           <td><input type="checkbox" name="file" value="{{ file.id }}"></td>
-          <td>{{ file.file.url }}</td>
+          <td><a href="{{ file.file.url }}" target="_blank">{{ file }}</a></td>
         </tr>
         {% endfor %}
       </tbody>
