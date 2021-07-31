@@ -14,4 +14,8 @@ urlpatterns = [
     path('wallpapers/create', views.WallpaperCreateView.as_view(), name="wallpaper_create"),
     path('wallpapers/<int:pk>/update', views.WallpaperUpdateView.as_view(), name="wallpaper_update"),
     path('wallpapers/delete', views.WallpaperDeleteView.as_view(), name="wallpaper_delete"),
+
+    # Files
+    path('files/list', views.FileListView.as_view(), name="file_list"),
+    path('files/create', views.FileCreateView.as_view(), name="file_create"),
 ]

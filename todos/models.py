@@ -4,6 +4,7 @@ from django_extensions.db.models import ActivatorModel
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from private_files import PrivateFileField
 
 
 class Todo(ActivatorModel):
@@ -85,3 +86,16 @@ class Wallpaper(models.Model):
 
     def get_image_url(self):
         return settings.MEDIA_URL + 'wallpapers/' + os.path.basename(self.image.file.name)
+
+
+class PrivateFile(models.Model):
+
+    created = models.DateTimeField(auto_now_add=True)
+
+    file = PrivateFileField(upload_to='private/')
+
+    class Meta:
+        ordering = ('-created',)
+
+    def __str__(self):
+        return self.file.name

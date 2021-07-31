@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<h1>Files</h1>
+<div class="float-right mb-2">
+    <a class="btn btn-primary" href="{% url 'todos:file_create' %}">Add file</a>&nbsp;
+    <a class="btn btn-primary" id="delete-btn" href="">Delete files</a>
+</div>
+<form method="post" action="">
+    {% csrf_token %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col"><input type="checkbox" id="select-all"></th>
+          <th scope="col">File</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for file in files %}
+        <tr>
+          <td><input type="checkbox" name="file" value="{{ file.id }}"></td>
+          <td>{{ file.file.url }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+</form>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+$(function() {
+    $('#delete-btn').click(function(event) {
+        event.preventDefault();
+        $('form').submit();
+    });
+    $('#select-all').click(function() {
+        $('input[name="file"]').prop('checked', $(this).prop('checked'));
+    });
+});
+</script>
+{% endblock %}

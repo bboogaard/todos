@@ -46,3 +46,20 @@ class WallpaperForm(forms.ModelForm):
                 Submit('submit', 'Submit', css_class='button white')
             )
         )
+
+
+class FileForm(forms.ModelForm):
+
+    class Meta:
+        fields = ('file',)
+        model = models.PrivateFile
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            'file',
+            ButtonHolder(
+                Submit('submit', 'Save', css_class='button white')
+            )
+        )

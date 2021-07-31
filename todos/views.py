@@ -141,3 +141,37 @@ class WallpaperDeleteView(AccessMixin, View):
         print(wallpaper_ids)
         models.Wallpaper.objects.filter(pk__in=wallpaper_ids).delete()
         return redirect(reverse('todos:wallpaper_list'))
+
+
+class FileListView(AccessMixin, generic.TemplateView):
+
+    template_name = 'files/file_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'files': models.PrivateFile.objects.all()
+        })
+        return context
+
+
+class FileCreateView(AccessMixin, generic.TemplateView):
+
+    template_name = 'files/file_create.html'
+
+    def get(self, request, *args, **kwargs):
+        form = self.get_form()
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form(request.POST or None, files=request.FILES or None)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('todos:file_list'))
+
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context)
+
+    def get_form(self, data=None, files=None, **kwargs):
+        return forms.FileForm(data, files=files, **kwargs)
