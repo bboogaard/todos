@@ -16,6 +16,11 @@
 
 {% endblock %}
 
+{% block files %}
+
+
+{% endblock %}
+
 {% block javascript %}
     {{ block.super }}
     {{ json_vars|json_script:"json-vars" }}
