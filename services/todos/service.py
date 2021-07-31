@@ -92,9 +92,9 @@ class TodoService(ABC):
                 todo_in_db.active = True
 
         todos_in_db = models.Todo.objects.in_bulk(field_name='todo_id')
-        for todo in _todos:
+        for todo in filter(lambda t: t.active, _todos):
             todo_to_update = todos_in_db.get(todo.id)
-            if todo_to_update is not None:
+            if todo_to_update is not None and not todo_to_update.is_active:
                 todo_to_update.activate()
 
     @staticmethod
