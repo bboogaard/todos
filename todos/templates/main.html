@@ -58,6 +58,20 @@
           <a class="dropdown-item" href="#" data-action="manage-files">
               Manage files
           </a>
+          <a class="dropdown-item" href="#" data-setting-name="show_notes" data-setting-value="{% if settings.show_notes %}false{% else %}true{% endif %}">
+              {% if settings.show_notes %}
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+<path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+</svg>{% endif %}
+          Show notes</a>
+          {% if settings.show_notes %}
+          <a class="dropdown-item" href="#" data-setting-name="notes_provider" data-setting-value="{% if settings.notes_provider == 'local' %}remote{% else %}local{% endif %}">
+              {% if settings.notes_provider == 'remote' %}
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
+<path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+</svg>{% endif %}
+          Save notes in database</a>
+          {% endif %}
           <a class="dropdown-item" id="about-link" href="#">About</a>
         </div>
       </li>
@@ -87,6 +101,14 @@
         <p class="lead mb-0"></p>
       </div>
       {% endif %}
+      {% if settings.show_notes %}
+      <div class="card-body pl-5 pr-5 pt-3">
+        <h1 class="font-weight-light">Notes</h1>
+        {% block notes %}
+        {% endblock %}
+        <p class="lead mb-0"></p>
+      </div>
+      {% endif %}
     </div>
 </div>
 
@@ -96,6 +118,8 @@
   <input type="hidden" name="todos_position" id="todos_position" value="{{ settings.todos_position }}">
   <input type="hidden" name="gallery" id="gallery" value="{{ settings.gallery|default_if_none:'' }}">
   <input type="hidden" name="show_files" id="show_files" value="{{ settings.show_files }}">
+  <input type="hidden" name="show_notes" id="show_notes" value="{{ settings.show_notes }}">
+  <input type="hidden" name="notes_provider" id="notes_provider" value="{{ settings.notes_provider }}">
 </form>
 {% endblock %}
 

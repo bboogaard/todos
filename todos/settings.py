@@ -12,6 +12,10 @@ class CacheSettings(BaseCacheSettings):
 
     show_files = BooleanField(default=False)
 
+    show_notes = BooleanField(default=False)
+
+    notes_provider = CharField(default='local')
+
     def load(self, **defaults):
         gallery = models.Gallery.objects.with_images().first()
         defaults['gallery'] = gallery.pk if gallery else None

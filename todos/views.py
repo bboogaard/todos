@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.views import generic, View
 from private_storage.storage import private_storage
 
-from services.todos.factory import TodosServiceFactory
+from services.factory import ItemServiceFactory
 from todos import forms, models
 from todos.settings import cache_settings
 
@@ -31,19 +31,24 @@ class IndexView(AccessMixin, generic.TemplateView):
     def get(self, request, *args, **kwargs):
         form = self.get_form(request.GET or None)
         if form.is_valid():
-            items = TodosServiceFactory.create().search(form.cleaned_data['q'])
+            items = ItemServiceFactory.todos().search(form.cleaned_data['q'])
             searching = True
         else:
-            items = TodosServiceFactory.create().get_active()
+            items = ItemServiceFactory.todos().get_active()
             searching = False
         context = self.get_context_data(
             form=form,
             searching=searching,
-            json_vars={
+            todo_vars={
                 'items': items,
                 'saveUrl': reverse('todos:todos_save.json'),
                 'activateUrl': reverse('todos:todos_activate.json')
-            }
+            },
+            note_vars={
+                'items': ItemServiceFactory.notes().get_active(),
+                'index': ItemServiceFactory.notes().get_index(),
+                'saveUrl': reverse('todos:notes_save.json')
+            },
         )
         return self.render_to_response(context)
 
@@ -56,7 +61,7 @@ class TodosSaveJson(AccessMixin, View):
     @transaction.atomic()
     def post(self, request, *args, **kwargs):
         items = request.POST.getlist('items', [])
-        TodosServiceFactory.create().save(items)
+        ItemServiceFactory.todos().save(items)
         return JsonResponse(data={})
 
 
@@ -65,7 +70,20 @@ class TodosActivateJson(AccessMixin, View):
     @transaction.atomic()
     def post(self, request, *args, **kwargs):
         items = request.POST.getlist('items', [])
-        TodosServiceFactory.create().activate(items)
+        ItemServiceFactory.todos().activate(items)
+        return JsonResponse(data={})
+
+
+class NotesSaveJson(AccessMixin, View):
+
+    @transaction.atomic()
+    def post(self, request, *args, **kwargs):
+        items = request.POST.getlist('items', [])
+        try:
+            index = int(request.POST.get('index', '0'))
+        except (TypeError, ValueError):
+            index = 0
+        ItemServiceFactory.notes().save(items, index=index)
         return JsonResponse(data={})
 
 

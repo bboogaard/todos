@@ -3,18 +3,17 @@ import os
 from django_extensions.db.models import ActivatorModel
 from django.conf import settings
 from django.db import models
+from django.template.defaultfilters import truncatewords
 from django.utils import timezone
 from private_storage.fields import PrivateFileField
 
 
-class Todo(ActivatorModel):
+class Item(ActivatorModel):
 
-    description = models.CharField(max_length=100)
+    item_id = models.CharField(max_length=32, unique=True)
 
-    todo_id = models.CharField(max_length=32, unique=True)
-
-    def __str__(self):
-        return self.description
+    class Meta(ActivatorModel.Meta):
+        abstract = True
 
     @property
     def is_active(self):
@@ -40,6 +39,24 @@ class Todo(ActivatorModel):
         self.deactivate_date = timezone.now()
 
         self.save()
+
+
+class Todo(Item):
+
+    description = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.description
+
+
+class Note(Item):
+
+    text = models.TextField(blank=True)
+
+    position = models.PositiveIntegerField()
+
+    def __str__(self):
+        return truncatewords(self.text, 7) if self.text else '...'
 
 
 class GalleryQuerySet(models.QuerySet):
@@ -102,6 +119,3 @@ class PrivateFile(models.Model):
 
     def get_absolute_url(self):
         return settings.MEDIA_URL + self.file.name
-
-    def get_absolute_name(self):
-        return os.path.join(settings.PRIVATE_STORAGE_ROOT, self.file.name)

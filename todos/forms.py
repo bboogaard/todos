@@ -21,6 +21,13 @@ class SettingsForm(forms.Form):
 
     show_files = forms.BooleanField(required=False)
 
+    show_notes = forms.BooleanField(required=False)
+
+    notes_provider = forms.ChoiceField(choices=(
+        ('local', 'local'),
+        ('remote', 'remote'),
+    ), required=False)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['gallery'].choices = list(models.Gallery.objects.values_list('id', 'name'))

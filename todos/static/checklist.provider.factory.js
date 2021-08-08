@@ -24,4 +24,4 @@ ChecklistProviderFactory.prototype = {
 
 }
 
-const checkListProviderFactory = new ChecklistProviderFactory(JSON.parse(document.getElementById('json-vars').textContent));
+const checkListProviderFactory = new ChecklistProviderFactory(JSON.parse(document.getElementById('todo-vars').textContent));

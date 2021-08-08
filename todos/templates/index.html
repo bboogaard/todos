@@ -23,9 +23,22 @@
 
 {% endblock %}
 
+{% block notes %}
+    <textarea id="notes" class="form-control" rows="10"></textarea>
+
+    <br>
+    <a href="javascript:void(0);" id="saveNotes" class="btn btn-primary">Save</a>
+    <a href="javascript:void(0);" id="newNotes" class="btn btn-primary">New</a>
+    <a href="javascript:void(0);" id="deleteNotes" class="btn btn-primary">Delete</a>
+    <button class="btn" id="prevNotes">&laquo;</button>
+    <button class="btn" id="nextNotes">&raquo;</button>
+
+{% endblock %}
+
 {% block javascript %}
     {{ block.super }}
-    {{ json_vars|json_script:"json-vars" }}
+    {{ todo_vars|json_script:"todo-vars" }}
+    {{ note_vars|json_script:"note-vars" }}
     <script type="text/javascript" src="{% static 'checklist.provider.local.js' %}"></script>
     <script type="text/javascript" src="{% static 'checklist.provider.remote.js' %}"></script>
     <script type="text/javascript" src="{% static 'checklist.provider.factory.js' %}"></script>
@@ -38,6 +51,22 @@
                 activateButton: $('#activate'),
                 searching: {{ searching|yesno:'true,false' }},
                 provider: checkListProviderFactory.create('{{ settings.todos_provider }}')
+            });
+        });
+    </script>
+    <script type="text/javascript" src="{% static 'notes.provider.local.js' %}"></script>
+    <script type="text/javascript" src="{% static 'notes.provider.remote.js' %}"></script>
+    <script type="text/javascript" src="{% static 'notes.provider.factory.js' %}"></script>
+    <script type="text/javascript" src="{% static 'notes.jquery.js' %}"></script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('#notes').Notes({
+                saveButton: $('#saveNotes'),
+                newButton: $('#newNotes'),
+                deleteButton: $('#deleteNotes'),
+                prevButton: $('#prevNotes'),
+                nextButton: $('#nextNotes'),
+                provider: notesProviderFactory.create('{{ settings.notes_provider }}')
             });
         });
     </script>
