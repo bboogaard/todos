@@ -26,7 +26,7 @@ class ItemApi(ABC):
         return self._persistent_items
 
     def all(self) -> List[str]:
-        return self._to_items(self._persistent_items)
+        return self._to_items(self.persistent_items)
 
     def get_active(self) -> List[str]:
         return self._to_items(list(filter(lambda t: t.active, self.persistent_items)))
