@@ -16,6 +16,10 @@ class Item(ActivatorModel):
         abstract = True
 
     @property
+    def string_value(self):
+        raise NotImplementedError()
+
+    @property
     def is_active(self):
         return self.status == self.ACTIVE_STATUS
 
@@ -48,6 +52,10 @@ class Todo(Item):
     def __str__(self):
         return self.description
 
+    @property
+    def string_value(self):
+        return self.description
+
 
 class Note(Item):
 
@@ -57,6 +65,10 @@ class Note(Item):
 
     def __str__(self):
         return truncatewords(self.text, 7) if self.text else '...'
+
+    @property
+    def string_value(self):
+        return self.text
 
 
 class GalleryQuerySet(models.QuerySet):

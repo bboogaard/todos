@@ -1,4 +1,5 @@
 from django.test.testcases import TestCase
+from freezegun import freeze_time
 
 from services.factory import ItemServiceFactory
 from todos.models import Todo
@@ -49,3 +50,16 @@ class TestTodoService(TestCase):
         self.service.save(['Pay bills'])
         todo = Todo.objects.get(description='Take out trash')
         self.assertFalse(todo.is_active)
+
+    def test_activate(self):
+        self.service.activate(['Dentist'])
+        todo = Todo.objects.get(description='Dentist')
+        self.assertTrue(todo.is_active)
+
+    @freeze_time('27-04-2020')
+    def test_upcoming(self):
+        TodoFactory(description='Doctor 28-04-2020')
+        TodoFactory(description='Job interview 07-05-2020')
+        result = self.service.upcoming()
+        expected = ['Doctor 28-04-2020']
+        self.assertEqual(result, expected)
