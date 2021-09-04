@@ -1,0 +1,17 @@
+language: python
+cache: pip
+addons:
+  postgresql: "9.6"
+env:
+- DATABASE_URL=postgresql://postgres:@127.0.0.1/todos
+python:
+- '3.6'
+before_script:
+- createdb -U postgres -O postgres todos
+before_install:
+- pip install --upgrade pip
+- pip install --upgrade setuptools
+install:
+- pip install -r requirements.txt
+script:
+- ./manage.py test
