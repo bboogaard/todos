@@ -2,6 +2,7 @@ import hashlib
 
 import factory
 from django.contrib.auth.models import User
+from django.core.files.base import ContentFile
 
 from todos import models
 
@@ -44,3 +45,11 @@ class NoteFactory(ItemFactory):
 
     class Meta:
         model = models.Note
+
+
+class PrivateFileFactory(factory.django.DjangoModelFactory):
+
+    file = ContentFile(b'Foo', name='foo.txt')
+
+    class Meta:
+        model = models.PrivateFile
