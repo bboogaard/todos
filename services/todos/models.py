@@ -1,38 +1,27 @@
 import datetime
-import hashlib
 from dataclasses import dataclass
 from typing import Optional
 
+from services.models import PersistentItem
 from todos import models
 
 
 @dataclass
-class Todo:
-    id: str
-    text: str
-    active: bool
+class Todo(PersistentItem):
     activated: Optional[datetime.datetime] = datetime.datetime.min
 
     @classmethod
-    def from_item(cls, item: str) -> 'Todo':
+    def from_db_item(cls, db_item: models.Todo) -> 'Todo':
         return cls(
-            id=hashlib.md5(item.encode()).hexdigest(),
-            text=item,
-            active=True
+            id=db_item.item_id,
+            text=db_item.description,
+            active=db_item.is_active,
+            activated=db_item.activate_date
         )
 
-    @classmethod
-    def from_todo(cls, todo: models.Todo) -> 'Todo':
-        return cls(
-            id=todo.todo_id,
-            text=todo.description,
-            active=todo.is_active,
-            activated=todo.activate_date
-        )
-
-    def to_todo(self) -> models.Todo:
+    def to_db_item(self) -> models.Todo:
         return models.Todo(
-            todo_id=self.id,
+            item_id=self.id,
             description=self.text,
             status=models.Todo.ACTIVE_STATUS if self.active else models.Todo.INACTIVE_STATUS
         )

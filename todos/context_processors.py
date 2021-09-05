@@ -21,3 +21,9 @@ def wallpapers(request):
         'galleries': list(models.Gallery.objects.with_images().values_list('id', 'name')),
         'wallpapers': wallpaper_images
     }
+
+
+def files(request):
+    return {
+        'files': models.PrivateFile.objects.all()
+    }
