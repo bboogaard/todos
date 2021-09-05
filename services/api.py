@@ -2,6 +2,7 @@ import operator
 from abc import ABC
 from typing import List, Type
 
+from django.core.files.base import ContentFile
 from django.db import transaction
 
 from .models import PersistentItem
@@ -17,6 +18,8 @@ class ItemApi(ABC):
     _model: Type[models.Item]
 
     _sort_attr: str
+
+    _separator: str
 
     @property
     def persistent_items(self):
@@ -78,6 +81,14 @@ class ItemApi(ABC):
             item_to_update = items_in_db.get(item.id)
             if item_to_update is not None and not item_to_update.is_active:
                 item_to_update.activate()
+
+    def dump(self, filename: str) -> ContentFile:
+        items = self.get_active()
+        return ContentFile(self._separator.join(items), filename)
+
+    def load(self, file: ContentFile):
+        items = file.read().decode().split(self._separator)
+        self.save(items)
 
     def _get_persistent_items(self) -> List[PersistentItem]:
         queryset = self._model.objects.get_queryset()

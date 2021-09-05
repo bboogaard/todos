@@ -1,3 +1,4 @@
+from django.core.files.base import ContentFile
 from django.test.testcases import TestCase
 
 from services.factory import ItemServiceFactory
@@ -58,3 +59,15 @@ class TestNoteService(TestCase):
         self.service.activate(['Dentist'])
         note = Note.objects.get(text='Dentist')
         self.assertTrue(note.is_active)
+
+    def test_dump(self):
+        fh = self.service.dump('todos.txt')
+        result = fh.read()
+        expected = 'Pay bills\n----------\nTake out trash'
+        self.assertEqual(result, expected)
+
+    def test_load(self):
+        self.service.load(ContentFile(b'Doctor\n----------\nJob interview'))
+        result = list(Note.objects.order_by('text').values_list('text', flat=True))
+        expected = ['Dentist', 'Doctor', 'Job interview', 'Pay bills', 'Take out trash']
+        self.assertEqual(result, expected)

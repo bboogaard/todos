@@ -21,6 +21,8 @@ class TodoService(ItemApi):
 
     _sort_attr = 'activated'
 
+    _separator = '\n'
+
     def upcoming(self) -> List[str]:
         dated_items = list(
             filter(lambda x: x[0].active and x[1], map(lambda t: (t, re_date.search(t.text)), self.persistent_items))

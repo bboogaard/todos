@@ -1,3 +1,4 @@
+from django.core.files.base import ContentFile
 from django.test.testcases import TestCase
 from freezegun import freeze_time
 
@@ -62,4 +63,16 @@ class TestTodoService(TestCase):
         TodoFactory(description='Job interview 07-05-2020')
         result = self.service.upcoming()
         expected = ['Doctor 28-04-2020']
+        self.assertEqual(result, expected)
+
+    def test_dump(self):
+        fh = self.service.dump('todos.txt')
+        result = fh.read()
+        expected = 'Pay bills\nTake out trash'
+        self.assertEqual(result, expected)
+
+    def test_load(self):
+        self.service.load(ContentFile(b'Doctor\nJob interview'))
+        result = list(Todo.objects.order_by('description').values_list('description', flat=True))
+        expected = ['Dentist', 'Doctor', 'Job interview', 'Pay bills', 'Take out trash']
         self.assertEqual(result, expected)
