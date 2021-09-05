@@ -14,6 +14,7 @@ STATIC_URL = 'https://py-todos.nl/static/'
 STATIC_ROOT = '/home/bboogaard/media/py-todos/staticfiles'
 
 MEDIA_ROOT = '/home/bboogaard/media/py-todos/media'
+PRIVATE_STORAGE_ROOT = '/home/bboogaard/private-media'
 
 MEDIA_URL = 'https://py-todos.nl/media/'
 
