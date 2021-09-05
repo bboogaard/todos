@@ -32,7 +32,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_media_fixtures',
-    'crispy_forms'
+    'crispy_forms',
+    'private_storage'
 ]
 
 MIDDLEWARE = [
@@ -59,7 +60,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'todos.context_processors.settings',
-                'todos.context_processors.wallpapers'
+                'todos.context_processors.wallpapers',
+                'todos.context_processors.files'
             ],
         },
     },
@@ -128,6 +130,9 @@ STATIC_URL = '/static/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 MEDIA_URL = "/media/"
+
+PRIVATE_STORAGE_ROOT = '/private-media/'
+PRIVATE_STORAGE_AUTH_FUNCTION = 'private_storage.permissions.allow_staff'
 
 # Messagebird settings
 MESSAGEBIRD_ACCESS_KEY = os.getenv('MESSAGEBIRD_ACCESS_KEY', 'test_7lxBEe1exwYBRwlr2eF6diV9u')

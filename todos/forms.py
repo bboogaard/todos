@@ -19,6 +19,15 @@ class SettingsForm(forms.Form):
 
     gallery = forms.TypedChoiceField(coerce=int, choices=(), required=False)
 
+    show_files = forms.BooleanField(required=False)
+
+    show_notes = forms.BooleanField(required=False)
+
+    notes_provider = forms.ChoiceField(choices=(
+        ('local', 'local'),
+        ('remote', 'remote'),
+    ), required=False)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['gallery'].choices = list(models.Gallery.objects.values_list('id', 'name'))
@@ -44,5 +53,22 @@ class WallpaperForm(forms.ModelForm):
             'position',
             ButtonHolder(
                 Submit('submit', 'Submit', css_class='button white')
+            )
+        )
+
+
+class FileForm(forms.ModelForm):
+
+    class Meta:
+        fields = ('file',)
+        model = models.PrivateFile
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            'file',
+            ButtonHolder(
+                Submit('submit', 'Save', css_class='button white')
             )
         )
