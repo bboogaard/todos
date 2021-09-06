@@ -1,6 +1,6 @@
 import operator
 from abc import ABC
-from typing import List, Type
+from typing import IO, List, Type
 
 from django.core.files.base import ContentFile
 from django.db import transaction
@@ -99,3 +99,9 @@ class ItemApi(ABC):
 
     def _from_items(self, items: List[str]) -> List[PersistentItem]:
         return list(map(lambda i: self._item_class.from_item(i), items))
+
+
+class FilesApi(ABC):
+
+    def dump(self, filename: str) -> IO[bytes]:
+        raise NotImplementedError()
