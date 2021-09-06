@@ -1,5 +1,6 @@
 import operator
 from abc import ABC
+from io import BytesIO
 from typing import IO, List, Type
 
 from django.core.files.base import ContentFile
@@ -9,7 +10,16 @@ from .models import PersistentItem
 from todos import models
 
 
-class ItemApi(ABC):
+class Api(ABC):
+
+    def dump(self, filename: str) -> IO[bytes]:
+        raise NotImplementedError()
+
+    def load(self, file: IO[bytes]):
+        raise NotImplementedError()
+
+
+class ItemApi(Api):
 
     _item_class: Type[PersistentItem]
 
@@ -82,11 +92,11 @@ class ItemApi(ABC):
             if item_to_update is not None and not item_to_update.is_active:
                 item_to_update.activate()
 
-    def dump(self, filename: str) -> ContentFile:
+    def dump(self, filename: str) -> IO[bytes]:
         items = self.get_active()
-        return ContentFile(self._separator.join(items), filename)
+        return BytesIO(self._separator.join(items).encode())
 
-    def load(self, file: ContentFile):
+    def load(self, file: IO[bytes]):
         items = file.read().decode().split(self._separator)
         self.save(items)
 
@@ -102,9 +112,4 @@ class ItemApi(ABC):
 
 
 class FilesApi(ABC):
-
-    def dump(self, filename: str) -> IO[bytes]:
-        raise NotImplementedError()
-
-    def load(self, file: IO[bytes]):
-        raise NotImplementedError()
+    pass

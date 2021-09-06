@@ -63,7 +63,7 @@ class TestNoteService(TestCase):
     def test_dump(self):
         fh = self.service.dump('todos.txt')
         result = fh.read()
-        expected = 'Pay bills\n----------\nTake out trash'
+        expected = b'Pay bills\n----------\nTake out trash'
         self.assertEqual(result, expected)
 
     def test_load(self):

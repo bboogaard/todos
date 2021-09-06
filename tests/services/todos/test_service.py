@@ -68,7 +68,7 @@ class TestTodoService(TestCase):
     def test_dump(self):
         fh = self.service.dump('todos.txt')
         result = fh.read()
-        expected = 'Pay bills\nTake out trash'
+        expected = b'Pay bills\nTake out trash'
         self.assertEqual(result, expected)
 
     def test_load(self):

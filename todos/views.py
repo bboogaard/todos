@@ -1,6 +1,7 @@
+from io import BytesIO
+
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.core.files.base import ContentFile
 from django.db import transaction
 from django.http.response import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -8,8 +9,8 @@ from django.urls import reverse
 from django.views import generic, View
 from private_storage.storage import private_storage
 
-from services.api import ItemApi
-from services.factory import ItemServiceFactory
+from services.api import Api
+from services.factory import FilesServiceFactory, ItemServiceFactory
 from todos import forms, models
 from todos.settings import cache_settings
 
@@ -79,7 +80,6 @@ class TodosActivateJson(AccessMixin, View):
 
 class TodosExportView(AccessMixin, View):
 
-    @transaction.atomic()
     def get(self, request, *args, **kwargs):
         fh = ItemServiceFactory.todos().dump('todos.txt')
         response = HttpResponse(fh.read(), content_type='text/plain')
@@ -102,7 +102,6 @@ class NotesSaveJson(AccessMixin, View):
 
 class NotesExportView(AccessMixin, View):
 
-    @transaction.atomic()
     def get(self, request, *args, **kwargs):
         fh = ItemServiceFactory.notes().dump('notes.txt')
         response = HttpResponse(fh.read(), content_type='text/plain')
@@ -230,9 +229,18 @@ class FileDeleteView(AccessMixin, View):
         return redirect(reverse('todos:file_list'))
 
 
+class FileExportView(AccessMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        fh = FilesServiceFactory.create().dump('files.zip')
+        response = HttpResponse(fh.read(), content_type='application/zip')
+        response['Content-disposition'] = 'attachment'
+        return response
+
+
 class ImportView(AccessMixin, generic.TemplateView):
 
-    service: ItemApi
+    service: Api
 
     message: str
 
@@ -248,7 +256,7 @@ class ImportView(AccessMixin, generic.TemplateView):
     def post(self, request, *args, **kwargs):
         form = self.get_form(request.POST or None, files=request.FILES or None)
         if form.is_valid():
-            self.service.load(ContentFile(form.files['file'].read()))
+            self.service.load(BytesIO(form.files['file'].read()))
             messages.add_message(request, messages.SUCCESS, self.message)
             return redirect(request.path)
 
@@ -280,3 +288,12 @@ class NotesImportView(ImportView):
     message = "Notes imported"
 
     title = "Import notes"
+
+
+class FileImportView(ImportView):
+
+    service = FilesServiceFactory.create()
+
+    message = "Files imported"
+
+    title = "Import files"

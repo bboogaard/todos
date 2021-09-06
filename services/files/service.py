@@ -17,6 +17,7 @@ class FilesService(FilesApi):
         with ZipFile(fh, 'w') as outfile:
             for file in files:
                 outfile.write(os.path.join(settings.PRIVATE_STORAGE_ROOT, file.file.name), file.file.name)
+        fh.seek(0)
         return fh
 
     def load(self, file: IO[bytes]):

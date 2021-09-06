@@ -52,6 +52,12 @@
             <a class="dropdown-item" href="{% url 'todos:notes_export' %}">
                 Export notes
             </a>
+            <a class="dropdown-item" href="#" data-action="import-files">
+                Import files
+            </a>
+            <a class="dropdown-item" href="{% url 'todos:file_export' %}">
+                Export files
+            </a>
         </div>
       </li>
       <li class="nav-item dropdown">
@@ -179,6 +185,10 @@
       $('[data-action="import-notes"]').click(function (event) {
          event.preventDefault();
          eModal.iframe('{% url "todos:notes_import" %}', "Import notes");
+      });
+      $('[data-action="import-files"]').click(function (event) {
+         event.preventDefault();
+         eModal.iframe('{% url "todos:file_import" %}', "Import files");
       });
       $(document).on('hide.bs.modal', function() {
           location.href = '{{ request.path }}';
