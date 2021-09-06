@@ -8,7 +8,7 @@ from webtest import Upload
 
 from todos.models import Note, PrivateFile, Todo, Wallpaper
 from todos.settings import cache_settings
-from tests.todos.factories import PrivateFileFactory, TodoFactory, UserFactory
+from tests.todos.factories import NoteFactory, PrivateFileFactory, TodoFactory, UserFactory
 
 
 class TodosViewTest(WebTest):
@@ -268,3 +268,79 @@ class TestFileDeleteView(TodosViewTest):
         response = self.app.post('/files/delete', data, user=self.test_user)
         self.assertEqual(response.status_code, 302, response.content)
         self.assertEqual(PrivateFile.objects.count(), 0)
+
+
+class TestTodosImportView(TodosViewTest):
+
+    csrf_checks = False
+
+    def test_get(self):
+        response = self.app.get('/todos-import', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+    def test_post(self):
+        data = {
+            'file': Upload('file.txt', b'Lorem\nIpsum', 'text/plain')
+        }
+
+        response = self.app.post('/todos-import', data, user=self.test_user)
+        self.assertEqual(response.status_code, 302, response.content)
+        result = list(Todo.objects.order_by('description').values_list('description', flat=True))
+        expected = ['Ipsum', 'Lorem']
+        self.assertEqual(result, expected)
+
+    def test_post_with_error(self):
+        data = {
+            'file': ''
+        }
+
+        response = self.app.post('/todos-import', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200, response.content)
+
+
+class TestTodosExportView(TodosViewTest):
+
+    def test_get(self):
+        TodoFactory(description='Lorem')
+        TodoFactory(description='Ipsum')
+        response = self.app.get('/todos-export', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b'Lorem\nIpsum')
+
+
+class TestNotesImportView(TodosViewTest):
+
+    csrf_checks = False
+
+    def test_get(self):
+        response = self.app.get('/notes-import', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+    def test_post(self):
+        data = {
+            'file': Upload('file.txt', b'Lorem\n----------\nIpsum', 'text/plain')
+        }
+
+        response = self.app.post('/notes-import', data, user=self.test_user)
+        self.assertEqual(response.status_code, 302, response.content)
+        result = list(Note.objects.order_by('text').values_list('text', flat=True))
+        expected = ['Ipsum', 'Lorem']
+        self.assertEqual(result, expected)
+
+    def test_post_with_error(self):
+        data = {
+            'file': ''
+        }
+
+        response = self.app.post('/notes-import', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200, response.content)
+
+
+class TestNotesExportView(TodosViewTest):
+
+    def test_get(self):
+        NoteFactory(text='Lorem')
+        NoteFactory(text='Ipsum')
+        response = self.app.get('/notes-export', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content, b'Lorem\n----------\nIpsum')

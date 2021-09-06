@@ -38,8 +38,25 @@
         </div>
       </li>
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Settings</a>
+        <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Import/export</a>
         <div class="dropdown-menu" aria-labelledby="dropdown03">
+            <a class="dropdown-item" href="#" data-action="import-todos">
+                Import todo's
+            </a>
+            <a class="dropdown-item" href="{% url 'todos:todos_export' %}">
+                Export todo's
+            </a>
+            <a class="dropdown-item" href="#" data-action="import-notes">
+                Import notes
+            </a>
+            <a class="dropdown-item" href="{% url 'todos:notes_export' %}">
+                Export notes
+            </a>
+        </div>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Settings</a>
+        <div class="dropdown-menu" aria-labelledby="dropdown04">
           <a class="dropdown-item" href="#" data-setting-name="todos_provider" data-setting-value="{% if settings.todos_provider == 'local' %}remote{% else %}local{% endif %}">
               {% if settings.todos_provider == 'remote' %}
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
@@ -154,6 +171,14 @@
       $('[data-action="manage-files"]').click(function (event) {
          event.preventDefault();
          eModal.iframe('{% url "todos:file_list" %}', 'Manage files');
+      });
+      $('[data-action="import-todos"]').click(function (event) {
+         event.preventDefault();
+         eModal.iframe('{% url "todos:todos_import" %}', "Import todo's");
+      });
+      $('[data-action="import-notes"]').click(function (event) {
+         event.preventDefault();
+         eModal.iframe('{% url "todos:notes_import" %}', "Import notes");
       });
       $(document).on('hide.bs.modal', function() {
           location.href = '{{ request.path }}';

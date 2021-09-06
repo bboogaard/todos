@@ -8,6 +8,10 @@ urlpatterns = [
     path('todos-save.json', views.TodosSaveJson.as_view(), name='todos_save.json'),
     path('notes-save.json', views.NotesSaveJson.as_view(), name='notes_save.json'),
     path('todos-activate.json', views.TodosActivateJson.as_view(), name='todos_activate.json'),
+    path('todos-export', views.TodosExportView.as_view(), name='todos_export'),
+    path('todos-import', views.TodosImportView.as_view(), name='todos_import'),
+    path('notes-export', views.NotesExportView.as_view(), name='notes_export'),
+    path('notes-import', views.NotesImportView.as_view(), name='notes_import'),
     path('settings-save', views.SettingsSave.as_view(), name='settings_save'),
 
     # Wallpapers
