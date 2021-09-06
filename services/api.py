@@ -105,3 +105,6 @@ class FilesApi(ABC):
 
     def dump(self, filename: str) -> IO[bytes]:
         raise NotImplementedError()
+
+    def load(self, file: IO[bytes]):
+        raise NotImplementedError()
