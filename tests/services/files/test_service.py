@@ -13,7 +13,7 @@ from services.factory import FilesServiceFactory
 from tests.todos.factories import PrivateFileFactory
 
 
-class TestTodoService(TestCase):
+class TestFilesService(TestCase):
 
     def setUp(self):
         super().setUp()

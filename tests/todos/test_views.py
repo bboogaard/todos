@@ -1,7 +1,13 @@
+import os
+import shutil
+import uuid
 from io import BytesIO
+from zipfile import ZipFile
 
 from django_webtest import WebTest
+from django.conf import settings
 from django.core.cache import cache
+from django.core.files.base import ContentFile
 from django.core.management import call_command
 from PIL import Image
 from webtest import Upload
@@ -344,3 +350,97 @@ class TestNotesExportView(TodosViewTest):
         response = self.app.get('/notes-export', user=self.test_user)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b'Lorem\n----------\nIpsum')
+
+
+class TestFilesImportView(TodosViewTest):
+
+    csrf_checks = False
+
+    def setUp(self):
+        super().setUp()
+        self.tmp_dir = os.path.join(settings.MEDIA_ROOT, 'tmp')
+        os.makedirs(self.tmp_dir, exist_ok=True)
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.filenames = list(map(lambda id: str(id) + '.txt', [uuid.uuid4(), uuid.uuid4()]))
+
+    def tearDown(self):
+        super().tearDown()
+        shutil.rmtree(self.tmp_dir)
+
+    def test_get(self):
+        response = self.app.get('/files/import', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+    def test_post(self):
+        filenames = list(map(lambda id: str(id) + '.txt', [uuid.uuid4(), uuid.uuid4()]))
+        with open(os.path.join(self.tmp_dir, filenames[0]), 'w') as fh:
+            fh.write('Foo')
+        with open(os.path.join(self.tmp_dir, filenames[1]), 'w') as fh:
+            fh.write('Bar')
+
+        fh = BytesIO()
+        with ZipFile(fh, 'w') as outfile:
+            outfile.write(os.path.join(self.tmp_dir, filenames[0]), filenames[0])
+            outfile.write(os.path.join(self.tmp_dir, filenames[1]), filenames[1])
+        fh.seek(0)
+
+        data = {
+            'file': Upload('file.txt', fh.read(), 'application/zip')
+        }
+        response = self.app.post('/files/import', data, user=self.test_user)
+        self.assertEqual(response.status_code, 302, response.content)
+
+        pfile = PrivateFile.objects.get(file=filenames[0])
+        self.assertEqual(pfile.file.read(), b'Foo')
+
+        pfile = PrivateFile.objects.get(file=filenames[1])
+        self.assertEqual(pfile.file.read(), b'Bar')
+
+    def test_post_with_error(self):
+        data = {
+            'file': ''
+        }
+
+        response = self.app.post('/files/import', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200, response.content)
+
+
+class TestFilesExportView(TodosViewTest):
+
+    def setUp(self):
+        super().setUp()
+        self.tmp_dir = os.path.join(settings.MEDIA_ROOT, 'tmp')
+        os.makedirs(self.tmp_dir, exist_ok=True)
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.filenames = list(map(lambda id: str(id) + '.txt', [uuid.uuid4(), uuid.uuid4()]))
+        PrivateFileFactory(file=ContentFile(b'Foo', name=cls.filenames[0]))
+        PrivateFileFactory(file=ContentFile(b'Bar', name=cls.filenames[1]))
+
+    def tearDown(self):
+        super().tearDown()
+        shutil.rmtree(self.tmp_dir)
+
+    def test_get(self):
+        data = {
+            'file': Upload('file.txt', b'Lorem\n----------\nIpsum', 'text/plain')
+        }
+
+        response = self.app.get('/files/export', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        fh = BytesIO(response.content)
+        with ZipFile(fh, 'r') as infile:
+            infile.extractall(self.tmp_dir)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp_dir, self.filenames[0])))
+        self.assertTrue(os.path.exists(os.path.join(self.tmp_dir, self.filenames[1])))
+        with open(os.path.join(self.tmp_dir, self.filenames[0]), 'r') as fh:
+            content = fh.read()
+            self.assertEqual(content, 'Foo')
+        with open(os.path.join(self.tmp_dir, self.filenames[1]), 'r') as fh:
+            content = fh.read()
+            self.assertEqual(content, 'Bar')
