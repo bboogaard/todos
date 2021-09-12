@@ -1,14 +1,25 @@
 import operator
 from abc import ABC
-from typing import List, Type
+from io import BytesIO
+from typing import IO, List, Type
 
+from django.core.files.base import ContentFile
 from django.db import transaction
 
 from .models import PersistentItem
 from todos import models
 
 
-class ItemApi(ABC):
+class Api(ABC):
+
+    def dump(self, filename: str) -> IO[bytes]:
+        raise NotImplementedError()
+
+    def load(self, file: IO[bytes]):
+        raise NotImplementedError()
+
+
+class ItemApi(Api):
 
     _item_class: Type[PersistentItem]
 
@@ -17,6 +28,8 @@ class ItemApi(ABC):
     _model: Type[models.Item]
 
     _sort_attr: str
+
+    _separator: str
 
     @property
     def persistent_items(self):
@@ -79,6 +92,14 @@ class ItemApi(ABC):
             if item_to_update is not None and not item_to_update.is_active:
                 item_to_update.activate()
 
+    def dump(self, filename: str) -> IO[bytes]:
+        items = self.get_active()
+        return BytesIO(self._separator.join(items).encode())
+
+    def load(self, file: IO[bytes]):
+        items = file.read().decode().split(self._separator)
+        self.save(items)
+
     def _get_persistent_items(self) -> List[PersistentItem]:
         queryset = self._model.objects.get_queryset()
         return list(map(lambda t: self._item_class.from_db_item(t), list(queryset)))
@@ -88,3 +109,7 @@ class ItemApi(ABC):
 
     def _from_items(self, items: List[str]) -> List[PersistentItem]:
         return list(map(lambda i: self._item_class.from_item(i), items))
+
+
+class FilesApi(ABC):
+    pass

@@ -1,3 +1,4 @@
+from services.files.service import FilesService
 from services.notes.service import NoteService
 from services.todos.service import TodoService
 
@@ -11,3 +12,10 @@ class ItemServiceFactory:
     @classmethod
     def notes(cls):
         return NoteService()
+
+
+class FilesServiceFactory:
+
+    @classmethod
+    def create(cls):
+        return FilesService()

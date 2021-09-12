@@ -15,6 +15,8 @@ class NoteService(ItemApi):
 
     _sort_attr = 'position'
 
+    _separator = '\n----------\n'
+
     def save(self, items: List[str], **kwargs):
         index = kwargs.get('index', 0) or 0
         cache.set('notes-index', index)
