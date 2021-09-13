@@ -1,31 +1,48 @@
 from io import BytesIO
 
+from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http.response import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.utils.module_loading import import_string
 from django.views import generic, View
 from private_storage.storage import private_storage
 
+from lib.backends import IPAuthenticationBackend
 from services.api import Api
-from services.factory import FilesServiceFactory, ItemServiceFactory
+from services.factory import CronServiceFactory, FilesServiceFactory, ItemServiceFactory
 from todos import forms, models
 from todos.settings import cache_settings
 
 
 class AccessMixin(View):
 
+    authentication_class = None
+
     redirect_to_login = True
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.authentication_backend = self.get_authentication_backend()
+
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
+        if not self.authentication_backend.is_authenticated(request):
             if self.redirect_to_login:
                 return redirect(reverse('admin:login') + '?next=/')
             raise PermissionDenied()
 
         return super().dispatch(request, *args, **kwargs)
+
+    def get_authentication_backend(self):
+        self.authentication_class = self.authentication_class or settings.DEFAULT_AUTHENTICATION_CLASS
+        try:
+            authentication_class = import_string(self.authentication_class)
+        except (AttributeError, ImportError):
+            authentication_class = self.authentication_class
+        return authentication_class()
 
 
 class IndexView(AccessMixin, generic.TemplateView):
@@ -297,3 +314,13 @@ class FileImportView(ImportView):
     message = "Files imported"
 
     title = "Import files"
+
+
+class CronView(AccessMixin, View):
+
+    authentication_class = IPAuthenticationBackend
+
+    redirect_to_login = False
+
+    def get(self, request, command):
+        return HttpResponse(CronServiceFactory.create().run(command), content_type='text/plain')
