@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.core.files.base import ContentFile
 from django.test.testcases import TestCase
 
@@ -15,9 +16,9 @@ class TestNoteService(TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        NoteFactory(text='Pay bills')
-        NoteFactory(text='Take out trash')
-        NoteFactory(text='Dentist', status=Note.INACTIVE_STATUS)
+        NoteFactory(text='Pay bills', position=0)
+        NoteFactory(text='Take out trash', position=1)
+        NoteFactory(text='Dentist', status=Note.INACTIVE_STATUS, position=2)
 
     def test_all(self):
         result = self.service.all()
@@ -71,3 +72,9 @@ class TestNoteService(TestCase):
         result = list(Note.objects.order_by('text').values_list('text', flat=True))
         expected = ['Dentist', 'Doctor', 'Job interview', 'Pay bills', 'Take out trash']
         self.assertEqual(result, expected)
+
+    def test_encrypt(self):
+        cache.set('notes-index', 0)
+        self.service.encrypt('foo')
+        note = Note.objects.get(position=0)
+        self.fail(note.text)

@@ -1,9 +1,8 @@
 import operator
 from abc import ABC
 from io import BytesIO
-from typing import IO, List, Type
+from typing import IO, List, Type, Union
 
-from django.core.files.base import ContentFile
 from django.db import transaction
 
 from .models import PersistentItem
@@ -23,7 +22,7 @@ class ItemApi(Api):
 
     _item_class: Type[PersistentItem]
 
-    _persistent_items: List[PersistentItem] = None
+    _persistent_items: Union[List[PersistentItem], None] = None
 
     _model: Type[models.Item]
 
@@ -37,6 +36,9 @@ class ItemApi(Api):
             self._persistent_items = self._get_persistent_items()
 
         return self._persistent_items
+
+    def refresh(self):
+        self._persistent_items = None
 
     def all(self) -> List[str]:
         return self._to_items(self.persistent_items)
