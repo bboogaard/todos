@@ -1,6 +1,8 @@
 import base64
+import binascii
 from typing import List
 
+from django.conf import settings
 from django.core.cache import cache
 from django.db import transaction
 from Crypto.Cipher import AES
@@ -35,11 +37,43 @@ class NoteService(ItemApi):
         current = self._get_current()
         if not current:
             return
-        print(current.position)
 
-        obfuscated = AES.new(self._pad(key).encode(), AES.MODE_CBC, self._iv.encode()).encrypt(
-            self._pad(current.text).encode())
+        try:
+            base64.b64decode(current.text.encode())
+            raise ValueError("Value already encoded")
+        except binascii.Error:
+            pass
+
+        obfuscated = AES.new(
+            self._pad(settings.SECRET_KEY, truncate=True).encode(),
+            AES.MODE_CBC,
+            self._iv.encode()
+        ).encrypt(self._pad(current.text + ':' + key).encode())
         new_item = Note.from_item(base64.b64encode(obfuscated).decode(), position=current.position)
+        new_item.to_db_item().save()
+        models.Note.objects.filter(item_id=current.id).delete()
+
+    @transaction.atomic()
+    def decrypt(self, key: str):
+        current = self._get_current()
+        if not current:
+            return
+
+        try:
+            obfuscated = base64.b64decode(current.text.encode())
+        except binascii.Error:
+            raise ValueError("Value cannot be decoded")
+
+        plain_text = AES.new(
+            self._pad(settings.SECRET_KEY, truncate=True).encode(),
+            AES.MODE_CBC,
+            self._iv.encode()
+        ).decrypt(obfuscated).decode()
+        plain_text, control_key = plain_text.rstrip().rsplit(':', 1)
+        if control_key != key:
+            raise ValueError("Invalid key")
+
+        new_item = Note.from_item(plain_text, position=current.position)
         new_item.to_db_item().save()
         models.Note.objects.filter(item_id=current.id).delete()
 
@@ -47,12 +81,12 @@ class NoteService(ItemApi):
         return list(map(lambda i: Note.from_item(i[1], position=i[0]), list(enumerate(items))))
 
     def _get_current(self):
-        _persistent_items = self._get_persistent_items()
         try:
-            return _persistent_items[self.get_index()]
+            return self.filter(lambda t: t.active)[self.get_index()]
         except IndexError:
             return None
 
-    def _pad(self, value: str, pad_char: str = ' ') -> str:
+    def _pad(self, value: str, pad_char: str = ' ', truncate: bool = False) -> str:
         pad_length = 16 - divmod(len(value), 16)[1]
-        return value + pad_length * pad_char
+        value = value + pad_length * pad_char
+        return value[:16] if truncate else value

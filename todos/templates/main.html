@@ -61,8 +61,19 @@
         </div>
       </li>
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Settings</a>
+        <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Encrypt/Decrypt note</a>
         <div class="dropdown-menu" aria-labelledby="dropdown04">
+            <a class="dropdown-item" href="#" data-action="encrypt-note">
+                Encrypt note
+            </a>
+            <a class="dropdown-item" href="#" data-action="decrypt-note">
+                Decrypt note
+            </a>
+        </div>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="dropdown05" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Settings</a>
+        <div class="dropdown-menu" aria-labelledby="dropdown05">
           <a class="dropdown-item" href="#" data-setting-name="todos_provider" data-setting-value="{% if settings.todos_provider == 'local' %}remote{% else %}local{% endif %}">
               {% if settings.todos_provider == 'remote' %}
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
@@ -189,6 +200,14 @@
       $('[data-action="import-files"]').click(function (event) {
          event.preventDefault();
          eModal.iframe('{% url "todos:file_import" %}', "Import files");
+      });
+      $('[data-action="encrypt-note"]').click(function (event) {
+         event.preventDefault();
+         eModal.iframe('{% url "todos:note_encrypt" %}', "Encrypt note");
+      });
+      $('[data-action="decrypt-note"]').click(function (event) {
+         event.preventDefault();
+         eModal.iframe('{% url "todos:note_decrypt" %}', "Decrypt note");
       });
       $(document).on('hide.bs.modal', function() {
           location.href = '{{ request.path }}';

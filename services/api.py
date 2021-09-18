@@ -1,7 +1,7 @@
 import operator
 from abc import ABC
 from io import BytesIO
-from typing import IO, List, Type, Union
+from typing import Callable, IO, List, Type, Union
 
 from django.db import transaction
 
@@ -37,6 +37,9 @@ class ItemApi(Api):
 
         return self._persistent_items
 
+    def filter(self, filter_func: Callable) -> List[PersistentItem]:
+        return list(filter(filter_func, self.persistent_items))
+
     def refresh(self):
         self._persistent_items = None
 
@@ -44,15 +47,13 @@ class ItemApi(Api):
         return self._to_items(self.persistent_items)
 
     def get_active(self) -> List[str]:
-        return self._to_items(list(filter(lambda t: t.active, self.persistent_items)))
+        return self._to_items(self.filter(lambda t: t.active))
 
     def search(self, search_query: str) -> List[str]:
         if not search_query:
             return []
 
-        return self._to_items(
-            list(filter(lambda t: not t.active and search_query.upper() in t.text.upper(), self.persistent_items))
-        )
+        return self._to_items(self.filter(lambda t: not t.active and search_query.upper() in t.text.upper()))
 
     @transaction.atomic()
     def save(self, items: List[str], **kwargs):

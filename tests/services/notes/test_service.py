@@ -1,3 +1,4 @@
+from Crypto.Cipher import AES
 from django.core.cache import cache
 from django.core.files.base import ContentFile
 from django.test.testcases import TestCase
@@ -73,8 +74,15 @@ class TestNoteService(TestCase):
         expected = ['Dentist', 'Doctor', 'Job interview', 'Pay bills', 'Take out trash']
         self.assertEqual(result, expected)
 
-    def test_encrypt(self):
+    def test_encrypt_round_trip(self):
         cache.set('notes-index', 0)
         self.service.encrypt('foo')
+        self.service.decrypt('foo')
         note = Note.objects.get(position=0)
-        self.fail(note.text)
+        self.assertEqual(note.text, 'Pay bills')
+
+    def test_encrypt_round_trip_with_error(self):
+        cache.set('notes-index', 0)
+        self.service.encrypt('foo')
+        with self.assertRaises(ValueError):
+            self.service.decrypt('bar')

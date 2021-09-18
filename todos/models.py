@@ -49,6 +49,9 @@ class Todo(Item):
 
     description = models.CharField(max_length=100)
 
+    class Meta:
+        ordering = ('activate_date',)
+
     def __str__(self):
         return self.description
 
@@ -62,6 +65,9 @@ class Note(Item):
     text = models.TextField(blank=True)
 
     position = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ('position',)
 
     def __str__(self):
         return truncatewords(self.text, 7) if self.text else '...'

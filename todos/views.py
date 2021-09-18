@@ -240,8 +240,6 @@ class FileExportView(AccessMixin, View):
 
 class ImportView(AccessMixin, generic.TemplateView):
 
-    service: Api
-
     message: str
 
     title: str
@@ -256,7 +254,7 @@ class ImportView(AccessMixin, generic.TemplateView):
     def post(self, request, *args, **kwargs):
         form = self.get_form(request.POST or None, files=request.FILES or None)
         if form.is_valid():
-            self.service.load(BytesIO(form.files['file'].read()))
+            self.get_service().load(BytesIO(form.files['file'].read()))
             messages.add_message(request, messages.SUCCESS, self.message)
             return redirect(request.path)
 
@@ -271,29 +269,102 @@ class ImportView(AccessMixin, generic.TemplateView):
     def get_form(self, data=None, files=None, **kwargs):
         return forms.ImportForm(data, files=files, **kwargs)
 
+    def get_service(self):
+        raise NotImplementedError()
+
 
 class TodosImportView(ImportView):
-
-    service = ItemServiceFactory.todos()
 
     message = "Todo's imported"
 
     title = "Import todo's"
 
+    def get_service(self):
+        return ItemServiceFactory.todos()
+
 
 class NotesImportView(ImportView):
-
-    service = ItemServiceFactory.notes()
 
     message = "Notes imported"
 
     title = "Import notes"
 
+    def get_service(self):
+        return ItemServiceFactory.notes()
+
 
 class FileImportView(ImportView):
-
-    service = FilesServiceFactory.create()
 
     message = "Files imported"
 
     title = "Import files"
+
+    def get_service(self):
+        return FilesServiceFactory.create()
+
+
+class NoteEncryptionView(AccessMixin, generic.TemplateView):
+
+    title: str
+
+    button_text: str
+
+    template_name = 'notes/encrypt.html'
+
+    form_class = None
+
+    def get(self, request, *args, **kwargs):
+        form = self.get_form()
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form(request.POST or None)
+        if form.is_valid():
+            self.perform_action(form.cleaned_data['key'])
+            return redirect(request.path)
+
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.title
+        return context
+
+    def get_form(self, data=None, **kwargs):
+        return forms.NoteEncryptForm(data, button_text=self.button_text, **kwargs)
+
+    def perform_action(self, key: str):
+        raise NotImplementedError()
+
+    def get_service(self):
+        return ItemServiceFactory.notes()
+
+
+class NoteEncryptView(NoteEncryptionView):
+
+    title = 'Encrypt note'
+
+    button_text = 'Encrypt'
+
+    def perform_action(self, key: str):
+        try:
+            self.get_service().encrypt(key)
+            messages.add_message(self.request, messages.SUCCESS, 'Note encrypted')
+        except ValueError as exc:
+            messages.add_message(self.request, messages.ERROR, str(exc))
+
+
+class NoteDecryptView(NoteEncryptionView):
+
+    title = 'Decrypt note'
+
+    button_text = 'Decrypt'
+
+    def perform_action(self, key: str):
+        try:
+            self.get_service().decrypt(key)
+            messages.add_message(self.request, messages.SUCCESS, 'Note decrypted')
+        except ValueError as exc:
+            messages.add_message(self.request, messages.ERROR, str(exc))

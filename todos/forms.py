@@ -87,3 +87,19 @@ class ImportForm(forms.Form):
                 Submit('submit', 'Import', css_class='button white')
             )
         )
+
+
+class NoteEncryptForm(forms.Form):
+
+    key = forms.CharField(label='Key')
+
+    def __init__(self, *args, **kwargs):
+        button_text = kwargs.pop('button_text')
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            'key',
+            ButtonHolder(
+                Submit('submit', button_text, css_class='button white')
+            )
+        )
