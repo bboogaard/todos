@@ -81,8 +81,19 @@ class TestNoteService(TestCase):
         note = Note.objects.get(position=0)
         self.assertEqual(note.text, 'Pay bills')
 
-    def test_encrypt_round_trip_with_error(self):
+    def test_encrypt_round_trip_with_invalid_key(self):
         cache.set('notes-index', 0)
         self.service.encrypt('foo')
         with self.assertRaises(ValueError):
             self.service.decrypt('bar')
+
+    def test_encrypt_round_trip_with_already_encrypted(self):
+        cache.set('notes-index', 0)
+        self.service.encrypt('foo')
+        with self.assertRaises(ValueError):
+            self.service.encrypt('foo')
+
+    def test_encrypt_round_trip_with_not_encrypted(self):
+        cache.set('notes-index', 0)
+        with self.assertRaises(ValueError):
+            self.service.decrypt('foo')
