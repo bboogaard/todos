@@ -72,3 +72,18 @@ class FileForm(forms.ModelForm):
                 Submit('submit', 'Save', css_class='button white')
             )
         )
+
+
+class ImportForm(forms.Form):
+
+    file = forms.FileField()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            'file',
+            ButtonHolder(
+                Submit('submit', 'Import', css_class='button white')
+            )
+        )

@@ -1,12 +1,16 @@
+from io import BytesIO
+
+from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.http.response import JsonResponse
+from django.http.response import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views import generic, View
 from private_storage.storage import private_storage
 
-from services.factory import ItemServiceFactory
+from services.api import Api
+from services.factory import FilesServiceFactory, ItemServiceFactory
 from todos import forms, models
 from todos.settings import cache_settings
 
@@ -74,6 +78,15 @@ class TodosActivateJson(AccessMixin, View):
         return JsonResponse(data={})
 
 
+class TodosExportView(AccessMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        fh = ItemServiceFactory.todos().dump('todos.txt')
+        response = HttpResponse(fh.read(), content_type='text/plain')
+        response['Content-disposition'] = 'attachment'
+        return response
+
+
 class NotesSaveJson(AccessMixin, View):
 
     @transaction.atomic()
@@ -85,6 +98,15 @@ class NotesSaveJson(AccessMixin, View):
             index = 0
         ItemServiceFactory.notes().save(items, index=index)
         return JsonResponse(data={})
+
+
+class NotesExportView(AccessMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        fh = ItemServiceFactory.notes().dump('notes.txt')
+        response = HttpResponse(fh.read(), content_type='text/plain')
+        response['Content-disposition'] = 'attachment'
+        return response
 
 
 class SettingsSave(AccessMixin, View):
@@ -205,3 +227,73 @@ class FileDeleteView(AccessMixin, View):
         for file in file_names:
             private_storage.delete(file)
         return redirect(reverse('todos:file_list'))
+
+
+class FileExportView(AccessMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        fh = FilesServiceFactory.create().dump('files.zip')
+        response = HttpResponse(fh.read(), content_type='application/zip')
+        response['Content-disposition'] = 'attachment'
+        return response
+
+
+class ImportView(AccessMixin, generic.TemplateView):
+
+    service: Api
+
+    message: str
+
+    title: str
+
+    template_name = 'import.html'
+
+    def get(self, request, *args, **kwargs):
+        form = self.get_form()
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form(request.POST or None, files=request.FILES or None)
+        if form.is_valid():
+            self.service.load(BytesIO(form.files['file'].read()))
+            messages.add_message(request, messages.SUCCESS, self.message)
+            return redirect(request.path)
+
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.title
+        return context
+
+    def get_form(self, data=None, files=None, **kwargs):
+        return forms.ImportForm(data, files=files, **kwargs)
+
+
+class TodosImportView(ImportView):
+
+    service = ItemServiceFactory.todos()
+
+    message = "Todo's imported"
+
+    title = "Import todo's"
+
+
+class NotesImportView(ImportView):
+
+    service = ItemServiceFactory.notes()
+
+    message = "Notes imported"
+
+    title = "Import notes"
+
+
+class FileImportView(ImportView):
+
+    service = FilesServiceFactory.create()
+
+    message = "Files imported"
+
+    title = "Import files"
