@@ -59,6 +59,7 @@ class NoteService(ItemApi):
         )
         new_item.to_db_item().save()
         models.Note.objects.filter(item_id=current.id).delete()
+        self.refresh()
 
     @transaction.atomic()
     def decrypt(self, key: str):

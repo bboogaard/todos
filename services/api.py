@@ -37,6 +37,9 @@ class ItemApi(Api):
 
         return self._persistent_items
 
+    def refresh(self):
+        self._persistent_items = None
+
     def filter(self, filter_func: Callable) -> List[PersistentItem]:
         return list(filter(filter_func, self.persistent_items))
 
