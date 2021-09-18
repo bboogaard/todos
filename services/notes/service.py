@@ -41,13 +41,11 @@ class NoteService(ItemApi):
     def encrypt(self, key: str):
         current = self._get_current()
         if not current:
-            return
+            raise ValueError("No active note")
 
-        try:
-            base64.b64decode(current.text.encode())
-            raise ValueError("Value already encoded")
-        except binascii.Error:
-            pass
+        read_only = self.get_read_only()
+        if current.position in read_only:
+            raise ValueError("Value already encrypted")
 
         obfuscated = AES.new(
             self._pad(settings.SECRET_KEY, truncate=True).encode(),
@@ -66,7 +64,11 @@ class NoteService(ItemApi):
     def decrypt(self, key: str):
         current = self._get_current()
         if not current:
-            return
+            raise ValueError("No active note")
+
+        read_only = self.get_read_only()
+        if current.position not in read_only:
+            raise ValueError("Value not encrypted")
 
         try:
             obfuscated = base64.b64decode(current.text.encode())
