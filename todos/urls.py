@@ -12,6 +12,8 @@ urlpatterns = [
     path('todos-import', views.TodosImportView.as_view(), name='todos_import'),
     path('notes-export', views.NotesExportView.as_view(), name='notes_export'),
     path('notes-import', views.NotesImportView.as_view(), name='notes_import'),
+    path('note-encrypt', views.NoteEncryptView.as_view(), name='note_encrypt'),
+    path('note-decrypt', views.NoteDecryptView.as_view(), name='note_decrypt'),
     path('settings-save', views.SettingsSave.as_view(), name='settings_save'),
 
     # Wallpapers

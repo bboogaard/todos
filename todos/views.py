@@ -6,10 +6,10 @@ from django.db import transaction
 from django.http.response import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.utils.functional import cached_property
 from django.views import generic, View
 from private_storage.storage import private_storage
 
-from services.api import Api
 from services.factory import FilesServiceFactory, ItemServiceFactory
 from todos import forms, models
 from todos.settings import cache_settings
@@ -51,6 +51,7 @@ class IndexView(AccessMixin, generic.TemplateView):
             note_vars={
                 'items': ItemServiceFactory.notes().get_active(),
                 'index': ItemServiceFactory.notes().get_index(),
+                'readOnlyItems': ItemServiceFactory.notes().get_read_only(),
                 'saveUrl': reverse('todos:notes_save.json')
             },
         )
@@ -240,13 +241,15 @@ class FileExportView(AccessMixin, View):
 
 class ImportView(AccessMixin, generic.TemplateView):
 
-    service: Api
-
     message: str
 
     title: str
 
     template_name = 'import.html'
+
+    @cached_property
+    def service(self):
+        raise NotImplementedError()
 
     def get(self, request, *args, **kwargs):
         form = self.get_form()
@@ -274,26 +277,100 @@ class ImportView(AccessMixin, generic.TemplateView):
 
 class TodosImportView(ImportView):
 
-    service = ItemServiceFactory.todos()
-
     message = "Todo's imported"
 
     title = "Import todo's"
 
+    @cached_property
+    def service(self):
+        return ItemServiceFactory.todos()
+
 
 class NotesImportView(ImportView):
-
-    service = ItemServiceFactory.notes()
 
     message = "Notes imported"
 
     title = "Import notes"
 
+    @cached_property
+    def service(self):
+        return ItemServiceFactory.notes()
+
 
 class FileImportView(ImportView):
-
-    service = FilesServiceFactory.create()
 
     message = "Files imported"
 
     title = "Import files"
+
+    @cached_property
+    def service(self):
+        return FilesServiceFactory.create()
+
+
+class NoteEncryptionView(AccessMixin, generic.TemplateView):
+
+    title: str
+
+    button_text: str
+
+    template_name = 'notes/encrypt.html'
+
+    form_class = None
+
+    def get(self, request, *args, **kwargs):
+        form = self.get_form()
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form(request.POST or None)
+        if form.is_valid():
+            self.perform_action(form.cleaned_data['key'])
+            return redirect(request.path)
+
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.title
+        return context
+
+    def get_form(self, data=None, **kwargs):
+        return forms.NoteEncryptForm(data, button_text=self.button_text, **kwargs)
+
+    def perform_action(self, key: str):
+        raise NotImplementedError()
+
+    @cached_property
+    def service(self):
+        return ItemServiceFactory.notes()
+
+
+class NoteEncryptView(NoteEncryptionView):
+
+    title = 'Encrypt note'
+
+    button_text = 'Encrypt'
+
+    def perform_action(self, key: str):
+        try:
+            self.service.encrypt(key)
+            messages.add_message(self.request, messages.SUCCESS, 'Note encrypted')
+        except ValueError as exc:
+            messages.add_message(self.request, messages.ERROR, str(exc))
+
+
+class NoteDecryptView(NoteEncryptionView):
+
+    title = 'Decrypt note'
+
+    button_text = 'Decrypt'
+
+    def perform_action(self, key: str):
+        try:
+            self.service.decrypt(key)
+            messages.add_message(self.request, messages.SUCCESS, 'Note decrypted')
+        except ValueError as exc:
+            messages.add_message(self.request, messages.ERROR, str(exc))

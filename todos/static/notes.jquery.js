@@ -8,6 +8,7 @@
         this.prevButton = settings.prevButton;
         this.nextButton = settings.nextButton;
         this.provider = settings.provider;
+        this.readOnly = settings.readOnly;
 
         this.items = [];
         this.index = 0;
@@ -60,6 +61,7 @@
             }
 
             this.notes.val(this.items[this.index]);
+            this.notes.prop('readonly', this.readOnly.indexOf(this.index) !== -1);
             this.prevButton.prop('disabled', this.index === 0);
             this.nextButton.prop('disabled', this.index === this.items.length - 1);
             this.notes.focus();
@@ -117,7 +119,8 @@
             deleteButton: settings.deleteButton,
             prevButton: settings.prevButton,
             nextButton: settings.nextButton,
-            provider: settings.provider
+            provider: settings.provider,
+            readOnly: settings.readOnly
         });
         notes.init();
 
