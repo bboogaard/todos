@@ -32,6 +32,11 @@ class NoteService(ItemApi):
     def get_index(self):
         return cache.get('notes-index', 0)
 
+    def get_read_only(self) -> List[int]:
+        items = self.get_active()
+        read_only_items = self._to_items(list(self.filter(lambda t: t.active and t.is_encrypted)))
+        return list(map(lambda i: items.index(i), read_only_items))
+
     @transaction.atomic()
     def encrypt(self, key: str):
         current = self._get_current()
@@ -49,7 +54,11 @@ class NoteService(ItemApi):
             AES.MODE_CBC,
             self._iv.encode()
         ).encrypt(self._pad(current.text + ':' + key).encode())
-        new_item = Note.from_item(base64.b64encode(obfuscated).decode(), position=current.position)
+        new_item = Note.from_item(
+            base64.b64encode(obfuscated).decode(),
+            position=current.position,
+            is_encrypted=True
+        )
         new_item.to_db_item().save()
         models.Note.objects.filter(item_id=current.id).delete()
 
@@ -73,7 +82,11 @@ class NoteService(ItemApi):
         if control_key != key:
             raise ValueError("Invalid key")
 
-        new_item = Note.from_item(plain_text, position=current.position)
+        new_item = Note.from_item(
+            plain_text,
+            position=current.position,
+            is_encrypted=False
+        )
         new_item.to_db_item().save()
         models.Note.objects.filter(item_id=current.id).delete()
 

@@ -66,6 +66,7 @@
                 deleteButton: $('#deleteNotes'),
                 prevButton: $('#prevNotes'),
                 nextButton: $('#nextNotes'),
+                readOnly: {{ note_vars.readOnlyItems }},
                 provider: notesProviderFactory.create('{{ settings.notes_provider }}')
             });
         });

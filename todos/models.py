@@ -66,6 +66,8 @@ class Note(Item):
 
     position = models.PositiveIntegerField()
 
+    is_encrypted = models.BooleanField(default=False)
+
     class Meta:
         ordering = ('position',)
 

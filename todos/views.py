@@ -51,6 +51,7 @@ class IndexView(AccessMixin, generic.TemplateView):
             note_vars={
                 'items': ItemServiceFactory.notes().get_active(),
                 'index': ItemServiceFactory.notes().get_index(),
+                'readOnlyItems': ItemServiceFactory.notes().get_read_only(),
                 'saveUrl': reverse('todos:notes_save.json')
             },
         )
