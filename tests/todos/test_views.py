@@ -12,6 +12,7 @@ from django.core.management import call_command
 from PIL import Image
 from webtest import Upload
 
+from services.factory import ItemServiceFactory
 from todos.models import Note, PrivateFile, Todo, Wallpaper
 from todos.settings import cache_settings
 from tests.todos.factories import NoteFactory, PrivateFileFactory, TodoFactory, UserFactory
@@ -444,3 +445,66 @@ class TestFilesExportView(TodosViewTest):
         with open(os.path.join(self.tmp_dir, self.filenames[1]), 'r') as fh:
             content = fh.read()
             self.assertEqual(content, 'Bar')
+
+
+class TestNoteEncryptView(TodosViewTest):
+
+    csrf_checks = False
+
+    def test_get(self):
+        response = self.app.get('/note-encrypt', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+    def test_post(self):
+        NoteFactory(text='Lorem', position=0)
+        NoteFactory(text='Ipsum', position=1)
+        data = {
+            'key': 'foobar'
+        }
+
+        response = self.app.post('/note-encrypt', data, user=self.test_user)
+        self.assertEqual(response.status_code, 302, response.content)
+        result = list(Note.objects.order_by('position').values_list('is_encrypted', flat=True))
+        expected = [True, False]
+        self.assertEqual(result, expected)
+
+    def test_post_with_error(self):
+        data = {
+            'key': ''
+        }
+
+        response = self.app.post('/note-encrypt', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200, response.content)
+
+
+class TestNoteDecryptView(TodosViewTest):
+
+    csrf_checks = False
+
+    def test_get(self):
+        response = self.app.get('/note-decrypt', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+    def test_post(self):
+        NoteFactory(text='Lorem', position=0)
+        NoteFactory(text='Ipsum', position=1)
+        cache.set('notes-index', 0)
+        ItemServiceFactory.notes().encrypt('foobar')
+
+        data = {
+            'key': 'foobar'
+        }
+
+        response = self.app.post('/note-decrypt', data, user=self.test_user)
+        self.assertEqual(response.status_code, 302, response.content)
+        result = list(Note.objects.order_by('position').values_list('text', 'is_encrypted'))
+        expected = [('Lorem', False), ('Ipsum', False)]
+        self.assertEqual(result, expected)
+
+    def test_post_with_error(self):
+        data = {
+            'key': ''
+        }
+
+        response = self.app.post('/note-decrypt', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200, response.content)
