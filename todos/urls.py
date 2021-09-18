@@ -26,4 +26,7 @@ urlpatterns = [
     path('files/delete', views.FileDeleteView.as_view(), name="file_delete"),
     path('files/export', views.FileExportView.as_view(), name="file_export"),
     path('files/import', views.FileImportView.as_view(), name="file_import"),
+
+    # Cron
+    path('cron/<command>', views.CronView.as_view(), name="cron")
 ]

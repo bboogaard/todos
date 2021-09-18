@@ -113,3 +113,9 @@ class ItemApi(Api):
 
 class FilesApi(ABC):
     pass
+
+
+class CronApi(ABC):
+
+    def run(self, command: str):
+        raise NotImplementedError()

@@ -1,4 +1,5 @@
 import logging
+import sys
 from abc import ABC
 
 import messagebird
@@ -20,6 +21,7 @@ class MessageService(ABC):
             raise ImproperlyConfigured("No Messagebird recipients defined")
 
         if not self._can_send():
+            sys.stdout.write("Not enough Messagebird credit left\n")
             logger.error("Not enough Messagebird credit left")
 
         try:
@@ -29,6 +31,7 @@ class MessageService(ABC):
                 message
             )
         except messagebird.client.ErrorException as e:
+            sys.stdout.write(str(e) + "\n")
             logger.error(str(e))
 
     def _can_send(self) -> bool:
