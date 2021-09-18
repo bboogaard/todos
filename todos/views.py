@@ -6,10 +6,10 @@ from django.db import transaction
 from django.http.response import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
+from django.utils.functional import cached_property
 from django.views import generic, View
 from private_storage.storage import private_storage
 
-from services.api import Api
 from services.factory import FilesServiceFactory, ItemServiceFactory
 from todos import forms, models
 from todos.settings import cache_settings
@@ -247,6 +247,10 @@ class ImportView(AccessMixin, generic.TemplateView):
 
     template_name = 'import.html'
 
+    @cached_property
+    def service(self):
+        raise NotImplementedError()
+
     def get(self, request, *args, **kwargs):
         form = self.get_form()
         context = self.get_context_data(form=form)
@@ -255,7 +259,7 @@ class ImportView(AccessMixin, generic.TemplateView):
     def post(self, request, *args, **kwargs):
         form = self.get_form(request.POST or None, files=request.FILES or None)
         if form.is_valid():
-            self.get_service().load(BytesIO(form.files['file'].read()))
+            self.service.load(BytesIO(form.files['file'].read()))
             messages.add_message(request, messages.SUCCESS, self.message)
             return redirect(request.path)
 
@@ -270,9 +274,6 @@ class ImportView(AccessMixin, generic.TemplateView):
     def get_form(self, data=None, files=None, **kwargs):
         return forms.ImportForm(data, files=files, **kwargs)
 
-    def get_service(self):
-        raise NotImplementedError()
-
 
 class TodosImportView(ImportView):
 
@@ -280,7 +281,8 @@ class TodosImportView(ImportView):
 
     title = "Import todo's"
 
-    def get_service(self):
+    @cached_property
+    def service(self):
         return ItemServiceFactory.todos()
 
 
@@ -290,7 +292,8 @@ class NotesImportView(ImportView):
 
     title = "Import notes"
 
-    def get_service(self):
+    @cached_property
+    def service(self):
         return ItemServiceFactory.notes()
 
 
@@ -300,7 +303,8 @@ class FileImportView(ImportView):
 
     title = "Import files"
 
-    def get_service(self):
+    @cached_property
+    def service(self):
         return FilesServiceFactory.create()
 
 
@@ -339,7 +343,8 @@ class NoteEncryptionView(AccessMixin, generic.TemplateView):
     def perform_action(self, key: str):
         raise NotImplementedError()
 
-    def get_service(self):
+    @cached_property
+    def service(self):
         return ItemServiceFactory.notes()
 
 
@@ -351,7 +356,7 @@ class NoteEncryptView(NoteEncryptionView):
 
     def perform_action(self, key: str):
         try:
-            self.get_service().encrypt(key)
+            self.service.encrypt(key)
             messages.add_message(self.request, messages.SUCCESS, 'Note encrypted')
         except ValueError as exc:
             messages.add_message(self.request, messages.ERROR, str(exc))
@@ -365,7 +370,7 @@ class NoteDecryptView(NoteEncryptionView):
 
     def perform_action(self, key: str):
         try:
-            self.get_service().decrypt(key)
+            self.service.decrypt(key)
             messages.add_message(self.request, messages.SUCCESS, 'Note decrypted')
         except ValueError as exc:
             messages.add_message(self.request, messages.ERROR, str(exc))
