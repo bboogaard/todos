@@ -108,30 +108,30 @@
 {% endblock %}
 
 {% block main %}
-<div class="container-fluid">
-    <div class="card border-0 shadow position-absolute" style="{{ settings.todos_position }}: 100px">
-      <div class="card-body pl-5 pr-5 pt-5">
-        <h1 class="font-weight-light">Todo's</h1>
-        {% block content %}
-        {% endblock %}
-        <p class="lead mb-0"></p>
-      </div>
-      {% if settings.show_files %}
-      <div class="card-body pl-5 pr-5 pt-3">
-        <h1 class="font-weight-light">Files</h1>
-        {% block files %}
-        {% endblock %}
-        <p class="lead mb-0"></p>
-      </div>
-      {% endif %}
-      {% if settings.show_notes %}
-      <div class="card-body pl-5 pr-5 pt-3">
-        <h1 class="font-weight-light">Notes</h1>
-        {% block notes %}
-        {% endblock %}
-        <p class="lead mb-0"></p>
-      </div>
-      {% endif %}
+<div class="card-columns">
+    <div class="card">
+        <div class="card-block">
+            <h4 class="card-title">Todo's</h4>
+            <p class="card-text">
+                {% block content %}{% endblock %}
+            </p>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-block">
+            <h4 class="card-title">Files</h4>
+            <p class="card-text">
+                {% block files %}{% endblock %}
+            </p>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-block">
+            <h4 class="card-title">Notes</h4>
+            <p class="card-text">
+                {% block notes %}{% endblock %}
+            </p>
+        </div>
     </div>
 </div>
 

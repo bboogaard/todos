@@ -22,14 +22,6 @@ li:first-child{
     border-top:1px solid #333;
 }
 
-@media (max-width: 599px) {
-    .card {
-        width: 75%;
-    }
-}
-
-@media (min-width: 600px) {
-    .card {
-        width: 50%;
-    }
+.card-block {
+    padding: 10px;
 }
