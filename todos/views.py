@@ -33,31 +33,11 @@ class IndexView(AccessMixin, generic.TemplateView):
     template_name = 'index.html'
 
     def get(self, request, *args, **kwargs):
-        form = self.get_form(request.GET or None)
-        if form.is_valid():
-            items = ItemServiceFactory.todos().search(form.cleaned_data['q'])
-            searching = True
-        else:
-            items = ItemServiceFactory.todos().get_active()
-            searching = False
+        widgets = models.Widget.objects.filter(is_enabled=True)
         context = self.get_context_data(
-            form=form,
-            searching=searching,
-            todo_vars={
-                'items': items,
-                'saveUrl': reverse('todos:todos_save.json'),
-                'activateUrl': reverse('todos:todos_activate.json')
-            },
-            note_vars={
-                'items': ItemServiceFactory.notes().get_active(),
-                'index': ItemServiceFactory.notes().get_index(),
-                'saveUrl': reverse('todos:notes_save.json')
-            },
+            widgets=widgets
         )
         return self.render_to_response(context)
-
-    def get_form(self, data=None):
-        return forms.SearchForm(data)
 
 
 class TodosSaveJson(AccessMixin, View):

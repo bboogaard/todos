@@ -63,6 +63,9 @@ TEMPLATES = [
                 'todos.context_processors.wallpapers',
                 'todos.context_processors.files'
             ],
+            'libraries': {
+                'widgets': 'services.widgets.templatetags'
+            }
         },
     },
 ]

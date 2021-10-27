@@ -1,73 +1,18 @@
 {% extends 'main.html' %}
-{% load static %}
+{% load widgets %}
+
 
 {% block content %}
-    <ul id="todos"{% if not searching %} contenteditable{% endif %}>
-        <li>Enter item</li>
-    </ul>
-
-    <br>&nbsp;
-    {% if not searching %}
-    <a href="javascript:void(0);" id="save" class="btn btn-primary">Save</a>
-    <a href="javascript:void(0);" id="delete" class="btn btn-primary">Delete</a>
-    {% else %}
-    <a href="javascript:void(0);" id="activate" class="btn btn-primary">Activate</a>
-    {% endif %}
-
-{% endblock %}
-
-{% block files %}
-    {% for file in files %}
-    <a href="{{ file.file.url }}" target="_blank">{{ file }}</a><br>
+    <div class="card-columns">
+    {% for widget in widgets %}
+        {% render_widget widget %}
     {% endfor %}
-
-{% endblock %}
-
-{% block notes %}
-    <textarea id="notes" class="form-control" rows="10"></textarea>
-
-    <br>
-    <a href="javascript:void(0);" id="saveNotes" class="btn btn-primary">Save</a>
-    <a href="javascript:void(0);" id="newNotes" class="btn btn-primary">New</a>
-    <a href="javascript:void(0);" id="deleteNotes" class="btn btn-primary">Delete</a>
-    <button class="btn" id="prevNotes">&laquo;</button>
-    <button class="btn" id="nextNotes">&raquo;</button>
-
+    </div>
 {% endblock %}
 
 {% block javascript %}
     {{ block.super }}
-    {{ todo_vars|json_script:"todo-vars" }}
-    {{ note_vars|json_script:"note-vars" }}
-    <script type="text/javascript" src="{% static 'checklist.provider.local.js' %}"></script>
-    <script type="text/javascript" src="{% static 'checklist.provider.remote.js' %}"></script>
-    <script type="text/javascript" src="{% static 'checklist.provider.factory.js' %}"></script>
-    <script type="text/javascript" src="{% static 'checklist.jquery.js' %}"></script>
-    <script type="text/javascript">
-        $(document).ready(function(){
-            $('ul#todos').checkList({
-                saveButton: $('#save'),
-                deleteButton: $('#delete'),
-                activateButton: $('#activate'),
-                searching: {{ searching|yesno:'true,false' }},
-                provider: checkListProviderFactory.create('{{ settings.todos_provider }}')
-            });
-        });
-    </script>
-    <script type="text/javascript" src="{% static 'notes.provider.local.js' %}"></script>
-    <script type="text/javascript" src="{% static 'notes.provider.remote.js' %}"></script>
-    <script type="text/javascript" src="{% static 'notes.provider.factory.js' %}"></script>
-    <script type="text/javascript" src="{% static 'notes.jquery.js' %}"></script>
-    <script type="text/javascript">
-        $(document).ready(function(){
-            $('#notes').Notes({
-                saveButton: $('#saveNotes'),
-                newButton: $('#newNotes'),
-                deleteButton: $('#deleteNotes'),
-                prevButton: $('#prevNotes'),
-                nextButton: $('#nextNotes'),
-                provider: notesProviderFactory.create('{{ settings.notes_provider }}')
-            });
-        });
-    </script>
+    {% for widget in widgets %}
+        {% render_js widget %}
+    {% endfor %}
 {% endblock %}

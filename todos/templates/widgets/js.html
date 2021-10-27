@@ -1,0 +1,12 @@
+{% load static %}
+
+
+{% if var_name and values  %}
+<script type="text/javascript">
+    var {{ var_name }} = {{ values }};
+</script>
+{% endif %}
+
+{% for file in files %}
+<script type="text/javascript" src="{% static file %}"></script>
+{% endfor %}

@@ -108,32 +108,8 @@
 {% endblock %}
 
 {% block main %}
-<div class="card-columns">
-    <div class="card">
-        <div class="card-block">
-            <h4 class="card-title">Todo's</h4>
-            <p class="card-text">
-                {% block content %}{% endblock %}
-            </p>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-block">
-            <h4 class="card-title">Files</h4>
-            <p class="card-text">
-                {% block files %}{% endblock %}
-            </p>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-block">
-            <h4 class="card-title">Notes</h4>
-            <p class="card-text">
-                {% block notes %}{% endblock %}
-            </p>
-        </div>
-    </div>
-</div>
+    {% block content %}
+    {% endblock %}
 
 <form method="post" id="settings-form" action="{% url 'todos:settings_save' %}">
   {%  csrf_token %}
