@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<h1>Widgets</h1>
+<form method="post" action="{% url 'todos:widget_save' %}">
+    {% csrf_token %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col"><input type="checkbox" id="select-all"></th>
+          <th scope="col">Widget</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for widget in widgets %}
+        <tr>
+          <td><input type="checkbox" name="widget" value="{{ widget.id }}"{% if widget.is_enabled %} checked{% endif %}></td>
+          <td>{{ widget }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+</form>
+<div class="mb-2">
+    <a class="btn btn-primary" href="" id="save-btn">Save</a>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+$(function() {
+    $('#save-btn').click(function(event) {
+        event.preventDefault();
+        $('form').submit();
+    });
+    $('#select-all').click(function() {
+        $('input[name="widget"]').prop('checked', $(this).prop('checked'));
+    });
+});
+</script>
+{% endblock %}

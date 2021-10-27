@@ -26,4 +26,8 @@ urlpatterns = [
     path('files/delete', views.FileDeleteView.as_view(), name="file_delete"),
     path('files/export', views.FileExportView.as_view(), name="file_export"),
     path('files/import', views.FileImportView.as_view(), name="file_import"),
+
+    # Widgets
+    path('widgets/list', views.WidgetListView.as_view(), name="widget_list"),
+    path('widgets/save', views.WidgetSaveView.as_view(), name="widget_save"),
 ]

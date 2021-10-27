@@ -277,3 +277,28 @@ class FileImportView(ImportView):
     message = "Files imported"
 
     title = "Import files"
+
+
+class WidgetListView(AccessMixin, generic.TemplateView):
+
+    template_name = 'widgets/widget_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'widgets': models.Widget.objects.all()
+        })
+        return context
+
+
+class WidgetSaveView(AccessMixin, View):
+
+    def post(self, request, *args, **kwargs):
+        widget_ids = request.POST.getlist('widget', [])
+        qs = models.Widget.objects.all()
+        widgets = []
+        for widget in qs:
+            widget.is_enabled = str(widget.pk) in widget_ids
+            widgets.append(widget)
+        models.Widget.objects.bulk_update(widgets, fields=['is_enabled'])
+        return redirect(reverse('todos:widget_list'))
