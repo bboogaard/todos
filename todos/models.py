@@ -5,6 +5,7 @@ from django.conf import settings
 from django.db import models
 from django.template.defaultfilters import truncatewords
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from private_storage.fields import PrivateFileField
 
 
@@ -131,3 +132,30 @@ class PrivateFile(models.Model):
 
     def get_absolute_url(self):
         return settings.MEDIA_URL + self.file.name
+
+
+class Widget(models.Model):
+
+    WIDGET_TYPE_TODOS = 'todos'
+    WIDGET_TYPE_FILES = 'files'
+    WIDGET_TYPE_NOTES = 'notes'
+
+    WIDGET_TYPES = (
+        (WIDGET_TYPE_TODOS, _("To do's")),
+        (WIDGET_TYPE_FILES, _("Files")),
+        (WIDGET_TYPE_NOTES, _("Notes")),
+    )
+
+    type = models.CharField(max_length=8, choices=WIDGET_TYPES, unique=True)
+
+    title = models.CharField(max_length=32)
+
+    is_enabled = models.BooleanField(default=False)
+
+    position = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ('position',)
+
+    def __str__(self):
+        return self.title
