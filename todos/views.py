@@ -302,3 +302,25 @@ class WidgetSaveView(AccessMixin, View):
             widgets.append(widget)
         models.Widget.objects.bulk_update(widgets, fields=['is_enabled'])
         return redirect(reverse('todos:widget_list'))
+
+
+class EventCreateView(AccessMixin, generic.TemplateView):
+
+    template_name = 'events/event_create.html'
+
+    def get(self, request, *args, **kwargs):
+        form = self.get_form()
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form(request.POST or None, files=request.FILES or None)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('todos:event_create'))
+
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context)
+
+    def get_form(self, data=None, files=None, **kwargs):
+        return forms.EventForm(data, files=files, **kwargs)

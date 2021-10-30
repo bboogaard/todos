@@ -72,6 +72,18 @@ class Note(Item):
         return self.text
 
 
+class Event(models.Model):
+
+    description = models.CharField(max_length=100)
+
+    date = models.DateField()
+
+    position = models.PositiveIntegerField()
+
+    def __str__(self):
+        return self.description
+
+
 class GalleryQuerySet(models.QuerySet):
 
     def with_images(self):

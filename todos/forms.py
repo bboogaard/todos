@@ -45,6 +45,18 @@ class MonthForm(forms.Form):
     year = forms.IntegerField()
 
 
+class EventForm(forms.Form):
+
+    events = forms.CharField(widget=forms.Textarea())
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            'events'
+        )
+
+
 class WallpaperForm(forms.ModelForm):
 
     class Meta:
