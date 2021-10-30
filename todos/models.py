@@ -139,11 +139,13 @@ class Widget(models.Model):
     WIDGET_TYPE_TODOS = 'todos'
     WIDGET_TYPE_FILES = 'files'
     WIDGET_TYPE_NOTES = 'notes'
+    WIDGET_TYPE_EVENTS = 'events'
 
     WIDGET_TYPES = (
         (WIDGET_TYPE_TODOS, _("To do's")),
         (WIDGET_TYPE_FILES, _("Files")),
         (WIDGET_TYPE_NOTES, _("Notes")),
+        (WIDGET_TYPE_EVENTS, _("Events")),
     )
 
     type = models.CharField(max_length=8, choices=WIDGET_TYPES, unique=True)

@@ -1,11 +1,14 @@
 import os
+from datetime import date
 
 from django.http.request import HttpRequest
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.http import urlencode
+from dateutil.relativedelta import relativedelta
 
-from services.factory import ItemServiceFactory
+from services.factory import EventsServiceFactory, ItemServiceFactory
 from todos import forms
 from todos.models import Widget
 from todos.settings import cache_settings
@@ -119,3 +122,41 @@ class NotesWidgetRenderer(WidgetRendererService):
         return {
             'provider': self.settings.notes_provider
         }
+
+
+class EventsWidgetRenderer(WidgetRendererService):
+
+    template_name = 'events.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        form = forms.MonthForm(self.request.GET or None)
+        if form.is_valid():
+            dt = date(year=form.cleaned_data['year'], month=form.cleaned_data['month'], day=1)
+        else:
+            dt = date.today()
+        prev_dt = dt - relativedelta(months=1)
+        next_dt = dt + relativedelta(months=1)
+        prev_url = self.request.path + '?' + urlencode({
+            'year': prev_dt.year,
+            'month': prev_dt.month
+        })
+        next_url = self.request.path + '?' + urlencode({
+            'year': next_dt.year,
+            'month': next_dt.month
+        })
+        events = EventsServiceFactory.create().get_events(dt.year, dt.month)
+        context.update(events=events, dt=dt, prev_url=prev_url, next_url=next_url)
+
+        return context
+
+    def media(self):
+        return {
+            'css': (
+                'calendar.css'
+            )
+        }
+
+    def global_vars(self, context: RequestContext):
+        return {}

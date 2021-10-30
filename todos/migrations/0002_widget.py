@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             name='Widget',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('type', models.CharField(choices=[('todos', "To do's"), ('files', 'Files'), ('notes', 'Notes')], max_length=8, unique=True)),
+                ('type', models.CharField(choices=[('todos', "To do's"), ('files', 'Files'), ('notes', 'Notes'), ('events', 'Events')], max_length=8, unique=True)),
                 ('title', models.CharField(max_length=32)),
                 ('is_enabled', models.BooleanField(default=False)),
                 ('position', models.PositiveIntegerField()),

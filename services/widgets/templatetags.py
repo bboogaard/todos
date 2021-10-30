@@ -36,3 +36,17 @@ def render_js(context, widget: Widget):
         'var_name': '{}_vars'.format(widget.type),
         'values': mark_safe(json.dumps(global_vars))
     }
+
+
+@register.inclusion_tag('widgets/css.html')
+def render_css(widget: Widget):
+    renderer = WidgetRendererFactory.get_renderer(widget)
+    if not renderer:
+        return {
+            'files': []
+        }
+
+    files = renderer.media().get('css', [])
+    return {
+        'files': files
+    }

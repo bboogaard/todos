@@ -1,0 +1,35 @@
+{% extends 'widgets/base.html' %}
+
+
+{% block content %}
+<div class="container-fluid">
+  <header>
+    <h4 class="text-center"><a class="btn" href="{{ prev_url }}">&laquo;</a>
+        {{ dt|date:'F Y' }}<a class="btn" href="{{ next_url }}">&raquo;</a></h4>
+    <div class="row d-none d-sm-flex p-1 bg-dark text-white">
+      <h5 class="col-sm p-1 text-center">SU</h5>
+      <h5 class="col-sm p-1 text-center">MO</h5>
+      <h5 class="col-sm p-1 text-center">TU</h5>
+      <h5 class="col-sm p-1 text-center">WE</h5>
+      <h5 class="col-sm p-1 text-center">TH</h5>
+      <h5 class="col-sm p-1 text-center">FR</h5>
+      <h5 class="col-sm p-1 text-center">SA</h5>
+    </div>
+  </header>
+  <div class="row border border-right-0 border-bottom-0">
+    {% for week in events %}
+      {% for event_date in week %}
+    <div class="day col-sm p-2 border border-left-0 border-top-0 text-truncate d-none d-sm-inline-block bg-light text-muted">
+      <h5 class="row align-items-center">
+        <span class="date col-1">{{ event_date.date.day }}</span>
+        <small class="col d-sm-none text-center text-muted"></small>
+        <span class="col-1"></span>
+      </h5>
+      <p class="d-sm-none">No events</p>
+    </div>
+      {% endfor %}
+    <div class="w-100"></div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

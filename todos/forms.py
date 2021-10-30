@@ -38,6 +38,13 @@ class SearchForm(forms.Form):
     q = forms.CharField(required=False)
 
 
+class MonthForm(forms.Form):
+
+    month = forms.IntegerField()
+
+    year = forms.IntegerField()
+
+
 class WallpaperForm(forms.ModelForm):
 
     class Meta:

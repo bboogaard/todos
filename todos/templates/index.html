@@ -2,6 +2,13 @@
 {% load widgets %}
 
 
+{% block css %}
+    {{ block.super }}
+    {% for widget in widgets %}
+        {% render_css widget %}
+    {% endfor %}
+{% endblock %}
+
 {% block content %}
     <div class="card-columns" style="column-count: 2">
     {% for widget in widgets %}

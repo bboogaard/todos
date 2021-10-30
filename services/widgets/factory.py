@@ -1,7 +1,7 @@
 from typing import Optional
 
-from services.widgets.service import FilesWidgetRenderer, NotesWidgetRenderer, TodosWidgetRenderer, \
-    WidgetRendererService
+from services.widgets.service import EventsWidgetRenderer, FilesWidgetRenderer, NotesWidgetRenderer, \
+    TodosWidgetRenderer, WidgetRendererService
 from todos.models import Widget
 
 
@@ -15,5 +15,7 @@ class WidgetRendererFactory:
             return NotesWidgetRenderer(widget)
         elif widget.type == Widget.WIDGET_TYPE_TODOS:
             return TodosWidgetRenderer(widget)
+        elif widget.type == Widget.WIDGET_TYPE_EVENTS:
+            return EventsWidgetRenderer(widget)
         else:
             raise NotImplementedError()
