@@ -80,6 +80,9 @@ class Event(models.Model):
 
     position = models.PositiveIntegerField()
 
+    class Meta:
+        ordering = ('position',)
+
     def __str__(self):
         return self.description
 

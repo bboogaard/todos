@@ -131,11 +131,12 @@ class EventsWidgetRenderer(WidgetRendererService):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        today = date.today()
         form = forms.MonthForm(self.request.GET or None)
         if form.is_valid():
             dt = date(year=form.cleaned_data['year'], month=form.cleaned_data['month'], day=1)
         else:
-            dt = date.today()
+            dt = today
         prev_dt = dt - relativedelta(months=1)
         next_dt = dt + relativedelta(months=1)
         prev_url = self.request.path + '?' + urlencode({
@@ -147,14 +148,17 @@ class EventsWidgetRenderer(WidgetRendererService):
             'month': next_dt.month
         })
         events = EventsServiceFactory.create().get_events(dt.year, dt.month)
-        context.update(events=events, dt=dt, prev_url=prev_url, next_url=next_url)
+        context.update(events=events, dt=dt, prev_url=prev_url, next_url=next_url, today=today)
 
         return context
 
     def media(self):
         return {
             'css': (
-                'calendar.css'
+                'calendar.css',
+            ),
+            'js': (
+                'events.init.js',
             )
         }
 

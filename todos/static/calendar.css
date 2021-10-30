@@ -14,6 +14,9 @@
 
 @media (min-width: 576px) {
     .day {
-        height: 14.2857vw;
+        height: 7vw;
+    }
+    .date.current {
+        color: red;
     }
 }

@@ -1,5 +1,5 @@
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import ButtonHolder, Fieldset, Layout, Submit
+from crispy_forms.layout import ButtonHolder, Layout, Submit
 from django import forms
 
 from todos import models
@@ -53,7 +53,10 @@ class EventForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            'events'
+            'events',
+            ButtonHolder(
+                Submit('submit', 'Save', css_class='button white')
+            )
         )
 
 
