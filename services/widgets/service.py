@@ -1,3 +1,4 @@
+import calendar
 import os
 from datetime import date
 
@@ -138,7 +139,9 @@ class EventsWidgetRenderer(WidgetRendererService):
         else:
             dt = today
         prev_dt = dt - relativedelta(months=1)
+        prev_dt = date(prev_dt.year, prev_dt.month, 1)
         next_dt = dt + relativedelta(months=1)
+        next_dt = date(next_dt.year, next_dt.month, calendar.monthrange(next_dt.year, next_dt.month)[1])
         prev_url = self.request.path + '?' + urlencode({
             'year': prev_dt.year,
             'month': prev_dt.month
@@ -147,7 +150,7 @@ class EventsWidgetRenderer(WidgetRendererService):
             'year': next_dt.year,
             'month': next_dt.month
         })
-        events = EventsServiceFactory.create().get_events(dt.year, dt.month)
+        events = EventsServiceFactory.create().get_events(dt.year, dt.month, prev_dt, next_dt)
         context.update(events=events, dt=dt, prev_url=prev_url, next_url=next_url, today=today)
 
         return context

@@ -80,8 +80,10 @@ class Event(models.Model):
 
     position = models.PositiveIntegerField()
 
+    message_sent = models.BooleanField(default=False)
+
     class Meta:
-        ordering = ('position',)
+        ordering = ('date', 'position',)
 
     def __str__(self):
         return self.description
