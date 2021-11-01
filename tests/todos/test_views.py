@@ -116,13 +116,13 @@ class TestSettingsSave(TodosViewTest):
 
     def test_post(self):
         data = {
-            'todos_position': 'bottom'
+            'todos_provider': 'remote'
         }
         response = self.app.post('/settings-save', data, user=self.test_user)
         self.assertEqual(response.status_code, 302)
 
         settings = cache_settings.load()
-        self.assertEqual(settings.todos_position, 'bottom')
+        self.assertEqual(settings.todos_provider, 'remote')
 
 
 class TestWallpaperListView(TodosViewTest):

@@ -12,16 +12,7 @@ class SettingsForm(forms.Form):
         ('remote', 'remote'),
     ), required=False)
 
-    todos_position = forms.ChoiceField(choices=(
-        ('top', 'top'),
-        ('bottom', 'bottom'),
-    ), required=False)
-
     gallery = forms.TypedChoiceField(coerce=int, choices=(), required=False)
-
-    show_files = forms.BooleanField(required=False)
-
-    show_notes = forms.BooleanField(required=False)
 
     notes_provider = forms.ChoiceField(choices=(
         ('local', 'local'),
