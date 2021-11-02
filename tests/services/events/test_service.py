@@ -57,4 +57,3 @@ class TestEventService(TestCase):
             self.service.send_upcoming_events()
 
         self.assertFalse(mock_send.called)
-
