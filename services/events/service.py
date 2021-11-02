@@ -36,8 +36,9 @@ class EventsService(EventsApi):
             EventDate(date=day, events=list(map(str, events)))
             for day, events in events_in_db.items()
         ]
-        MessageServiceFactory.create().send(EventMessageFactory.create(events))
-        queryset.update(message_sent=True)
+        if events:
+            MessageServiceFactory.create().send(EventMessageFactory.create(events))
+            queryset.update(message_sent=True)
 
     @staticmethod
     def _get_events_in_db(queryset: QuerySet) -> Dict[datetime.date, List[Event]]:
