@@ -1,3 +1,4 @@
+import datetime
 import hashlib
 
 import factory
@@ -45,6 +46,18 @@ class NoteFactory(ItemFactory):
 
     class Meta:
         model = models.Note
+
+
+class EventFactory(factory.django.DjangoModelFactory):
+
+    description = 'Lorem'
+
+    date = factory.LazyAttribute(lambda obj: datetime.date.today())
+
+    position = factory.Sequence(lambda n: n)
+
+    class Meta:
+        model = models.Event
 
 
 class PrivateFileFactory(factory.django.DjangoModelFactory):

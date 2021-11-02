@@ -1,3 +1,4 @@
+import datetime
 import os
 import shutil
 import uuid
@@ -12,9 +13,9 @@ from django.core.management import call_command
 from PIL import Image
 from webtest import Upload
 
-from todos.models import Note, PrivateFile, Todo, Wallpaper
+from todos.models import Event, Note, PrivateFile, Todo, Wallpaper, Widget
 from todos.settings import cache_settings
-from tests.todos.factories import NoteFactory, PrivateFileFactory, TodoFactory, UserFactory
+from tests.todos.factories import EventFactory, NoteFactory, PrivateFileFactory, TodoFactory, UserFactory
 
 
 class TodosViewTest(WebTest):
@@ -26,6 +27,7 @@ class TodosViewTest(WebTest):
         super().setUpClass()
         if cls.with_fixtures:
             call_command('loaddata', 'wallpapers.json')
+            call_command('loaddata', 'widgets.json')
             call_command('collectmedia', '--noinput')
 
     @classmethod
@@ -444,3 +446,60 @@ class TestFilesExportView(TodosViewTest):
         with open(os.path.join(self.tmp_dir, self.filenames[1]), 'r') as fh:
             content = fh.read()
             self.assertEqual(content, 'Bar')
+
+
+class TestWidgetListView(TodosViewTest):
+
+    with_fixtures = True
+
+    def test_get(self):
+        response = self.app.get('/widgets/list', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+
+class TestWidgetSaveView(TodosViewTest):
+
+    with_fixtures = True
+
+    csrf_checks = False
+
+    def test_post(self):
+        widgets = Widget.objects.exclude(type=Widget.WIDGET_TYPE_EVENTS)
+        data = {
+            'widget': [widget.pk for widget in widgets]
+        }
+        response = self.app.post('/widgets/save', data, user=self.test_user)
+        self.assertEqual(response.status_code, 302)
+        widget = Widget.objects.get(type=Widget.WIDGET_TYPE_EVENTS)
+        self.assertFalse(widget.is_enabled)
+
+
+class TestEventCreateView(TodosViewTest):
+
+    csrf_checks = False
+
+    def setUp(self):
+        super().setUp()
+        self.events = [
+            EventFactory(description='Pay bills', date=datetime.date(2020, 11, 20)),
+            EventFactory(description='Take out trash', date=datetime.date(2020, 11, 20))
+        ]
+
+    def test_get(self):
+        response = self.app.get('/events/create?event_date=2020-11-20', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        response.mustcontain('Pay bills', 'Take out trash')
+
+    def test_post(self):
+        data = {
+            'events': 'Pay bills\nDentist'
+        }
+        response = self.app.post('/events/create?event_date=2020-11-20', data, user=self.test_user)
+        self.assertEqual(response.status_code, 302)
+
+        result = list(Event.objects.filter(date=datetime.date(2020, 11, 20)).values_list('description', flat=True))
+        self.assertEqual(result, ['Pay bills', 'Dentist'])
+
+    def test_get_invalid_date(self):
+        response = self.app.get('/events/create?event_date=2020-11-', user=self.test_user, expect_errors=True)
+        self.assertEqual(response.status_code, 400)
