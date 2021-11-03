@@ -5,6 +5,20 @@ from django import forms
 from todos import models
 
 
+class TimePicker(forms.TimeInput):
+
+    template_name = 'forms/widgets/timepicker.html'
+
+    class Media:
+        css = {
+            'all': ('tempus-dominus/tempus-dominus.min.css',)
+        }
+        js = (
+            'tempus-dominus/moment.min.js',
+            'tempus-dominus/tempus-dominus.min.js',
+        )
+
+
 class SettingsForm(forms.Form):
 
     todos_provider = forms.ChoiceField(choices=(
@@ -40,11 +54,16 @@ class EventForm(forms.Form):
 
     events = forms.CharField(widget=forms.Textarea())
 
+    time = forms.TimeField(widget=TimePicker(
+        attrs={'data-toggle': "datetimepicker", "id": "time", "data-target": "#time", "style": "position: relative"}
+    ))
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
             'events',
+            'time',
             ButtonHolder(
                 Submit('submit', 'Save', css_class='button white')
             )
