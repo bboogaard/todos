@@ -159,6 +159,7 @@ class EventsWidgetRenderer(WidgetRendererService):
         return {
             'css': (
                 'calendar.css',
+                'tempus-dominus/css/font-awesome.css'
             ),
             'js': (
                 'events.init.js',

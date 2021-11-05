@@ -76,14 +76,12 @@ class Event(models.Model):
 
     description = models.CharField(max_length=100)
 
-    date = models.DateField()
-
-    position = models.PositiveIntegerField()
+    datetime = models.DateTimeField()
 
     message_sent = models.BooleanField(default=False)
 
     class Meta:
-        ordering = ('date', 'position',)
+        ordering = ('datetime',)
 
     def __str__(self):
         return self.description

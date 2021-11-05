@@ -1,5 +1,6 @@
 $(document).ready(function(){
     $('[data-event-url]').click(function(event) {
-        eModal.iframe($(this).data('event-url'), "Create events");
+        event.stopPropagation();
+        eModal.iframe($(this).data('event-url'), $(this).data('event-title'));
     });
 })

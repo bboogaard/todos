@@ -1,6 +1,9 @@
+import datetime
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import ButtonHolder, Layout, Submit
 from django import forms
+from django.utils.timezone import get_current_timezone
 
 from todos import models
 
@@ -11,12 +14,31 @@ class TimePicker(forms.TimeInput):
 
     class Media:
         css = {
-            'all': ('tempus-dominus/tempus-dominus.min.css',)
+            'all': (
+                'tempus-dominus/css/font-awesome.css',
+                'tempus-dominus/css/tempus-dominus.min.css',
+            )
         }
         js = (
-            'tempus-dominus/moment.min.js',
-            'tempus-dominus/tempus-dominus.min.js',
+            'tempus-dominus/js/moment.min.js',
+            'tempus-dominus/js/tempus-dominus.min.js',
         )
+
+    def __init__(self, attrs=None, format=None):
+        attrs = attrs or {}
+        attrs.update({
+            'data-toggle': 'datetimepicker',
+            'class': 'datetimepicker-input'
+        })
+        super().__init__(attrs, format)
+
+    def get_context(self, name, value, attrs):
+        id = 'id_{}'.format(name)
+        attrs.update({
+            'id': id,
+            'data-target': '#{}'.format(id),
+        })
+        return super().get_context(name, value, attrs)
 
 
 class SettingsForm(forms.Form):
@@ -50,24 +72,34 @@ class MonthForm(forms.Form):
     year = forms.IntegerField()
 
 
-class EventForm(forms.Form):
+class EventForm(forms.ModelForm):
 
-    events = forms.CharField(widget=forms.Textarea())
+    time = forms.TimeField(widget=TimePicker(), input_formats=['%H:%M'])
 
-    time = forms.TimeField(widget=TimePicker(
-        attrs={'data-toggle': "datetimepicker", "id": "time", "data-target": "#time", "style": "position: relative"}
-    ))
+    class Meta:
+        model = models.Event
+        fields = ('description',)
 
     def __init__(self, *args, **kwargs):
+        self.date = kwargs.pop('date')
         super().__init__(*args, **kwargs)
+        self.initial['time'] = self.instance.datetime.time() if self.instance.datetime else None
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            'events',
+            'description',
             'time',
             ButtonHolder(
                 Submit('submit', 'Save', css_class='button white')
             )
         )
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.datetime = datetime.datetime.combine(
+            self.date, self.cleaned_data['time'], tzinfo=get_current_timezone()
+        )
+        instance.save()
+        return instance
 
 
 class WallpaperForm(forms.ModelForm):

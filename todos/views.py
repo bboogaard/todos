@@ -306,42 +306,33 @@ class WidgetSaveView(AccessMixin, View):
         return redirect(reverse('todos:widget_list'))
 
 
-class EventCreateView(AccessMixin, generic.TemplateView):
+class EventCreateMixin(View):
 
     template_name = 'events/event_create.html'
 
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.event_date = datetime.datetime.strptime(request.GET.get('event_date', ''), '%Y-%m-%d').date()
-            self.events = "\n".join([str(event) for event in models.Event.objects.filter(date=self.event_date)])
-        except ValueError:
-            return HttpResponseBadRequest()
-        return super().dispatch(request, *args, **kwargs)
-
     def get(self, request, *args, **kwargs):
-        form = self.get_form(initial={'events': self.events})
+        form = self.get_form()
         context = self.get_context_data(form=form)
         return self.render_to_response(context)
 
     def post(self, request, *args, **kwargs):
-        form = self.get_form(request.POST or None, initial={'events': self.events})
+        form = self.get_form(request.POST or None)
         if form.is_valid():
-            models.Event.objects.filter(date=self.event_date).delete()
-            events = [
-                models.Event(
-                    description=line,
-                    position=position,
-                    date=self.event_date
-                )
-                for position, line in enumerate(form.cleaned_data['events'].split('\n'))
-            ]
-            models.Event.objects.bulk_create(events)
-            return redirect(reverse('todos:event_create') + '?' + urlencode({
-                'event_date': self.event_date.strftime('%Y-%m-%d')
-            }))
+            instance = form.save()
+            return redirect(reverse('todos:event_update', kwargs={'pk': instance.pk}))
 
         context = self.get_context_data(form=form)
         return self.render_to_response(context)
+
+
+class EventCreateView(AccessMixin, EventCreateMixin, generic.TemplateView):
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.event_date = datetime.datetime.strptime(request.GET.get('event_date', ''), '%Y-%m-%d').date()
+        except ValueError:
+            return HttpResponseBadRequest()
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -351,4 +342,21 @@ class EventCreateView(AccessMixin, generic.TemplateView):
         return context
 
     def get_form(self, data=None, **kwargs):
-        return forms.EventForm(data, **kwargs)
+        return forms.EventForm(data, date=self.event_date, **kwargs)
+
+
+class EventUpdateView(AccessMixin, EventCreateMixin, generic.TemplateView):
+
+    def dispatch(self, request, pk, *args, **kwargs):
+        self.object = get_object_or_404(models.Event, pk=pk)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'event_date': self.object.datetime.date()
+        })
+        return context
+
+    def get_form(self, data=None, **kwargs):
+        return forms.EventForm(data, date=self.object.datetime.date(), instance=self.object, **kwargs)

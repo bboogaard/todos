@@ -1,8 +1,11 @@
+<div style="position: relative">
 {% include "django/forms/widgets/time.html" %}
-
+</div>
 
 <script>
   jQuery(function ($) {
-    $("input[name='{{ widget.name }}']").datetimepicker();
+    $("input[name='{{ widget.name }}']").datetimepicker({
+        format: 'HH:mm'
+    });
   });
 </script>
