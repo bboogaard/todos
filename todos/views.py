@@ -360,3 +360,11 @@ class EventUpdateView(AccessMixin, EventCreateMixin, generic.TemplateView):
 
     def get_form(self, data=None, **kwargs):
         return forms.EventForm(data, date=self.object.datetime.date(), instance=self.object, **kwargs)
+
+
+class EventDeleteView(AccessMixin, generic.TemplateView):
+
+    def post(self, request, pk, *args, **kwargs):
+        self.object = get_object_or_404(models.Event, pk=pk)
+        self.object.delete()
+        return redirect(reverse('todos:index'))

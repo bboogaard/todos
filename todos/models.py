@@ -1,5 +1,6 @@
 import os
 
+import pytz
 from django_extensions.db.models import ActivatorModel
 from django.conf import settings
 from django.db import models
@@ -85,6 +86,10 @@ class Event(models.Model):
 
     def __str__(self):
         return self.description
+
+    @property
+    def datetime_localized(self):
+        return self.datetime.astimezone(pytz.timezone(settings.TIME_ZONE))
 
 
 class GalleryQuerySet(models.QuerySet):

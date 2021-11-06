@@ -1,6 +1,8 @@
 import datetime
-
 import unittest.mock
+
+import pytz
+from django.conf import settings
 from django.test.testcases import TestCase
 from freezegun import freeze_time
 
@@ -15,16 +17,28 @@ class TestEventService(TestCase):
         super().setUp()
         self.service = EventsServiceFactory.create()
         self.events = [
-            EventFactory(description='Halloween', date=datetime.date(2020, 10, 31)),
-            EventFactory(description='Pay bills', date=datetime.date(2020, 11, 20)),
-            EventFactory(description='Take out trash', date=datetime.date(2020, 11, 20)),
-            EventFactory(description='Dentist', date=datetime.date(2020, 12, 1))
+            EventFactory(
+                description='Halloween',
+                datetime=datetime.datetime(2020, 10, 31, 10, 0, tzinfo=pytz.timezone(settings.TIME_ZONE))
+            ),
+            EventFactory(
+                description='Pay bills',
+                datetime=datetime.datetime(2020, 11, 20, 10, 0, tzinfo=pytz.timezone(settings.TIME_ZONE))
+            ),
+            EventFactory(
+                description='Take out trash',
+                datetime=datetime.datetime(2020, 11, 20, 12, 0, tzinfo=pytz.timezone(settings.TIME_ZONE))
+            ),
+            EventFactory(
+                description='Dentist',
+                datetime=datetime.datetime(2020, 12, 1, 10, 0, tzinfo=pytz.timezone(settings.TIME_ZONE))
+            )
         ]
 
     def test_get_events(self):
 
         def _get_events(week_events):
-            return [(event_date.date, ", ".join(event_date.events)) for event_date in week_events if event_date.events]
+            return [(event_date.date, ", ".join(map(str, event_date.events))) for event_date in week_events if event_date.events]
 
         events = self.service.get_events(2020, 11, datetime.date(2020, 10, 1), datetime.date(2020, 12, 31))
         week1 = _get_events(events[0])

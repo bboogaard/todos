@@ -1,9 +1,9 @@
-import datetime
 import hashlib
 
 import factory
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
+from django.utils.timezone import now
 
 from todos import models
 
@@ -52,9 +52,7 @@ class EventFactory(factory.django.DjangoModelFactory):
 
     description = 'Lorem'
 
-    date = factory.LazyAttribute(lambda obj: datetime.date.today())
-
-    position = factory.Sequence(lambda n: n)
+    datetime = factory.LazyAttribute(lambda obj: now())
 
     class Meta:
         model = models.Event

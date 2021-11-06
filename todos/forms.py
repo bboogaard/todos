@@ -1,9 +1,10 @@
 import datetime
 
+import pytz
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import ButtonHolder, Layout, Submit
 from django import forms
-from django.utils.timezone import get_current_timezone
+from django.conf import settings
 
 from todos import models
 
@@ -83,7 +84,7 @@ class EventForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.date = kwargs.pop('date')
         super().__init__(*args, **kwargs)
-        self.initial['time'] = self.instance.datetime.time() if self.instance.datetime else None
+        self.initial['time'] = self.instance.datetime_localized.time() if self.instance.datetime else None
         self.helper = FormHelper()
         self.helper.layout = Layout(
             'description',
@@ -95,9 +96,9 @@ class EventForm(forms.ModelForm):
 
     def save(self, commit=True):
         instance = super().save(commit=False)
-        instance.datetime = datetime.datetime.combine(
-            self.date, self.cleaned_data['time'], tzinfo=get_current_timezone()
-        )
+        instance.datetime = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.combine(
+            self.date, self.cleaned_data['time']
+        ))
         instance.save()
         return instance
 

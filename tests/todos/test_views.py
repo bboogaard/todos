@@ -5,6 +5,7 @@ import uuid
 from io import BytesIO
 from zipfile import ZipFile
 
+import pytz
 from django_webtest import WebTest
 from django.conf import settings
 from django.core.cache import cache
@@ -478,28 +479,87 @@ class TestEventCreateView(TodosViewTest):
 
     csrf_checks = False
 
-    def setUp(self):
-        super().setUp()
-        self.events = [
-            EventFactory(description='Pay bills', date=datetime.date(2020, 11, 20)),
-            EventFactory(description='Take out trash', date=datetime.date(2020, 11, 20))
-        ]
-
     def test_get(self):
         response = self.app.get('/events/create?event_date=2020-11-20', user=self.test_user)
         self.assertEqual(response.status_code, 200)
-        response.mustcontain('Pay bills', 'Take out trash')
 
     def test_post(self):
         data = {
-            'events': 'Pay bills\nDentist'
+            'description': 'Pay bills',
+            'time': '10:00'
         }
         response = self.app.post('/events/create?event_date=2020-11-20', data, user=self.test_user)
         self.assertEqual(response.status_code, 302)
 
-        result = list(Event.objects.filter(date=datetime.date(2020, 11, 20)).values_list('description', flat=True))
-        self.assertEqual(result, ['Pay bills', 'Dentist'])
+        event = Event.objects.first()
+        result = event.description
+        expected = 'Pay bills'
+        self.assertEqual(result, expected)
+
+        result = event.datetime_localized.strftime('%d-%m-%Y %H:%M')
+        expected = '20-11-2020 10:00'
+        self.assertEqual(result, expected)
 
     def test_get_invalid_date(self):
         response = self.app.get('/events/create?event_date=2020-11-', user=self.test_user, expect_errors=True)
         self.assertEqual(response.status_code, 400)
+
+
+class TestEventUpdateView(TodosViewTest):
+
+    csrf_checks = False
+
+    def setUp(self):
+        super().setUp()
+        self.event = EventFactory(
+            description='Pay bills',
+            datetime=datetime.datetime(2020, 11, 20, 10, 0, tzinfo=pytz.timezone(settings.TIME_ZONE))
+        )
+
+    def test_get(self):
+        response = self.app.get('/events/{}/update'.format(self.event.pk), user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+    def test_post(self):
+        data = {
+            'description': 'Pay the bills',
+            'time': '11:00'
+        }
+        response = self.app.post('/events/{}/update'.format(self.event.pk), data, user=self.test_user)
+        self.assertEqual(response.status_code, 302)
+
+        event = Event.objects.first()
+        result = event.description
+        expected = 'Pay the bills'
+        self.assertEqual(result, expected)
+
+        result = event.datetime_localized.strftime('%d-%m-%Y %H:%M')
+        expected = '20-11-2020 11:00'
+        self.assertEqual(result, expected)
+
+    def test_post_with_error(self):
+        data = {
+            'description': 'Pay the bills',
+            'time': ''
+        }
+        response = self.app.post('/events/{}/update'.format(self.event.pk), data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+
+class TestEventDeleteView(TodosViewTest):
+
+    csrf_checks = False
+
+    def setUp(self):
+        super().setUp()
+        self.event = EventFactory(
+            description='Pay bills',
+            datetime=datetime.datetime(2020, 11, 20, 10, 0, tzinfo=pytz.timezone(settings.TIME_ZONE))
+        )
+
+    def test_post(self):
+        response = self.app.post('/events/{}/delete'.format(self.event.pk), user=self.test_user)
+        self.assertEqual(response.status_code, 302)
+
+        result = Event.objects.filter(pk=self.event.pk).first()
+        self.assertIsNone(result)
