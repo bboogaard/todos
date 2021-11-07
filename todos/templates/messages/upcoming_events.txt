@@ -1,0 +1,11 @@
+Upcoming events:
+
+{% for event_date in events %}
+{{ event_date.date|date:'d-m-Y' }}:
+    {% for event in event_date.events %}
+* {{ event }}
+    {% endfor %}
+    {% if not forloop.last %}
+----------
+    {% endif %}
+{% endfor %}

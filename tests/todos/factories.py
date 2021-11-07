@@ -3,6 +3,7 @@ import hashlib
 import factory
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
+from django.utils.timezone import now
 
 from todos import models
 
@@ -45,6 +46,16 @@ class NoteFactory(ItemFactory):
 
     class Meta:
         model = models.Note
+
+
+class EventFactory(factory.django.DjangoModelFactory):
+
+    description = 'Lorem'
+
+    datetime = factory.LazyAttribute(lambda obj: now())
+
+    class Meta:
+        model = models.Event
 
 
 class PrivateFileFactory(factory.django.DjangoModelFactory):

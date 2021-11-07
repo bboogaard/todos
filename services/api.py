@@ -113,3 +113,7 @@ class ItemApi(Api):
 
 class FilesApi(ABC):
     pass
+
+
+class EventsApi(ABC):
+    pass

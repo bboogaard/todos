@@ -1,0 +1,10 @@
+{% load static %}
+
+
+{% block content %}
+
+{% for file in files %}
+<link rel="stylesheet" type="text/css" href="{% static file %}">
+{% endfor %}
+
+{% endblock %}

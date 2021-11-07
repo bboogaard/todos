@@ -1,10 +1,12 @@
 import os
 
+import pytz
 from django_extensions.db.models import ActivatorModel
 from django.conf import settings
 from django.db import models
 from django.template.defaultfilters import truncatewords
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from private_storage.fields import PrivateFileField
 
 
@@ -71,6 +73,25 @@ class Note(Item):
         return self.text
 
 
+class Event(models.Model):
+
+    description = models.CharField(max_length=100)
+
+    datetime = models.DateTimeField()
+
+    message_sent = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ('datetime',)
+
+    def __str__(self):
+        return self.description
+
+    @property
+    def datetime_localized(self):
+        return self.datetime.astimezone(pytz.timezone(settings.TIME_ZONE))
+
+
 class GalleryQuerySet(models.QuerySet):
 
     def with_images(self):
@@ -131,3 +152,32 @@ class PrivateFile(models.Model):
 
     def get_absolute_url(self):
         return settings.MEDIA_URL + self.file.name
+
+
+class Widget(models.Model):
+
+    WIDGET_TYPE_TODOS = 'todos'
+    WIDGET_TYPE_FILES = 'files'
+    WIDGET_TYPE_NOTES = 'notes'
+    WIDGET_TYPE_EVENTS = 'events'
+
+    WIDGET_TYPES = (
+        (WIDGET_TYPE_TODOS, _("To do's")),
+        (WIDGET_TYPE_FILES, _("Files")),
+        (WIDGET_TYPE_NOTES, _("Notes")),
+        (WIDGET_TYPE_EVENTS, _("Events")),
+    )
+
+    type = models.CharField(max_length=8, choices=WIDGET_TYPES, unique=True)
+
+    title = models.CharField(max_length=32)
+
+    is_enabled = models.BooleanField(default=False)
+
+    position = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ('position',)
+
+    def __str__(self):
+        return self.title

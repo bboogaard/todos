@@ -1,13 +1,10 @@
 from django.core.management.base import BaseCommand
 
-from services.factory import ItemServiceFactory
-from services.messages.factory import MessageServiceFactory
+from services.factory import EventsServiceFactory
 
 
 class Command(BaseCommand):
-    help = "Send upcoming todo's"
+    help = "Send upcoming events"
 
     def handle(self, *args, **kwargs):
-        upcoming = ItemServiceFactory().todos().upcoming()
-        for todo in upcoming:
-            MessageServiceFactory().create().send(todo)
+        EventsServiceFactory.create().send_upcoming_events()

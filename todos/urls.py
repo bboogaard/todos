@@ -26,4 +26,13 @@ urlpatterns = [
     path('files/delete', views.FileDeleteView.as_view(), name="file_delete"),
     path('files/export', views.FileExportView.as_view(), name="file_export"),
     path('files/import', views.FileImportView.as_view(), name="file_import"),
+
+    # Widgets
+    path('widgets/list', views.WidgetListView.as_view(), name="widget_list"),
+    path('widgets/save', views.WidgetSaveView.as_view(), name="widget_save"),
+
+    # Events
+    path('events/create', views.EventCreateView.as_view(), name="event_create"),
+    path('events/<int:pk>/update', views.EventUpdateView.as_view(), name="event_update"),
+    path('events/<int:pk>/delete', views.EventDeleteView.as_view(), name="event_delete"),
 ]
