@@ -7,7 +7,6 @@ from django.db import transaction
 from django.http.response import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
-from django.utils.http import urlencode
 from django.views import generic, View
 from private_storage.storage import private_storage
 

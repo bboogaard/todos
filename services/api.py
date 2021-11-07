@@ -3,7 +3,6 @@ from abc import ABC
 from io import BytesIO
 from typing import IO, List, Type
 
-from django.core.files.base import ContentFile
 from django.db import transaction
 
 from .models import PersistentItem
