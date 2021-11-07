@@ -1,0 +1,42 @@
+[
+  {
+    "model": "todos.widget",
+    "pk": 1,
+    "fields": {
+      "type": "todos",
+      "title": "Todo's",
+      "is_enabled": true,
+      "position": 0
+    }
+  },
+  {
+    "model": "todos.widget",
+    "pk": 2,
+    "fields": {
+      "type": "files",
+      "title": "Files",
+      "is_enabled": true,
+      "position": 1
+    }
+  },
+  {
+    "model": "todos.widget",
+    "pk": 3,
+    "fields": {
+      "type": "notes",
+      "title": "Notes",
+      "is_enabled": true,
+      "position": 2
+    }
+  },
+  {
+    "model": "todos.widget",
+    "pk": 4,
+    "fields": {
+      "type": "events",
+      "title": "Events",
+      "is_enabled": true,
+      "position": 3
+    }
+  }
+]

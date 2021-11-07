@@ -1,9 +1,10 @@
+import datetime
 from io import BytesIO
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.http.response import JsonResponse, HttpResponse
+from django.http.response import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views import generic, View
@@ -33,31 +34,11 @@ class IndexView(AccessMixin, generic.TemplateView):
     template_name = 'index.html'
 
     def get(self, request, *args, **kwargs):
-        form = self.get_form(request.GET or None)
-        if form.is_valid():
-            items = ItemServiceFactory.todos().search(form.cleaned_data['q'])
-            searching = True
-        else:
-            items = ItemServiceFactory.todos().get_active()
-            searching = False
+        widgets = models.Widget.objects.filter(is_enabled=True)
         context = self.get_context_data(
-            form=form,
-            searching=searching,
-            todo_vars={
-                'items': items,
-                'saveUrl': reverse('todos:todos_save.json'),
-                'activateUrl': reverse('todos:todos_activate.json')
-            },
-            note_vars={
-                'items': ItemServiceFactory.notes().get_active(),
-                'index': ItemServiceFactory.notes().get_index(),
-                'saveUrl': reverse('todos:notes_save.json')
-            },
+            widgets=widgets
         )
         return self.render_to_response(context)
-
-    def get_form(self, data=None):
-        return forms.SearchForm(data)
 
 
 class TodosSaveJson(AccessMixin, View):
@@ -297,3 +278,92 @@ class FileImportView(ImportView):
     message = "Files imported"
 
     title = "Import files"
+
+
+class WidgetListView(AccessMixin, generic.TemplateView):
+
+    template_name = 'widgets/widget_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'widgets': models.Widget.objects.all()
+        })
+        return context
+
+
+class WidgetSaveView(AccessMixin, View):
+
+    def post(self, request, *args, **kwargs):
+        widget_ids = request.POST.getlist('widget', [])
+        qs = models.Widget.objects.all()
+        widgets = []
+        for widget in qs:
+            widget.is_enabled = str(widget.pk) in widget_ids
+            widgets.append(widget)
+        models.Widget.objects.bulk_update(widgets, fields=['is_enabled'])
+        return redirect(reverse('todos:widget_list'))
+
+
+class EventCreateMixin(View):
+
+    template_name = 'events/event_create.html'
+
+    def get(self, request, *args, **kwargs):
+        form = self.get_form()
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form(request.POST or None)
+        if form.is_valid():
+            instance = form.save()
+            return redirect(reverse('todos:event_update', kwargs={'pk': instance.pk}))
+
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context)
+
+
+class EventCreateView(AccessMixin, EventCreateMixin, generic.TemplateView):
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.event_date = datetime.datetime.strptime(request.GET.get('event_date', ''), '%Y-%m-%d').date()
+        except ValueError:
+            return HttpResponseBadRequest()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'event_date': self.event_date
+        })
+        return context
+
+    def get_form(self, data=None, **kwargs):
+        return forms.EventForm(data, date=self.event_date, **kwargs)
+
+
+class EventUpdateView(AccessMixin, EventCreateMixin, generic.TemplateView):
+
+    def dispatch(self, request, pk, *args, **kwargs):
+        self.object = get_object_or_404(models.Event, pk=pk)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'event_date': self.object.datetime.date()
+        })
+        return context
+
+    def get_form(self, data=None, **kwargs):
+        return forms.EventForm(data, date=self.object.datetime.date(), instance=self.object, **kwargs)
+
+
+class EventDeleteView(AccessMixin, generic.TemplateView):
+
+    def post(self, request, pk, *args, **kwargs):
+        self.object = get_object_or_404(models.Event, pk=pk)
+        self.object.delete()
+        return redirect(reverse('todos:index'))

@@ -1,8 +1,45 @@
+import datetime
+
+import pytz
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import ButtonHolder, Fieldset, Layout, Submit
+from crispy_forms.layout import ButtonHolder, Layout, Submit
 from django import forms
+from django.conf import settings
 
 from todos import models
+
+
+class TimePicker(forms.TimeInput):
+
+    template_name = 'forms/widgets/timepicker.html'
+
+    class Media:
+        css = {
+            'all': (
+                'tempus-dominus/css/font-awesome.css',
+                'tempus-dominus/css/tempus-dominus.min.css',
+            )
+        }
+        js = (
+            'tempus-dominus/js/moment.min.js',
+            'tempus-dominus/js/tempus-dominus.min.js',
+        )
+
+    def __init__(self, attrs=None, format=None):
+        attrs = attrs or {}
+        attrs.update({
+            'data-toggle': 'datetimepicker',
+            'class': 'datetimepicker-input'
+        })
+        super().__init__(attrs, format)
+
+    def get_context(self, name, value, attrs):
+        id = 'id_{}'.format(name)
+        attrs.update({
+            'id': id,
+            'data-target': '#{}'.format(id),
+        })
+        return super().get_context(name, value, attrs)
 
 
 class SettingsForm(forms.Form):
@@ -12,16 +49,7 @@ class SettingsForm(forms.Form):
         ('remote', 'remote'),
     ), required=False)
 
-    todos_position = forms.ChoiceField(choices=(
-        ('top', 'top'),
-        ('bottom', 'bottom'),
-    ), required=False)
-
     gallery = forms.TypedChoiceField(coerce=int, choices=(), required=False)
-
-    show_files = forms.BooleanField(required=False)
-
-    show_notes = forms.BooleanField(required=False)
 
     notes_provider = forms.ChoiceField(choices=(
         ('local', 'local'),
@@ -36,6 +64,43 @@ class SettingsForm(forms.Form):
 class SearchForm(forms.Form):
 
     q = forms.CharField(required=False)
+
+
+class MonthForm(forms.Form):
+
+    month = forms.IntegerField()
+
+    year = forms.IntegerField()
+
+
+class EventForm(forms.ModelForm):
+
+    time = forms.TimeField(widget=TimePicker(), input_formats=['%H:%M'])
+
+    class Meta:
+        model = models.Event
+        fields = ('description',)
+
+    def __init__(self, *args, **kwargs):
+        self.date = kwargs.pop('date')
+        super().__init__(*args, **kwargs)
+        self.initial['time'] = self.instance.datetime_localized.time() if self.instance.datetime else None
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            'description',
+            'time',
+            ButtonHolder(
+                Submit('submit', 'Save', css_class='button white')
+            )
+        )
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.datetime = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.combine(
+            self.date, self.cleaned_data['time']
+        ))
+        instance.save()
+        return instance
 
 
 class WallpaperForm(forms.ModelForm):

@@ -63,6 +63,9 @@ TEMPLATES = [
                 'todos.context_processors.wallpapers',
                 'todos.context_processors.files'
             ],
+            'libraries': {
+                'widgets': 'services.widgets.templatetags'
+            }
         },
     },
 ]
@@ -112,7 +115,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Amsterdam'
 
 USE_I18N = True
 

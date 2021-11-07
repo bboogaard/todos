@@ -1,0 +1,37 @@
+{% extends 'widgets/base.html' %}
+
+
+{% block content %}
+<div class="container-fluid">
+  <header>
+    <h4 class="text-center"><a class="btn" href="{{ prev_url }}">&laquo;</a>
+        {{ dt|date:'F Y' }}<a class="btn" href="{{ next_url }}">&raquo;</a></h4>
+    <div class="row d-none d-sm-flex p-1 bg-dark text-white">
+      <h5 class="col-sm p-1 text-center">SU</h5>
+      <h5 class="col-sm p-1 text-center">MO</h5>
+      <h5 class="col-sm p-1 text-center">TU</h5>
+      <h5 class="col-sm p-1 text-center">WE</h5>
+      <h5 class="col-sm p-1 text-center">TH</h5>
+      <h5 class="col-sm p-1 text-center">FR</h5>
+      <h5 class="col-sm p-1 text-center">SA</h5>
+    </div>
+  </header>
+  <div class="row border border-right-0 border-bottom-0">
+    {% for week in events %}
+      {% for event_date in week %}
+    <div class="day col-sm p-2 border border-left-0 border-top-0 text-truncate d-none d-sm-inline-block bg-light text-muted" data-event-url="{% url 'todos:event_create' %}?event_date={{ event_date.date|date:'Y-m-d' }}" data-event-title="Create event">
+      <h5 class="row align-items-center">
+        <span class="date{% if event_date.date == today %} current{% endif %} col-1">{{ event_date.date.day }}</span>
+        <small class="col d-sm-none text-center text-muted"></small>
+        <span class="col-1"></span>
+      </h5>
+      {% for event in event_date.events %}
+      <a class="event d-block p-1 pl-2 pr-2 mb-1 rounded text-truncate small bg-info text-white" data-event-url="{% url 'todos:event_update' pk=event.pk %}" data-event-title="Update event">{{ event.datetime|date:'H:i' }}<br>{{ event }} <form method="post" action="{% url 'todos:event_delete' pk=event.pk %}" style="width:0;height:0"><i class="fa fa-close" style="cursor: hand"></i>{% csrf_token %}</form></a>
+      {% endfor %}
+    </div>
+      {% endfor %}
+    <div class="w-100"></div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

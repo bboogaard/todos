@@ -1,0 +1,20 @@
+{% extends 'widgets/base.html' %}
+
+
+{% block content %}
+
+<ul id="todos"{% if not searching %} contenteditable{% endif %}>
+    <li>Enter item</li>
+</ul>
+
+<br>&nbsp;
+{% if not searching %}
+<a href="javascript:void(0);" id="save" class="btn btn-primary">Save</a>
+<a href="javascript:void(0);" id="delete" class="btn btn-primary">Delete</a>
+{% else %}
+<a href="javascript:void(0);" id="activate" class="btn btn-primary">Activate</a>
+{% endif %}
+
+{{ todo_vars|json_script:"todo-vars" }}
+
+{% endblock %}

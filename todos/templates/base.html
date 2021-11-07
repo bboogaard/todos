@@ -15,6 +15,12 @@
 
     <!-- Custom styles for this template -->
     <link href="{% static 'style.css' %}" rel="stylesheet">
+    {% block css %}
+    {% endblock %}
+
+    <!-- JQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="{% static 'csrf.jquery.js' %}"></script>
 
 </head>
 
@@ -40,9 +46,6 @@
     <p></p>
   </footer>
 
-  <!-- JQuery -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-  <script type="text/javascript" src="{% static 'csrf.jquery.js' %}"></script>
   <!-- Complete Bootstrap JavaScript Bundle -->
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js" integrity="sha384-zDnhMsjVZfS3hiP7oCBRmfjkQC4fzxVxFhBx8Hkz2aZX8gEvA/jsP3eXRCvzTofP" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/emodal@1.2.69/dist/eModal.min.js"></script>

@@ -1,4 +1,4 @@
-from lib.settings import BaseCacheSettings, BooleanField, CharField, IntegerField
+from lib.settings import BaseCacheSettings, CharField, IntegerField
 from todos import models
 
 
@@ -6,13 +6,7 @@ class CacheSettings(BaseCacheSettings):
 
     todos_provider = CharField(default='local')
 
-    todos_position = CharField(default='top')
-
     gallery = IntegerField()
-
-    show_files = BooleanField(default=False)
-
-    show_notes = BooleanField(default=False)
 
     notes_provider = CharField(default='local')
 
