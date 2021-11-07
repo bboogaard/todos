@@ -63,7 +63,44 @@ class SettingsForm(forms.Form):
 
 class SearchForm(forms.Form):
 
-    q = forms.CharField(required=False)
+    q = forms.CharField()
+
+
+class MonthForm(forms.Form):
+
+    month = forms.IntegerField()
+
+    year = forms.IntegerField()
+
+
+class EventForm(forms.ModelForm):
+
+    time = forms.TimeField(widget=TimePicker(), input_formats=['%H:%M'])
+
+    class Meta:
+        model = models.Event
+        fields = ('description',)
+
+    def __init__(self, *args, **kwargs):
+        self.date = kwargs.pop('date')
+        super().__init__(*args, **kwargs)
+        self.initial['time'] = self.instance.datetime_localized.time() if self.instance.datetime else None
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            'description',
+            'time',
+            ButtonHolder(
+                Submit('submit', 'Save', css_class='button white')
+            )
+        )
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.datetime = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.combine(
+            self.date, self.cleaned_data['time']
+        ))
+        instance.save()
+        return instance
 
 
 class MonthForm(forms.Form):
