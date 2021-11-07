@@ -63,7 +63,7 @@ class SettingsForm(forms.Form):
 
 class SearchForm(forms.Form):
 
-    q = forms.CharField(required=False)
+    q = forms.CharField()
 
 
 class MonthForm(forms.Form):
