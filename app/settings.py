@@ -33,7 +33,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_media_fixtures',
     'crispy_forms',
-    'private_storage'
+    'private_storage',
+    # Added.
+    'haystack',
 ]
 
 MIDDLEWARE = [
@@ -146,3 +148,11 @@ MESSAGEBIRD_FROM_NAME = "Todo's"
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+# Search
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
+    },
+}

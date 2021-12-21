@@ -5,9 +5,30 @@ from django_extensions.db.models import ActivatorModel
 from django.conf import settings
 from django.db import models
 from django.template.defaultfilters import truncatewords
+from django.urls import reverse
 from django.utils import timezone
+from django.utils.http import urlencode
 from django.utils.translation import gettext as _
 from private_storage.fields import PrivateFileField
+
+
+class SearchMixin:
+
+    @property
+    def search_type(self):
+        raise NotImplementedError()
+
+    @property
+    def result_url(self):
+        raise NotImplementedError()
+
+    @property
+    def search_field(self):
+        raise NotImplementedError()
+
+    @property
+    def search_result(self):
+        raise NotImplementedError()
 
 
 class Item(ActivatorModel):
@@ -47,7 +68,7 @@ class Item(ActivatorModel):
         self.save()
 
 
-class Todo(Item):
+class Todo(SearchMixin, Item):
 
     description = models.CharField(max_length=100)
 
@@ -58,8 +79,26 @@ class Todo(Item):
     def string_value(self):
         return self.description
 
+    @property
+    def search_type(self):
+        return 'Todo'
 
-class Note(Item):
+    @property
+    def result_url(self):
+        return reverse('todos:index') + '?' + urlencode({
+            'q': self.description
+        })
+
+    @property
+    def search_field(self):
+        return self.description
+
+    @property
+    def search_result(self):
+        return self.description
+
+
+class Note(SearchMixin, Item):
 
     text = models.TextField(blank=True)
 
@@ -72,8 +111,24 @@ class Note(Item):
     def string_value(self):
         return self.text
 
+    @property
+    def search_type(self):
+        return 'Note'
 
-class Event(models.Model):
+    @property
+    def result_url(self):
+        return reverse('todos:index')
+
+    @property
+    def search_field(self):
+        return self.text
+
+    @property
+    def search_result(self):
+        return self.text
+
+
+class Event(SearchMixin, models.Model):
 
     description = models.CharField(max_length=100)
 
@@ -90,6 +145,25 @@ class Event(models.Model):
     @property
     def datetime_localized(self):
         return self.datetime.astimezone(pytz.timezone(settings.TIME_ZONE))
+
+    @property
+    def search_type(self):
+        return 'Event'
+
+    @property
+    def result_url(self):
+        return reverse('todos:index') + '?' + urlencode({
+            'year': self.datetime.year,
+            'month': self.datetime.month
+        })
+
+    @property
+    def search_field(self):
+        return self.description
+
+    @property
+    def search_result(self):
+        return self.description
 
 
 class GalleryQuerySet(models.QuerySet):
