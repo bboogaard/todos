@@ -57,9 +57,9 @@ class TodosWidgetRenderer(WidgetRendererService):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        form = forms.SearchForm(self.request.GET or None)
+        form = forms.TodoSearchForm(self.request.GET or None)
         if form.is_valid():
-            items = ItemServiceFactory.todos().search(form.cleaned_data['q'])
+            items = ItemServiceFactory.todos().search(form.cleaned_data['description'])
             searching = True
         else:
             items = ItemServiceFactory.todos().get_active()

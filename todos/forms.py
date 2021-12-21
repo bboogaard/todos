@@ -61,9 +61,9 @@ class SettingsForm(forms.Form):
         self.fields['gallery'].choices = list(models.Gallery.objects.values_list('id', 'name'))
 
 
-class SearchForm(forms.Form):
+class TodoSearchForm(forms.Form):
 
-    q = forms.CharField()
+    description = forms.CharField()
 
 
 class MonthForm(forms.Form):

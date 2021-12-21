@@ -5,9 +5,7 @@ from django_extensions.db.models import ActivatorModel
 from django.conf import settings
 from django.db import models
 from django.template.defaultfilters import truncatewords
-from django.urls import reverse
 from django.utils import timezone
-from django.utils.http import urlencode
 from django.utils.translation import gettext as _
 from private_storage.fields import PrivateFileField
 
@@ -19,8 +17,8 @@ class SearchMixin:
         raise NotImplementedError()
 
     @property
-    def result_url(self):
-        raise NotImplementedError()
+    def result_params(self):
+        return {}
 
     @property
     def search_field(self):
@@ -84,10 +82,13 @@ class Todo(SearchMixin, Item):
         return 'Todo'
 
     @property
-    def result_url(self):
-        return reverse('todos:index') + '?' + urlencode({
-            'q': self.description
-        })
+    def result_params(self):
+        params = super().result_params
+        if self.is_inactive:
+            params.update({
+                'description': self.description
+            })
+        return params
 
     @property
     def search_field(self):
@@ -114,10 +115,6 @@ class Note(SearchMixin, Item):
     @property
     def search_type(self):
         return 'Note'
-
-    @property
-    def result_url(self):
-        return reverse('todos:index')
 
     @property
     def search_field(self):
@@ -151,11 +148,13 @@ class Event(SearchMixin, models.Model):
         return 'Event'
 
     @property
-    def result_url(self):
-        return reverse('todos:index') + '?' + urlencode({
+    def result_params(self):
+        params = super().result_params
+        params.update({
             'year': self.datetime.year,
             'month': self.datetime.month
         })
+        return params
 
     @property
     def search_field(self):

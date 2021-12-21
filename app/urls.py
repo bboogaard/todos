@@ -22,7 +22,6 @@ from django.urls import include, path, re_path as url
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('todos.urls')),
-    path('search/', include('haystack.urls')),
     url('^private-media/', include(private_storage.urls)),
 ]
 
