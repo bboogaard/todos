@@ -21,6 +21,10 @@ class SearchMixin:
         return {}
 
     @property
+    def include_in_search(self):
+        return True
+
+    @property
     def search_field(self):
         raise NotImplementedError()
 
@@ -123,6 +127,10 @@ class Note(SearchMixin, Item):
             'item_id': self.item_id
         }))
         return params
+
+    @property
+    def include_in_search(self):
+        return self.is_active
 
     @property
     def search_field(self):

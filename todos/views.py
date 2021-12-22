@@ -8,7 +8,6 @@ from django.http.response import JsonResponse, HttpResponse, HttpResponseBadRequ
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views import generic, View
-from haystack.forms import SearchForm
 from haystack.generic_views import SearchView as BaseSearchView
 from private_storage.storage import private_storage
 
@@ -39,7 +38,7 @@ class IndexView(AccessMixin, generic.TemplateView):
         widgets = models.Widget.objects.filter(is_enabled=True)
         context = self.get_context_data(
             widgets=widgets,
-            search_form=SearchForm(request.GET or None)
+            search_form=forms.SearchForm(request.GET or None)
         )
         return self.render_to_response(context)
 
@@ -47,6 +46,8 @@ class IndexView(AccessMixin, generic.TemplateView):
 class SearchView(BaseSearchView):
 
     form_name = 'search_form'
+
+    form_class = forms.SearchForm
 
 
 class TodosSaveJson(AccessMixin, View):

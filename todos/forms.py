@@ -5,6 +5,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import ButtonHolder, Layout, Submit
 from django import forms
 from django.conf import settings
+from haystack.forms import ModelSearchForm as HaystackSearchForm
 
 from todos import models
 
@@ -59,6 +60,14 @@ class SettingsForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['gallery'].choices = list(models.Gallery.objects.values_list('id', 'name'))
+
+
+class SearchForm(HaystackSearchForm):
+
+    def search(self):
+        sqs = super().search()
+        sqs = sqs.filter(include_in_search=True)
+        return sqs
 
 
 class TodoSearchForm(forms.Form):
