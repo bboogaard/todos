@@ -46,7 +46,7 @@ class WidgetRendererService:
     def media(self):
         return {}
 
-    def global_vars(self, context: RequestContext):
+    def global_vars(self):
         return {}
 
 
@@ -71,7 +71,8 @@ class TodosWidgetRenderer(WidgetRendererService):
             todo_vars={
                 'items': items,
                 'saveUrl': reverse('todos:todos_save.json'),
-                'activateUrl': reverse('todos:todos_activate.json')
+                'activateUrl': reverse('todos:todos_activate.json'),
+                'searching': searching
             }
         ))
         return context
@@ -84,9 +85,8 @@ class TodosWidgetRenderer(WidgetRendererService):
             )
         }
 
-    def global_vars(self, context: RequestContext):
+    def global_vars(self):
         return {
-            'searching': context.get('searching', False),
             'provider': self.settings.todos_provider
         }
 
@@ -119,7 +119,7 @@ class NotesWidgetRenderer(WidgetRendererService):
             )
         }
 
-    def global_vars(self, context: RequestContext):
+    def global_vars(self):
         return {
             'provider': self.settings.notes_provider
         }
@@ -166,5 +166,5 @@ class EventsWidgetRenderer(WidgetRendererService):
             )
         }
 
-    def global_vars(self, context: RequestContext):
+    def global_vars(self):
         return {}

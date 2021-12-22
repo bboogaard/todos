@@ -2,6 +2,7 @@ function ChecklistProviderFactory(json_vars) {
     this.items = json_vars.items;
     this.saveUrl = json_vars.saveUrl;
     this.activateUrl = json_vars.activateUrl;
+    this.searching = json_vars.searching;
 }
 
 ChecklistProviderFactory.prototype = {
@@ -10,13 +11,15 @@ ChecklistProviderFactory.prototype = {
         switch (type) {
             case "local":
                 return new ChecklistProviderLocal({
-                    storageName: 'todos-list'
+                    storageName: 'todos-list',
+                    searching: false
                 })
             case "remote":
                 return new ChecklistProviderRemote({
                     items: this.items,
                     saveUrl: this.saveUrl,
-                    activateUrl: this.activateUrl
+                    activateUrl: this.activateUrl,
+                    searching: this.searching
                 })
         }
 
