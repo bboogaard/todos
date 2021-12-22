@@ -80,12 +80,13 @@ class NotesSaveJson(AccessMixin, View):
 
     @transaction.atomic()
     def post(self, request, *args, **kwargs):
+        searching = request.POST.get('searching', 'false') == 'true'
         items = request.POST.getlist('items', [])
         try:
             index = int(request.POST.get('index', '0'))
         except (TypeError, ValueError):
             index = 0
-        ItemServiceFactory.notes().save(items, index=index)
+        ItemServiceFactory.notes().save(items, is_filtered=searching, index=index)
         return JsonResponse(data={})
 
 

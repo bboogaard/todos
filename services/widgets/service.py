@@ -102,11 +102,24 @@ class NotesWidgetRenderer(WidgetRendererService):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        form = forms.NoteSearchForm(self.request.GET or None)
+        if form.is_valid():
+            items = ItemServiceFactory.notes().search(form.cleaned_data['item_id'])
+            index = 0
+            searching = True
+        else:
+            items = ItemServiceFactory.notes().get_active()
+            index = ItemServiceFactory.notes().get_index()
+            searching = False
+
         context.update(
+            searching=searching,
             note_vars={
-                'items': ItemServiceFactory.notes().get_active(),
-                'index': ItemServiceFactory.notes().get_index(),
-                'saveUrl': reverse('todos:notes_save.json')
+                'items': items,
+                'index': index,
+                'saveUrl': reverse('todos:notes_save.json'),
+                'searching': searching
             }
         )
         return context

@@ -117,6 +117,14 @@ class Note(SearchMixin, Item):
         return 'Note'
 
     @property
+    def result_params(self):
+        params = super().result_params
+        params.update(({
+            'item_id': self.item_id
+        }))
+        return params
+
+    @property
     def search_field(self):
         return self.text
 

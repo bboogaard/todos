@@ -11,6 +11,7 @@
 
         this.items = [];
         this.index = 0;
+        this.searching = settings.provider.searching;
     }
 
     NotesApi.prototype = {
@@ -35,9 +36,11 @@
                 self.new();
             });
 
-            this.deleteButton.click(function () {
-                self.delete();
-            });
+            if (!this.searching) {
+                this.deleteButton.click(function () {
+                    self.delete();
+                });
+            }
 
             this.prevButton.click(function () {
                 self.prev();

@@ -52,24 +52,24 @@ class ItemApi(Api):
         )
 
     @transaction.atomic()
-    def save(self, items: List[str], **kwargs):
+    def save(self, items: List[str], is_filtered: bool = False, **kwargs):
         _persistent_items = self._get_persistent_items()
         items = self._from_items(items)
         for item in items:
             item_in_db = next(filter(lambda t: t.id == item.id, _persistent_items), None)
             if item_in_db is None:
                 _persistent_items.append(item)
-            elif not item_in_db.active:
+            elif not item_in_db.active and not is_filtered:
                 item_in_db.active = True
         for item_in_db in _persistent_items:
             item = next(filter(lambda t: t.id == item_in_db.id, items), None)
-            if item is None:
+            if item is None and not is_filtered:
                 item_in_db.active = False
 
         items_in_db = self._model.objects.in_bulk(field_name='item_id')
         for item in _persistent_items:
             item_to_update = items_in_db.get(item.id)
-            if item_to_update is not None and item_to_update.is_active != item.active:
+            if item_to_update is not None and item_to_update.is_active != item.active and not is_filtered:
                 func = 'activate' if item.active else 'soft_delete'
                 getattr(item_to_update, func)()
             elif item_to_update is None:

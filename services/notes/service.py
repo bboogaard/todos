@@ -17,10 +17,18 @@ class NoteService(ItemApi):
 
     _separator = '\n----------\n'
 
-    def save(self, items: List[str], **kwargs):
+    def search(self, search_query: str) -> List[str]:
+        if not search_query:
+            return []
+
+        return self._to_items(
+            list(filter(lambda t: t.active and search_query == t.id, self.persistent_items))
+        )
+
+    def save(self, items: List[str], is_filtered: bool = False, **kwargs):
         index = kwargs.get('index', 0) or 0
         cache.set('notes-index', index)
-        super().save(items)
+        super().save(items, is_filtered)
 
     def get_index(self):
         return cache.get('notes-index', 0)

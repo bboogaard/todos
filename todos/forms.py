@@ -66,6 +66,11 @@ class TodoSearchForm(forms.Form):
     description = forms.CharField()
 
 
+class NoteSearchForm(forms.Form):
+
+    item_id = forms.CharField()
+
+
 class MonthForm(forms.Form):
 
     month = forms.IntegerField()
