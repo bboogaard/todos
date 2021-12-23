@@ -77,7 +77,12 @@ class TodoSearchForm(forms.Form):
 
 class NoteSearchForm(forms.Form):
 
-    item_id = forms.CharField()
+    note_id = forms.CharField()
+
+
+class FileSearchForm(forms.Form):
+
+    file_id = forms.IntegerField()
 
 
 class MonthForm(forms.Form):
@@ -176,7 +181,7 @@ class WallpaperForm(forms.ModelForm):
 class FileForm(forms.ModelForm):
 
     class Meta:
-        fields = ('file',)
+        fields = ('file', 'tags')
         model = models.PrivateFile
 
     def __init__(self, *args, **kwargs):
@@ -184,6 +189,7 @@ class FileForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             'file',
+            'tags',
             ButtonHolder(
                 Submit('submit', 'Save', css_class='button white')
             )

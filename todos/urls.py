@@ -24,6 +24,7 @@ urlpatterns = [
     # Files
     path('files/list', views.FileListView.as_view(), name="file_list"),
     path('files/create', views.FileCreateView.as_view(), name="file_create"),
+    path('files/<int:pk>/update', views.FileUpdateView.as_view(), name="file_update"),
     path('files/delete', views.FileDeleteView.as_view(), name="file_delete"),
     path('files/export', views.FileExportView.as_view(), name="file_export"),
     path('files/import', views.FileImportView.as_view(), name="file_import"),

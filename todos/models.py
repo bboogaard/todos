@@ -7,6 +7,7 @@ from django.db import models
 from django.template.defaultfilters import truncatewords
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from taggit.managers import TaggableManager
 from private_storage.fields import PrivateFileField
 
 
@@ -129,7 +130,7 @@ class Note(SearchMixin, Item):
     def result_params(self):
         params = super().result_params
         params.update(({
-            'item_id': self.item_id
+            'note_id': self.item_id
         }))
         return params
 
@@ -232,11 +233,13 @@ class Wallpaper(models.Model):
         return settings.MEDIA_URL + 'wallpapers/' + os.path.basename(self.image.file.name)
 
 
-class PrivateFile(models.Model):
+class PrivateFile(SearchMixin, models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
 
     file = PrivateFileField()
+
+    tags = TaggableManager()
 
     class Meta:
         ordering = ('-created',)
@@ -246,6 +249,26 @@ class PrivateFile(models.Model):
 
     def get_absolute_url(self):
         return settings.MEDIA_URL + self.file.name
+
+    @property
+    def search_type(self):
+        return 'File'
+
+    @property
+    def result_params(self):
+        params = super().result_params
+        params.update({
+            'file_id': self.pk
+        })
+        return params
+
+    @property
+    def search_field(self):
+        return ' '.join(map(str, self.tags.all()))
+
+    @property
+    def search_result(self):
+        return self.file.name
 
 
 class Widget(models.Model):

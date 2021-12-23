@@ -41,9 +41,12 @@ class CronMiddleware:
             current_time = now().timestamp()
             if current_time >= next_run:
                 logger.info('Cron triggered for job {}'.format(job_name))
-                func()
-                cache.set(cache_key, current_time, timeout=None)
-                next_run = current_time + frequency
+                try:
+                    func()
+                    cache.set(cache_key, current_time, timeout=None)
+                    next_run = current_time + frequency
+                except Exception as exc:
+                    logger.error('Error executing job {}: {}'.format(job_name, str(exc)))
             logger.info('Next run: {}'.format(make_aware(
                 datetime.datetime.fromtimestamp(next_run),
                 pytz.timezone(settings.TIME_ZONE)

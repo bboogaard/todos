@@ -274,7 +274,8 @@ class TestFileCreateView(TodosViewTest):
 
     def test_post(self):
         data = {
-            'file': Upload('file.txt', b'Foo', 'text/plain')
+            'file': Upload('file.txt', b'Foo', 'text/plain'),
+            'tags': 'Foo'
         }
 
         response = self.app.post('/files/create', data, user=self.test_user)
@@ -285,10 +286,46 @@ class TestFileCreateView(TodosViewTest):
 
     def test_post_with_error(self):
         data = {
-            'file': ''
+            'file': '',
+            'tags': 'Foo'
         }
 
         response = self.app.post('/files/create', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200, response.content)
+
+
+class TestFileUpdateView(TodosViewTest):
+
+    csrf_checks = False
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.file = PrivateFileFactory()
+
+    def test_get(self):
+        response = self.app.get('/files/{}/update'.format(self.file.pk), user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+    def test_post(self):
+        data = {
+            'file': Upload('file.txt', b'Foo', 'text/plain'),
+            'tags': 'Foo'
+        }
+
+        response = self.app.post('/files/{}/update'.format(self.file.pk), data, user=self.test_user)
+        self.assertEqual(response.status_code, 302, response.content)
+        pfile = PrivateFile.objects.first()
+        self.assertEqual(pfile.file.read(), b'Foo')
+        self.assertEqual('.'.join(map(str, pfile.tags.all())), 'Foo')
+
+    def test_post_with_error(self):
+        data = {
+            'file': '',
+            'tags': ''
+        }
+
+        response = self.app.post('/files/{}/update'.format(self.file.pk), data, user=self.test_user)
         self.assertEqual(response.status_code, 200, response.content)
 
 

@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'private_storage',
     # Added.
     'haystack',
+    'taggit'
 ]
 
 MIDDLEWARE = [
@@ -63,8 +64,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'todos.context_processors.settings',
-                'todos.context_processors.wallpapers',
-                'todos.context_processors.files'
+                'todos.context_processors.wallpapers'
             ],
             'libraries': {
                 'widgets': 'services.widgets.templatetags'

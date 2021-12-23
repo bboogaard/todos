@@ -186,9 +186,7 @@ class FileListView(AccessMixin, generic.TemplateView):
         return context
 
 
-class FileCreateView(AccessMixin, generic.TemplateView):
-
-    template_name = 'files/file_create.html'
+class FileEditMixin(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         form = self.get_form()
@@ -206,6 +204,29 @@ class FileCreateView(AccessMixin, generic.TemplateView):
 
     def get_form(self, data=None, files=None, **kwargs):
         return forms.FileForm(data, files=files, **kwargs)
+
+
+class FileCreateView(AccessMixin, FileEditMixin):
+
+    template_name = 'files/file_create.html'
+
+
+class FileUpdateView(AccessMixin, FileEditMixin):
+
+    template_name = 'files/file_update.html'
+
+    def dispatch(self, request, pk, *args, **kwargs):
+        self.object = get_object_or_404(models.PrivateFile, pk=pk)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form(self, data=None, files=None, **kwargs):
+        kwargs['instance'] = self.object
+        return super().get_form(data, files, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['file'] = self.object
+        return context
 
 
 class FileDeleteView(AccessMixin, View):
