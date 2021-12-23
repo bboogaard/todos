@@ -10,7 +10,12 @@ from django.utils.translation import gettext as _
 from private_storage.fields import PrivateFileField
 
 
-class SearchMixin:
+class SearchMixin(models.Model):
+
+    update_datetime = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
 
     @property
     def search_type(self):

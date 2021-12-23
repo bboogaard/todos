@@ -14,4 +14,4 @@ before_install:
 install:
 - pip install -r requirements.txt
 script:
-- coverage run --source='.' ./manage.py test --settings=app.settings-test && coverage report
+- coverage run --source="." --omit="tests/*" ./manage.py test --settings=app.settings-test && coverage report
