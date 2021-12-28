@@ -11,7 +11,7 @@ from dateutil.relativedelta import relativedelta
 
 from services.factory import EventsServiceFactory, ItemServiceFactory
 from todos import forms
-from todos.models import PrivateFile, Widget
+from todos.models import PrivateFile, PrivateImage, Widget
 from todos.settings import cache_settings
 
 
@@ -105,6 +105,25 @@ class FilesWidgetRenderer(WidgetRendererService):
 
         context.update(dict(
             files=files
+        ))
+        return context
+
+
+class ImagesWidgetRenderer(WidgetRendererService):
+
+    template_name = 'images.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        form = forms.ImageSearchForm(self.request.GET or None)
+        if form.is_valid():
+            images = PrivateImage.objects.filter(pk=form.cleaned_data['image_id'])
+        else:
+            images = PrivateImage.objects.all()
+
+        context.update(dict(
+            images=images
         ))
         return context
 

@@ -22,10 +22,10 @@ urlpatterns = [
     path('wallpapers/delete', views.WallpaperDeleteView.as_view(), name="wallpaper_delete"),
 
     # Files
-    path('files/list', views.FileListView.as_view(), name="file_list"),
-    path('files/create', views.FileCreateView.as_view(), name="file_create"),
-    path('files/<int:pk>/update', views.FileUpdateView.as_view(), name="file_update"),
-    path('files/delete', views.FileDeleteView.as_view(), name="file_delete"),
+    path('files/<file_type>/list', views.FileListView.as_view(), name="file_list"),
+    path('files/<file_type>/create', views.FileCreateView.as_view(), name="file_create"),
+    path('files/<file_type>/<int:pk>/update', views.FileUpdateView.as_view(), name="file_update"),
+    path('files/<file_type>/delete', views.FileDeleteView.as_view(), name="file_delete"),
     path('files/export', views.FileExportView.as_view(), name="file_export"),
     path('files/import', views.FileImportView.as_view(), name="file_import"),
 

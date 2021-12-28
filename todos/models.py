@@ -8,7 +8,7 @@ from django.template.defaultfilters import truncatewords
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from taggit.managers import TaggableManager
-from private_storage.fields import PrivateFileField
+from private_storage.fields import PrivateFileField, PrivateImageField
 
 
 class SearchMixin(models.Model):
@@ -233,16 +233,30 @@ class Wallpaper(models.Model):
         return settings.MEDIA_URL + 'wallpapers/' + os.path.basename(self.image.file.name)
 
 
-class PrivateFile(SearchMixin, models.Model):
+class BasePrivateFile(SearchMixin, models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
-
-    file = PrivateFileField()
 
     tags = TaggableManager()
 
     class Meta:
+        abstract = True
         ordering = ('-created',)
+
+    @property
+    def search_field(self):
+        return ' '.join(map(str, self.tags.all()))
+
+    def search_type(self):
+        raise NotImplementedError()
+
+    def search_result(self):
+        raise NotImplementedError()
+
+
+class PrivateFile(BasePrivateFile):
+
+    file = PrivateFileField()
 
     def __str__(self):
         return self.file.name
@@ -263,12 +277,35 @@ class PrivateFile(SearchMixin, models.Model):
         return params
 
     @property
-    def search_field(self):
-        return ' '.join(map(str, self.tags.all()))
+    def search_result(self):
+        return self.file.name
+
+
+class PrivateImage(BasePrivateFile):
+
+    image = PrivateImageField()
+
+    def __str__(self):
+        return self.image.name
+
+    def get_absolute_url(self):
+        return settings.MEDIA_URL + self.image.name
+
+    @property
+    def search_type(self):
+        return 'Image'
+
+    @property
+    def result_params(self):
+        params = super().result_params
+        params.update({
+            'image_id': self.pk
+        })
+        return params
 
     @property
     def search_result(self):
-        return self.file.name
+        return self.image.name
 
 
 class Widget(models.Model):
@@ -277,12 +314,14 @@ class Widget(models.Model):
     WIDGET_TYPE_FILES = 'files'
     WIDGET_TYPE_NOTES = 'notes'
     WIDGET_TYPE_EVENTS = 'events'
+    WIDGET_TYPE_IMAGES = 'images'
 
     WIDGET_TYPES = (
         (WIDGET_TYPE_TODOS, _("To do's")),
         (WIDGET_TYPE_FILES, _("Files")),
         (WIDGET_TYPE_NOTES, _("Notes")),
         (WIDGET_TYPE_EVENTS, _("Events")),
+        (WIDGET_TYPE_IMAGES, _("Images")),
     )
 
     type = models.CharField(max_length=8, choices=WIDGET_TYPES, unique=True)

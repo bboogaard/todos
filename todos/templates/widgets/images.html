@@ -1,0 +1,10 @@
+{% extends 'widgets/base.html' %}
+
+
+{% block content %}
+
+{% for image in images %}
+<a href="{{ image.image.url }}" target="_blank">{{ image }}</a><br>
+{% endfor %}
+
+{% endblock %}

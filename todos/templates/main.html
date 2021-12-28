@@ -75,6 +75,9 @@
           <a class="dropdown-item" href="#" data-action="manage-files">
               Manage files
           </a>
+          <a class="dropdown-item" href="#" data-action="manage-images">
+              Manage images
+          </a>
           <a class="dropdown-item" href="#" data-setting-name="notes_provider" data-setting-value="{% if settings.notes_provider == 'local' %}remote{% else %}local{% endif %}">
               {% if settings.notes_provider == 'remote' %}
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check" viewBox="0 0 16 16">
@@ -139,7 +142,11 @@
       });
       $('[data-action="manage-files"]').click(function (event) {
          event.preventDefault();
-         eModal.iframe('{% url "todos:file_list" %}', 'Manage files');
+         eModal.iframe('{% url "todos:file_list" "file" %}', 'Manage files');
+      });
+      $('[data-action="manage-images"]').click(function (event) {
+         event.preventDefault();
+         eModal.iframe('{% url "todos:file_list" "image" %}', 'Manage images');
       });
       $('[data-action="import-todos"]').click(function (event) {
          event.preventDefault();

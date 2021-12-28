@@ -1,25 +1,25 @@
 {% extends 'base.html' %}
 
 {% block main %}
-<h1>Files</h1>
+<h1>{{ title }}</h1>
 <div class="float-right mb-2">
-    <a class="btn btn-primary" href="{% url 'todos:file_create' %}">Add file</a>&nbsp;
-    <a class="btn btn-primary" id="delete-btn" href="">Delete files</a>
+    <a class="btn btn-primary" href="{% url 'todos:file_create' file_type %}">Add {{ object_name }}</a>&nbsp;
+    <a class="btn btn-primary" id="delete-btn" href="">Delete {{ object_name_plural }}</a>
 </div>
-<form method="post" action="{% url 'todos:file_delete' %}">
+<form method="post" action="{% url 'todos:file_delete' file_type %}">
     {% csrf_token %}
     <table class="table table-striped">
       <thead>
         <tr>
           <th scope="col"><input type="checkbox" id="select-all"></th>
-          <th scope="col">File</th>
+          <th scope="col">{{ object_name }}</th>
         </tr>
       </thead>
       <tbody>
         {% for file in files %}
         <tr>
           <td><input type="checkbox" name="file" value="{{ file.id }}"></td>
-          <td><a href="{% url 'todos:file_update' file.pk %}">{{ file }}</a></td>
+          <td><a href="{% url 'todos:file_update' file_type file.pk %}">{{ file }}</a></td>
         </tr>
         {% endfor %}
       </tbody>

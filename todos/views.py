@@ -174,19 +174,63 @@ class WallpaperDeleteView(AccessMixin, View):
         return redirect(reverse('todos:wallpaper_list'))
 
 
-class FileListView(AccessMixin, generic.TemplateView):
+class FileViewMixin:
+
+    file_type = None
+
+    model = None
+
+    object_name = None
+
+    object_name_plural = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.file_type = kwargs['file_type']
+        self.model = self.get_model(self.file_type)
+        self.object_name, self.object_name_plural = {
+            'file': ('File', 'Files'),
+            'image': ('Image', 'Images')
+        }.get(self.file_type)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'file_type': self.file_type,
+            'object_name': self.object_name,
+            'object_name_plural': self.object_name_plural,
+        })
+        return context
+
+    def get_model(self, file_type):
+        return {
+            'file': models.PrivateFile,
+            'image': models.PrivateImage
+        }.get(file_type)
+
+
+class FileListView(FileViewMixin, AccessMixin, generic.TemplateView):
 
     template_name = 'files/file_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
-            'files': models.PrivateFile.objects.all()
+            'files': self.model.objects.all()
         })
         return context
 
 
-class FileEditMixin(generic.TemplateView):
+class FileEditMixin(FileViewMixin, generic.TemplateView):
+
+    form_class = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.form_class = {
+            'file': forms.FileForm,
+            'image': forms.ImageForm
+        }.get(kwargs['file_type'])
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         form = self.get_form()
@@ -197,13 +241,13 @@ class FileEditMixin(generic.TemplateView):
         form = self.get_form(request.POST or None, files=request.FILES or None)
         if form.is_valid():
             form.save()
-            return redirect(reverse('todos:file_list'))
+            return redirect(reverse('todos:file_list', args=[self.file_type]))
 
         context = self.get_context_data(form=form)
         return self.render_to_response(context)
 
     def get_form(self, data=None, files=None, **kwargs):
-        return forms.FileForm(data, files=files, **kwargs)
+        return self.form_class(data, files=files, **kwargs)
 
 
 class FileCreateView(AccessMixin, FileEditMixin):
@@ -216,7 +260,7 @@ class FileUpdateView(AccessMixin, FileEditMixin):
     template_name = 'files/file_update.html'
 
     def dispatch(self, request, pk, *args, **kwargs):
-        self.object = get_object_or_404(models.PrivateFile, pk=pk)
+        self.object = get_object_or_404(self.get_model(kwargs['file_type']), pk=pk)
         return super().dispatch(request, *args, **kwargs)
 
     def get_form(self, data=None, files=None, **kwargs):
@@ -229,16 +273,16 @@ class FileUpdateView(AccessMixin, FileEditMixin):
         return context
 
 
-class FileDeleteView(AccessMixin, View):
+class FileDeleteView(FileViewMixin, AccessMixin, View):
 
     def post(self, request, *args, **kwargs):
         file_ids = request.POST.getlist('file', [])
-        qs = models.PrivateFile.objects.filter(pk__in=file_ids)
+        qs = self.model.objects.filter(pk__in=file_ids)
         file_names = [file.file.name for file in qs]
         qs.delete()
         for file in file_names:
             private_storage.delete(file)
-        return redirect(reverse('todos:file_list'))
+        return redirect(reverse('todos:file_list', args=[self.file_type]))
 
 
 class FileExportView(AccessMixin, View):
