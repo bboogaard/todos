@@ -8,6 +8,7 @@ from django.http.response import JsonResponse, HttpResponse, HttpResponseBadRequ
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views import generic, View
+from haystack.generic_views import SearchView as BaseSearchView
 from private_storage.storage import private_storage
 
 from services.api import Api
@@ -36,9 +37,17 @@ class IndexView(AccessMixin, generic.TemplateView):
     def get(self, request, *args, **kwargs):
         widgets = models.Widget.objects.filter(is_enabled=True)
         context = self.get_context_data(
-            widgets=widgets
+            widgets=widgets,
+            search_form=forms.SearchForm(request.GET or None)
         )
         return self.render_to_response(context)
+
+
+class SearchView(BaseSearchView):
+
+    form_name = 'search_form'
+
+    form_class = forms.SearchForm
 
 
 class TodosSaveJson(AccessMixin, View):
@@ -72,12 +81,13 @@ class NotesSaveJson(AccessMixin, View):
 
     @transaction.atomic()
     def post(self, request, *args, **kwargs):
+        searching = request.POST.get('searching', 'false') == 'true'
         items = request.POST.getlist('items', [])
         try:
             index = int(request.POST.get('index', '0'))
         except (TypeError, ValueError):
             index = 0
-        ItemServiceFactory.notes().save(items, index=index)
+        ItemServiceFactory.notes().save(items, is_filtered=searching, index=index)
         return JsonResponse(data={})
 
 
@@ -176,9 +186,7 @@ class FileListView(AccessMixin, generic.TemplateView):
         return context
 
 
-class FileCreateView(AccessMixin, generic.TemplateView):
-
-    template_name = 'files/file_create.html'
+class FileEditMixin(generic.TemplateView):
 
     def get(self, request, *args, **kwargs):
         form = self.get_form()
@@ -196,6 +204,29 @@ class FileCreateView(AccessMixin, generic.TemplateView):
 
     def get_form(self, data=None, files=None, **kwargs):
         return forms.FileForm(data, files=files, **kwargs)
+
+
+class FileCreateView(AccessMixin, FileEditMixin):
+
+    template_name = 'files/file_create.html'
+
+
+class FileUpdateView(AccessMixin, FileEditMixin):
+
+    template_name = 'files/file_update.html'
+
+    def dispatch(self, request, pk, *args, **kwargs):
+        self.object = get_object_or_404(models.PrivateFile, pk=pk)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form(self, data=None, files=None, **kwargs):
+        kwargs['instance'] = self.object
+        return super().get_form(data, files, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['file'] = self.object
+        return context
 
 
 class FileDeleteView(AccessMixin, View):

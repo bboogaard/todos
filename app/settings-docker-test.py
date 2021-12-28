@@ -13,3 +13,11 @@ DATABASES = {
 }
 
 MEDIA_ROOT = '/home/media/test'
+
+# Search
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': '/home/whoosh_index/test',
+    },
+}

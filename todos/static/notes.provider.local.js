@@ -1,5 +1,6 @@
 function NotesProviderLocal(settings) {
     this.storageName = settings.storageName;
+    this.searching = settings.searching;
 }
 
 NotesProviderLocal.prototype = {

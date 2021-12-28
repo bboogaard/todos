@@ -1,5 +1,6 @@
 function ChecklistProviderLocal(settings) {
     this.storageName = settings.storageName;
+    this.searching = settings.searching;
 }
 
 ChecklistProviderLocal.prototype = {

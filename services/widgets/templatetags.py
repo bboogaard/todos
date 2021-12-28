@@ -30,7 +30,7 @@ def render_js(context, widget: Widget):
         }
 
     files = renderer.media().get('js', [])
-    global_vars = renderer.global_vars(context)
+    global_vars = renderer.global_vars()
     return {
         'files': files,
         'var_name': '{}_vars'.format(widget.type),

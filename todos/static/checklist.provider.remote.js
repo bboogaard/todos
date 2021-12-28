@@ -2,6 +2,7 @@ function ChecklistProviderRemote(settings) {
     this.items = settings.items;
     this.saveUrl = settings.saveUrl;
     this.activateUrl = settings.activateUrl;
+    this.searching = settings.searching;
 }
 
 ChecklistProviderRemote.prototype = {

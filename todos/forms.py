@@ -5,6 +5,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import ButtonHolder, Layout, Submit
 from django import forms
 from django.conf import settings
+from haystack.forms import ModelSearchForm as HaystackSearchForm
 
 from todos import models
 
@@ -61,9 +62,64 @@ class SettingsForm(forms.Form):
         self.fields['gallery'].choices = list(models.Gallery.objects.values_list('id', 'name'))
 
 
-class SearchForm(forms.Form):
+class SearchForm(HaystackSearchForm):
 
-    q = forms.CharField()
+    def search(self):
+        sqs = super().search()
+        sqs = sqs.filter(include_in_search=True)
+        return sqs
+
+
+class TodoSearchForm(forms.Form):
+
+    description = forms.CharField()
+
+
+class NoteSearchForm(forms.Form):
+
+    note_id = forms.CharField()
+
+
+class FileSearchForm(forms.Form):
+
+    file_id = forms.IntegerField()
+
+
+class MonthForm(forms.Form):
+
+    month = forms.IntegerField()
+
+    year = forms.IntegerField()
+
+
+class EventForm(forms.ModelForm):
+
+    time = forms.TimeField(widget=TimePicker(), input_formats=['%H:%M'])
+
+    class Meta:
+        model = models.Event
+        fields = ('description',)
+
+    def __init__(self, *args, **kwargs):
+        self.date = kwargs.pop('date')
+        super().__init__(*args, **kwargs)
+        self.initial['time'] = self.instance.datetime_localized.time() if self.instance.datetime else None
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            'description',
+            'time',
+            ButtonHolder(
+                Submit('submit', 'Save', css_class='button white')
+            )
+        )
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.datetime = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.combine(
+            self.date, self.cleaned_data['time']
+        ))
+        instance.save()
+        return instance
 
 
 class MonthForm(forms.Form):
@@ -125,7 +181,7 @@ class WallpaperForm(forms.ModelForm):
 class FileForm(forms.ModelForm):
 
     class Meta:
-        fields = ('file',)
+        fields = ('file', 'tags')
         model = models.PrivateFile
 
     def __init__(self, *args, **kwargs):
@@ -133,6 +189,7 @@ class FileForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             'file',
+            'tags',
             ButtonHolder(
                 Submit('submit', 'Save', css_class='button white')
             )
