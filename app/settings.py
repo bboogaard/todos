@@ -33,7 +33,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_media_fixtures',
     'crispy_forms',
-    'private_storage'
+    'private_storage',
+    # Added.
+    'haystack',
+    'taggit'
 ]
 
 MIDDLEWARE = [
@@ -44,6 +47,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'lib.middleware.CronMiddleware'
 ]
 
 ROOT_URLCONF = 'app.urls'
@@ -60,8 +64,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'todos.context_processors.settings',
-                'todos.context_processors.wallpapers',
-                'todos.context_processors.files'
+                'todos.context_processors.wallpapers'
             ],
             'libraries': {
                 'widgets': 'services.widgets.templatetags'
@@ -146,3 +149,11 @@ MESSAGEBIRD_FROM_NAME = "Todo's"
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
+# Search
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
+    },
+}

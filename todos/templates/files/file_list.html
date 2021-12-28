@@ -19,7 +19,7 @@
         {% for file in files %}
         <tr>
           <td><input type="checkbox" name="file" value="{{ file.id }}"></td>
-          <td><a href="{{ file.file.url }}" target="_blank">{{ file }}</a></td>
+          <td><a href="{% url 'todos:file_update' file.pk %}">{{ file }}</a></td>
         </tr>
         {% endfor %}
       </tbody>

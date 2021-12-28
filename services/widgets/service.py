@@ -11,7 +11,7 @@ from dateutil.relativedelta import relativedelta
 
 from services.factory import EventsServiceFactory, ItemServiceFactory
 from todos import forms
-from todos.models import Widget
+from todos.models import PrivateFile, Widget
 from todos.settings import cache_settings
 
 
@@ -46,7 +46,7 @@ class WidgetRendererService:
     def media(self):
         return {}
 
-    def global_vars(self, context: RequestContext):
+    def global_vars(self):
         return {}
 
 
@@ -57,21 +57,21 @@ class TodosWidgetRenderer(WidgetRendererService):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        form = forms.SearchForm(self.request.GET or None)
+        form = forms.TodoSearchForm(self.request.GET or None)
         if form.is_valid():
-            items = ItemServiceFactory.todos().search(form.cleaned_data['q'])
+            items = ItemServiceFactory.todos().search(form.cleaned_data['description'])
             searching = True
         else:
             items = ItemServiceFactory.todos().get_active()
             searching = False
 
         context.update(dict(
-            form=form,
             searching=searching,
             todo_vars={
                 'items': items,
                 'saveUrl': reverse('todos:todos_save.json'),
-                'activateUrl': reverse('todos:todos_activate.json')
+                'activateUrl': reverse('todos:todos_activate.json'),
+                'searching': searching
             }
         ))
         return context
@@ -84,9 +84,8 @@ class TodosWidgetRenderer(WidgetRendererService):
             )
         }
 
-    def global_vars(self, context: RequestContext):
+    def global_vars(self):
         return {
-            'searching': context.get('searching', False),
             'provider': self.settings.todos_provider
         }
 
@@ -95,6 +94,20 @@ class FilesWidgetRenderer(WidgetRendererService):
 
     template_name = 'files.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        form = forms.FileSearchForm(self.request.GET or None)
+        if form.is_valid():
+            files = PrivateFile.objects.filter(pk=form.cleaned_data['file_id'])
+        else:
+            files = PrivateFile.objects.all()
+
+        context.update(dict(
+            files=files
+        ))
+        return context
+
 
 class NotesWidgetRenderer(WidgetRendererService):
 
@@ -102,11 +115,24 @@ class NotesWidgetRenderer(WidgetRendererService):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        form = forms.NoteSearchForm(self.request.GET or None)
+        if form.is_valid():
+            items = ItemServiceFactory.notes().search(form.cleaned_data['note_id'])
+            index = 0
+            searching = True
+        else:
+            items = ItemServiceFactory.notes().get_active()
+            index = ItemServiceFactory.notes().get_index()
+            searching = False
+
         context.update(
+            searching=searching,
             note_vars={
-                'items': ItemServiceFactory.notes().get_active(),
-                'index': ItemServiceFactory.notes().get_index(),
-                'saveUrl': reverse('todos:notes_save.json')
+                'items': items,
+                'index': index,
+                'saveUrl': reverse('todos:notes_save.json'),
+                'searching': searching
             }
         )
         return context
@@ -119,7 +145,7 @@ class NotesWidgetRenderer(WidgetRendererService):
             )
         }
 
-    def global_vars(self, context: RequestContext):
+    def global_vars(self):
         return {
             'provider': self.settings.notes_provider
         }
@@ -166,5 +192,5 @@ class EventsWidgetRenderer(WidgetRendererService):
             )
         }
 
-    def global_vars(self, context: RequestContext):
+    def global_vars(self):
         return {}

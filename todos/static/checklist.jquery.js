@@ -8,7 +8,7 @@
         this.provider = settings.provider;
 
         this.items = [];
-        this.searching = settings.searching;
+        this.searching = settings.provider.searching;
     }
 
     CheckListApi.prototype = {
@@ -113,8 +113,7 @@
             saveButton: settings.saveButton,
             deleteButton: settings.deleteButton,
             activateButton: settings.activateButton,
-            provider: settings.provider,
-            searching: settings.searching
+            provider: settings.provider
         });
         checkList.init();
 

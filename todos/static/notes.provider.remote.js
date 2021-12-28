@@ -2,6 +2,7 @@ function NotesProviderRemote(settings) {
     this.items = settings.items;
     this.index = settings.index;
     this.saveUrl = settings.saveUrl;
+    this.searching = settings.searching;
 }
 
 NotesProviderRemote.prototype = {
@@ -16,7 +17,8 @@ NotesProviderRemote.prototype = {
 
         let data = {
             "items": items,
-            "index": index
+            "index": index,
+            "searching": this.searching
         }
 
         $.post(this.saveUrl, data);

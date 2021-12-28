@@ -5,6 +5,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import ButtonHolder, Layout, Submit
 from django import forms
 from django.conf import settings
+from haystack.forms import ModelSearchForm as HaystackSearchForm
 
 from todos import models
 
@@ -61,9 +62,27 @@ class SettingsForm(forms.Form):
         self.fields['gallery'].choices = list(models.Gallery.objects.values_list('id', 'name'))
 
 
-class SearchForm(forms.Form):
+class SearchForm(HaystackSearchForm):
 
-    q = forms.CharField()
+    def search(self):
+        sqs = super().search()
+        sqs = sqs.filter(include_in_search=True)
+        return sqs
+
+
+class TodoSearchForm(forms.Form):
+
+    description = forms.CharField()
+
+
+class NoteSearchForm(forms.Form):
+
+    note_id = forms.CharField()
+
+
+class FileSearchForm(forms.Form):
+
+    file_id = forms.IntegerField()
 
 
 class MonthForm(forms.Form):
@@ -162,7 +181,7 @@ class WallpaperForm(forms.ModelForm):
 class FileForm(forms.ModelForm):
 
     class Meta:
-        fields = ('file',)
+        fields = ('file', 'tags')
         model = models.PrivateFile
 
     def __init__(self, *args, **kwargs):
@@ -170,6 +189,7 @@ class FileForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             'file',
+            'tags',
             ButtonHolder(
                 Submit('submit', 'Save', css_class='button white')
             )

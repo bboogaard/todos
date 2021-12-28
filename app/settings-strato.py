@@ -23,3 +23,11 @@ DATABASES = {
 }
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
+
+# Search
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': '/home/bboogaard/whoosh_index',
+    },
+}

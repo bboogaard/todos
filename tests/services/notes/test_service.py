@@ -15,9 +15,11 @@ class TestNoteService(TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        NoteFactory(text='Pay bills')
-        NoteFactory(text='Take out trash')
-        NoteFactory(text='Dentist', status=Note.INACTIVE_STATUS)
+        cls.notes = [
+            NoteFactory(text='Pay bills'),
+            NoteFactory(text='Take out trash'),
+            NoteFactory(text='Dentist', status=Note.INACTIVE_STATUS)
+        ]
 
     def test_all(self):
         result = self.service.all()
@@ -30,8 +32,8 @@ class TestNoteService(TestCase):
         self.assertEqual(result, expected)
 
     def test_search(self):
-        result = self.service.search('Dent')
-        expected = ['Dentist']
+        result = self.service.search(self.notes[1].item_id)
+        expected = ['Take out trash']
         self.assertEqual(result, expected)
 
     def test_save_new(self):
@@ -54,6 +56,11 @@ class TestNoteService(TestCase):
         self.service.save(['Pay bills'])
         note = Note.objects.get(text='Take out trash')
         self.assertFalse(note.is_active)
+
+    def test_save_is_filtered(self):
+        self.service.save(['Pay bills', 'Done'], is_filtered=True)
+        notes = list(Note.objects.active().order_by('text').values_list('text', flat=True))
+        self.assertEqual(notes, ['Done', 'Pay bills', 'Take out trash'])
 
     def test_activate(self):
         self.service.activate(['Dentist'])
