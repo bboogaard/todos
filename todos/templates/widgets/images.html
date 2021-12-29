@@ -1,10 +1,16 @@
 {% extends 'widgets/base.html' %}
 
+{% load thumbnail %}
+
 
 {% block content %}
 
-{% for image in images %}
-<a href="{{ image.image.url }}" target="_blank">{{ image }}</a><br>
-{% endfor %}
+    {% for image in images %}
+    <div class="thumbnail" style="display: inline-grid">
+      <a href="{{ image.image.url }}" target="_blank">
+        <img src="{% thumbnail image.image 50x50 crop %}" alt="Lights" style="width:50px">
+      </a>
+    </div>
+    {% endfor %}
 
 {% endblock %}
