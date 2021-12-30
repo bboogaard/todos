@@ -257,20 +257,53 @@ class TestWallpaperDeleteView(TodosViewTest):
         self.assertEqual(Wallpaper.objects.count(), 2)
 
 
-class TestFileListView(TodosViewTest):
+class FileViewTest(TodosViewTest):
+
+    file_type = None
+
+    upload_file = None
+
+    model = None
+
+    file_field = None
+
+    def _get(self, path, status_code=200):
+        response = self.app.get('/files/{}/{}'.format(self.file_type, path), user=self.test_user)
+        self.assertEqual(response.status_code, status_code)
+
+    def _post(self, path, data, status_code=302, count=1):
+        response = self.app.post('/files/{}/{}'.format(self.file_type, path), data, user=self.test_user)
+        self.assertEqual(response.status_code, status_code)
+        self.assertEqual(self.model.objects.count(), count)
+        if count:
+            pfile = self.model.objects.first()
+            self.assertEqual(getattr(pfile, self.file_field).read(), self.upload_file)
+            self.assertEqual('.'.join(map(str, pfile.tags.all())), 'Foo')
+
+
+class FileTestMixin:
+
+    file_type = 'file'
+
+    upload_file = b'Foo'
+
+    model = PrivateFile
+
+    file_field = 'file'
+
+
+class TestFileListView(FileTestMixin, FileViewTest):
 
     def test_get(self):
-        response = self.app.get('/files/list', user=self.test_user)
-        self.assertEqual(response.status_code, 200)
+        self._get('list')
 
 
-class TestFileCreateView(TodosViewTest):
+class TestFileCreateView(FileTestMixin, FileViewTest):
 
     csrf_checks = False
 
     def test_get(self):
-        response = self.app.get('/files/create', user=self.test_user)
-        self.assertEqual(response.status_code, 200)
+        self._get('create')
 
     def test_post(self):
         data = {
@@ -278,11 +311,7 @@ class TestFileCreateView(TodosViewTest):
             'tags': 'Foo'
         }
 
-        response = self.app.post('/files/create', data, user=self.test_user)
-        self.assertEqual(response.status_code, 302, response.content)
-        self.assertEqual(PrivateFile.objects.count(), 1)
-        pfile = PrivateFile.objects.first()
-        self.assertEqual(pfile.file.read(), b'Foo')
+        self._post('create', data)
 
     def test_post_with_error(self):
         data = {
@@ -290,11 +319,10 @@ class TestFileCreateView(TodosViewTest):
             'tags': 'Foo'
         }
 
-        response = self.app.post('/files/create', data, user=self.test_user)
-        self.assertEqual(response.status_code, 200, response.content)
+        self._post('create', data, status_code=200, count=0)
 
 
-class TestFileUpdateView(TodosViewTest):
+class TestFileUpdateView(FileTestMixin, FileViewTest):
 
     csrf_checks = False
 
@@ -302,10 +330,10 @@ class TestFileUpdateView(TodosViewTest):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.file = PrivateFileFactory()
+        cls.file.tags.add('Foo')
 
     def test_get(self):
-        response = self.app.get('/files/{}/update'.format(self.file.pk), user=self.test_user)
-        self.assertEqual(response.status_code, 200)
+        self._get('{}/update'.format(self.file.pk))
 
     def test_post(self):
         data = {
@@ -313,11 +341,7 @@ class TestFileUpdateView(TodosViewTest):
             'tags': 'Foo'
         }
 
-        response = self.app.post('/files/{}/update'.format(self.file.pk), data, user=self.test_user)
-        self.assertEqual(response.status_code, 302, response.content)
-        pfile = PrivateFile.objects.first()
-        self.assertEqual(pfile.file.read(), b'Foo')
-        self.assertEqual('.'.join(map(str, pfile.tags.all())), 'Foo')
+        self._post('{}/update'.format(self.file.pk), data)
 
     def test_post_with_error(self):
         data = {
@@ -325,11 +349,10 @@ class TestFileUpdateView(TodosViewTest):
             'tags': ''
         }
 
-        response = self.app.post('/files/{}/update'.format(self.file.pk), data, user=self.test_user)
-        self.assertEqual(response.status_code, 200, response.content)
+        self._post('{}/update'.format(self.file.pk), data, status_code=200)
 
 
-class TestFileDeleteView(TodosViewTest):
+class TestFileDeleteView(FileTestMixin, FileViewTest):
 
     csrf_checks = False
 
@@ -339,9 +362,7 @@ class TestFileDeleteView(TodosViewTest):
             'file': [pfile.pk]
         }
 
-        response = self.app.post('/files/delete', data, user=self.test_user)
-        self.assertEqual(response.status_code, 302, response.content)
-        self.assertEqual(PrivateFile.objects.count(), 0)
+        self._post('delete', data, count=0)
 
 
 class TestTodosImportView(TodosViewTest):
