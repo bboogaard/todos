@@ -26,8 +26,8 @@ urlpatterns = [
     path('files/<file_type>/create', views.FileCreateView.as_view(), name="file_create"),
     path('files/<file_type>/<int:pk>/update', views.FileUpdateView.as_view(), name="file_update"),
     path('files/<file_type>/delete', views.FileDeleteView.as_view(), name="file_delete"),
-    path('files/export', views.FileExportView.as_view(), name="file_export"),
-    path('files/import', views.FileImportView.as_view(), name="file_import"),
+    path('files/<file_type>/export', views.FileExportView.as_view(), name="file_export"),
+    path('files/<file_type>/import', views.FileImportView.as_view(), name="file_import"),
 
     # Images
     path('carousel', views.CarouselView.as_view(), name="carousel"),

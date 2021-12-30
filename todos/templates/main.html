@@ -55,8 +55,14 @@
             <a class="dropdown-item" href="#" data-action="import-files">
                 Import files
             </a>
-            <a class="dropdown-item" href="{% url 'todos:file_export' %}">
+            <a class="dropdown-item" href="{% url 'todos:file_export' 'file' %}">
                 Export files
+            </a>
+            <a class="dropdown-item" href="#" data-action="import-images">
+                Import images
+            </a>
+            <a class="dropdown-item" href="{% url 'todos:file_export' 'image' %}">
+                Export images
             </a>
         </div>
       </li>
@@ -158,7 +164,11 @@
       });
       $('[data-action="import-files"]').click(function (event) {
          event.preventDefault();
-         eModal.iframe('{% url "todos:file_import" %}', "Import files");
+         eModal.iframe('{% url "todos:file_import" 'file' %}', "Import files");
+      });
+      $('[data-action="import-images"]').click(function (event) {
+         event.preventDefault();
+         eModal.iframe('{% url "todos:file_import" 'images' %}', "Import images");
       });
       $(document).on('hide.bs.modal', function() {
           location.href = '{{ request.path }}';

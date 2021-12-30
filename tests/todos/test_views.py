@@ -10,13 +10,16 @@ from django_webtest import WebTest
 from django.conf import settings
 from django.core.cache import cache
 from django.core.files.base import ContentFile
+from django.core.files.images import ImageFile
 from django.core.management import call_command
 from PIL import Image
 from webtest import Upload
 
-from todos.models import Event, Note, PrivateFile, Todo, Wallpaper, Widget
+from todos.models import Event, Note, PrivateFile, PrivateImage, Todo, Wallpaper, Widget
 from todos.settings import cache_settings
-from tests.todos.factories import EventFactory, NoteFactory, PrivateFileFactory, TodoFactory, UserFactory
+from tests.todos.factories import EventFactory, NoteFactory, PrivateFileFactory, PrivateImageFactory, TodoFactory, \
+    UserFactory
+from tests.todos.utils import generate_image
 
 
 class TodosViewTest(WebTest):
@@ -307,7 +310,7 @@ class TestFileCreateView(FileTestMixin, FileViewTest):
 
     def test_post(self):
         data = {
-            'file': Upload('file.txt', b'Foo', 'text/plain'),
+            'file': Upload('file.txt', self.upload_file, 'text/plain'),
             'tags': 'Foo'
         }
 
@@ -337,7 +340,7 @@ class TestFileUpdateView(FileTestMixin, FileViewTest):
 
     def test_post(self):
         data = {
-            'file': Upload('file.txt', b'Foo', 'text/plain'),
+            'file': Upload('file.txt', self.upload_file, 'text/plain'),
             'tags': 'Foo'
         }
 
@@ -358,6 +361,90 @@ class TestFileDeleteView(FileTestMixin, FileViewTest):
 
     def test_post(self):
         pfile = PrivateFileFactory()
+        data = {
+            'file': [pfile.pk]
+        }
+
+        self._post('delete', data, count=0)
+
+
+class ImageTestMixin:
+
+    file_type = 'image'
+
+    upload_file = generate_image().getvalue()
+
+    model = PrivateImage
+
+    file_field = 'image'
+
+
+class TestImageListView(ImageTestMixin, FileViewTest):
+
+    def test_get(self):
+        self._get('list')
+
+
+class TestImageCreateView(ImageTestMixin, FileViewTest):
+
+    csrf_checks = False
+
+    def test_get(self):
+        self._get('create')
+
+    def test_post(self):
+        data = {
+            'image': Upload('foo.png', self.upload_file, 'image/png'),
+            'tags': 'Foo'
+        }
+
+        self._post('create', data)
+
+    def test_post_with_error(self):
+        data = {
+            'image': '',
+            'tags': 'Foo'
+        }
+
+        self._post('create', data, status_code=200, count=0)
+
+
+class TestImageUpdateView(ImageTestMixin, FileViewTest):
+
+    csrf_checks = False
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.file = PrivateImageFactory()
+        cls.file.tags.add('Foo')
+
+    def test_get(self):
+        self._get('{}/update'.format(self.file.pk))
+
+    def test_post(self):
+        data = {
+            'image': Upload('foo.png', self.upload_file, 'image/png'),
+            'tags': 'Foo'
+        }
+
+        self._post('{}/update'.format(self.file.pk), data)
+
+    def test_post_with_error(self):
+        data = {
+            'image': '',
+            'tags': ''
+        }
+
+        self._post('{}/update'.format(self.file.pk), data, status_code=200)
+
+
+class TestImageDeleteView(ImageTestMixin, FileViewTest):
+
+    csrf_checks = False
+
+    def test_post(self):
+        pfile = PrivateImageFactory()
         data = {
             'file': [pfile.pk]
         }
@@ -441,60 +528,105 @@ class TestNotesExportView(TodosViewTest):
         self.assertEqual(response.content, b'Lorem\n----------\nIpsum')
 
 
-class TestFilesImportView(TodosViewTest):
+class FilesImportTest(TodosViewTest):
 
     csrf_checks = False
+
+    file_type = None
+
+    model = None
+
+    file_field = None
 
     def setUp(self):
         super().setUp()
         self.tmp_dir = os.path.join(settings.MEDIA_ROOT, 'tmp')
         os.makedirs(self.tmp_dir, exist_ok=True)
 
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-        cls.filenames = list(map(lambda id: str(id) + '.txt', [uuid.uuid4(), uuid.uuid4()]))
-
     def tearDown(self):
         super().tearDown()
         shutil.rmtree(self.tmp_dir)
 
-    def test_get(self):
-        response = self.app.get('/files/import', user=self.test_user)
+    def _get(self):
+        response = self.app.get('/files/{}/import'.format(self.file_type), user=self.test_user)
         self.assertEqual(response.status_code, 200)
+
+    def _post(self, data, filenames, files, status_code=302):
+        response = self.app.post('/files/{}/import'.format(self.file_type), data, user=self.test_user)
+        self.assertEqual(response.status_code, status_code, response.content)
+
+        for num, file in enumerate(filenames):
+            pfile = self.model.objects.get(**{self.file_field: file})
+            self.assertEqual(getattr(pfile, self.file_field).read(), files[num])
+
+
+class TestFilesImportView(FileTestMixin, FilesImportTest):
+
+    def test_get(self):
+        self._get()
 
     def test_post(self):
         filenames = list(map(lambda id: str(id) + '.txt', [uuid.uuid4(), uuid.uuid4()]))
+
         with open(os.path.join(self.tmp_dir, filenames[0]), 'w') as fh:
             fh.write('Foo')
         with open(os.path.join(self.tmp_dir, filenames[1]), 'w') as fh:
             fh.write('Bar')
 
         fh = BytesIO()
+
         with ZipFile(fh, 'w') as outfile:
             outfile.write(os.path.join(self.tmp_dir, filenames[0]), filenames[0])
             outfile.write(os.path.join(self.tmp_dir, filenames[1]), filenames[1])
         fh.seek(0)
 
         data = {
-            'file': Upload('file.txt', fh.read(), 'application/zip')
+            'file': Upload('file.zip', fh.read(), 'application/zip')
         }
-        response = self.app.post('/files/import', data, user=self.test_user)
-        self.assertEqual(response.status_code, 302, response.content)
 
-        pfile = PrivateFile.objects.get(file=filenames[0])
-        self.assertEqual(pfile.file.read(), b'Foo')
-
-        pfile = PrivateFile.objects.get(file=filenames[1])
-        self.assertEqual(pfile.file.read(), b'Bar')
+        self._post(data, filenames, [b'Foo', b'Bar'])
 
     def test_post_with_error(self):
         data = {
             'file': ''
         }
 
-        response = self.app.post('/files/import', data, user=self.test_user)
-        self.assertEqual(response.status_code, 200, response.content)
+        self._post(data, [], [], 200)
+
+
+class TestImagesImportView(ImageTestMixin, FilesImportTest):
+
+    def test_get(self):
+        self._get()
+
+    def test_post(self):
+        filenames = list(map(lambda id: str(id) + '.png', [uuid.uuid4(), uuid.uuid4()]))
+        images = [generate_image('foo').getvalue(), generate_image('bar').getvalue()]
+
+        with open(os.path.join(self.tmp_dir, filenames[0]), 'wb') as fh:
+            fh.write(images[0])
+        with open(os.path.join(self.tmp_dir, filenames[1]), 'wb') as fh:
+            fh.write(images[1])
+
+        fh = BytesIO()
+
+        with ZipFile(fh, 'w') as outfile:
+            outfile.write(os.path.join(self.tmp_dir, filenames[0]), filenames[0])
+            outfile.write(os.path.join(self.tmp_dir, filenames[1]), filenames[1])
+        fh.seek(0)
+
+        data = {
+            'file': Upload('file.zip', fh.read(), 'application/zip')
+        }
+
+        self._post(data, filenames, images)
+
+    def test_post_with_error(self):
+        data = {
+            'file': ''
+        }
+
+        self._post(data, [], [], 200)
 
 
 class TestFilesExportView(TodosViewTest):
@@ -516,11 +648,7 @@ class TestFilesExportView(TodosViewTest):
         shutil.rmtree(self.tmp_dir)
 
     def test_get(self):
-        data = {
-            'file': Upload('file.txt', b'Lorem\n----------\nIpsum', 'text/plain')
-        }
-
-        response = self.app.get('/files/export', data, user=self.test_user)
+        response = self.app.get('/files/file/export', user=self.test_user)
         self.assertEqual(response.status_code, 200)
         fh = BytesIO(response.content)
         with ZipFile(fh, 'r') as infile:
@@ -533,6 +661,41 @@ class TestFilesExportView(TodosViewTest):
         with open(os.path.join(self.tmp_dir, self.filenames[1]), 'r') as fh:
             content = fh.read()
             self.assertEqual(content, 'Bar')
+
+
+class TestImagesExportView(TodosViewTest):
+
+    def setUp(self):
+        super().setUp()
+        self.tmp_dir = os.path.join(settings.MEDIA_ROOT, 'tmp')
+        os.makedirs(self.tmp_dir, exist_ok=True)
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.filenames = list(map(lambda id: str(id) + '.png', [uuid.uuid4(), uuid.uuid4()]))
+        cls.images = [generate_image('foo'), generate_image('bar')]
+        PrivateImageFactory(image=ImageFile(cls.images[0], name=cls.filenames[0]))
+        PrivateImageFactory(image=ImageFile(cls.images[1], name=cls.filenames[1]))
+
+    def tearDown(self):
+        super().tearDown()
+        shutil.rmtree(self.tmp_dir)
+
+    def test_get(self):
+        response = self.app.get('/files/image/export', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        fh = BytesIO(response.content)
+        with ZipFile(fh, 'r') as infile:
+            infile.extractall(self.tmp_dir)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp_dir, self.filenames[0])))
+        self.assertTrue(os.path.exists(os.path.join(self.tmp_dir, self.filenames[1])))
+        with open(os.path.join(self.tmp_dir, self.filenames[0]), 'rb') as fh:
+            content = ImageFile(fh).read()
+            self.assertEqual(content, self.images[0].getvalue())
+        with open(os.path.join(self.tmp_dir, self.filenames[1]), 'rb') as fh:
+            content = ImageFile(fh).read()
+            self.assertEqual(content, self.images[1].getvalue())
 
 
 class TestWidgetListView(TodosViewTest):

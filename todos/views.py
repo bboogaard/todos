@@ -184,12 +184,18 @@ class FileViewMixin:
 
     object_name_plural = None
 
+    file_field = None
+
     def dispatch(self, request, *args, **kwargs):
         self.file_type = kwargs['file_type']
         self.model = self.get_model(self.file_type)
         self.object_name, self.object_name_plural = {
             'file': ('File', 'Files'),
             'image': ('Image', 'Images')
+        }.get(self.file_type)
+        self.file_field = {
+            'file': 'file',
+            'image': 'image'
         }.get(self.file_type)
         return super().dispatch(request, *args, **kwargs)
 
@@ -278,17 +284,17 @@ class FileDeleteView(FileViewMixin, AccessMixin, View):
     def post(self, request, *args, **kwargs):
         file_ids = request.POST.getlist('file', [])
         qs = self.model.objects.filter(pk__in=file_ids)
-        file_names = [file.file.name for file in qs]
+        file_names = [getattr(file, self.file_field).name for file in qs]
         qs.delete()
         for file in file_names:
             private_storage.delete(file)
         return redirect(reverse('todos:file_list', args=[self.file_type]))
 
 
-class FileExportView(AccessMixin, View):
+class FileExportView(FileViewMixin, AccessMixin, View):
 
     def get(self, request, *args, **kwargs):
-        fh = FilesServiceFactory.create().dump('files.zip')
+        fh = FilesServiceFactory.create(self.file_type).dump()
         response = HttpResponse(fh.read(), content_type='application/zip')
         response['Content-disposition'] = 'attachment'
         return response
@@ -312,8 +318,8 @@ class ImportView(AccessMixin, generic.TemplateView):
     def post(self, request, *args, **kwargs):
         form = self.get_form(request.POST or None, files=request.FILES or None)
         if form.is_valid():
-            self.service.load(BytesIO(form.files['file'].read()))
-            messages.add_message(request, messages.SUCCESS, self.message)
+            self.get_service().load(BytesIO(form.files['file'].read()))
+            messages.add_message(request, messages.SUCCESS, self.get_message())
             return redirect(request.path)
 
         context = self.get_context_data(form=form)
@@ -321,11 +327,20 @@ class ImportView(AccessMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = self.title
+        context['title'] = self.get_title()
         return context
 
     def get_form(self, data=None, files=None, **kwargs):
         return forms.ImportForm(data, files=files, **kwargs)
+
+    def get_service(self):
+        return self.service
+
+    def get_message(self):
+        return self.message
+
+    def get_title(self):
+        return self.title
 
 
 class TodosImportView(ImportView):
@@ -346,13 +361,16 @@ class NotesImportView(ImportView):
     title = "Import notes"
 
 
-class FileImportView(ImportView):
+class FileImportView(FileViewMixin, ImportView):
 
-    service = FilesServiceFactory.create()
+    def get_service(self):
+        return FilesServiceFactory.create(self.file_type)
 
-    message = "Files imported"
+    def get_message(self):
+        return "Files imported" if self.file_type == 'file' else "Images imported"
 
-    title = "Import files"
+    def get_title(self):
+        return "Import files" if self.file_type == 'file' else "Import images"
 
 
 class WidgetListView(AccessMixin, generic.TemplateView):

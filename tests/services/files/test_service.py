@@ -33,7 +33,7 @@ class TestFilesService(TestCase):
         PrivateFileFactory(file=ContentFile(b'Bar', name=cls.filenames[1]))
 
     def test_dump(self):
-        fh = self.service.dump('files.zip')
+        fh = self.service.dump()
         with ZipFile(fh, 'r') as infile:
             infile.extractall(self.tmp_dir)
         self.assertTrue(os.path.exists(os.path.join(self.tmp_dir, self.filenames[0])))
