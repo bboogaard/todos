@@ -7,6 +7,10 @@
 </script>
 {% endif %}
 
-{% for file in files %}
+{% for file in static_files %}
 <script type="text/javascript" src="{% static file %}"></script>
+{% endfor %}
+
+{% for file in external_files %}
+<script type="text/javascript" src="{{ file }}"></script>
 {% endfor %}

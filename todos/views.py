@@ -442,3 +442,20 @@ class EventDeleteView(AccessMixin, generic.TemplateView):
         self.object = get_object_or_404(models.Event, pk=pk)
         self.object.delete()
         return redirect(reverse('todos:index'))
+
+
+class CarouselView(AccessMixin, generic.TemplateView):
+
+    template_name = 'carousel.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        try:
+            image_id = int(self.request.GET.get('image_id', ''))
+        except ValueError:
+            image_id = 0
+        context.update({
+            'images': models.PrivateImage.objects.all(),
+            'image_id': image_id
+        })
+        return context

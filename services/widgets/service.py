@@ -78,10 +78,12 @@ class TodosWidgetRenderer(WidgetRendererService):
 
     def media(self):
         return {
-            'js': (
-                'checklist.provider.local.js', 'checklist.provider.remote.js', 'checklist.provider.factory.js',
-                'checklist.jquery.js', 'todos.init.js'
-            )
+            'js': {
+                'static': (
+                    'checklist.provider.local.js', 'checklist.provider.remote.js', 'checklist.provider.factory.js',
+                    'checklist.jquery.js', 'todos.init.js'
+                )
+            }
         }
 
     def global_vars(self):
@@ -127,6 +129,14 @@ class ImagesWidgetRenderer(WidgetRendererService):
         ))
         return context
 
+    def media(self):
+        return {
+            'js': {
+                'static': ('images.init.js',),
+                'external': ('https://unpkg.com/emodal@1.2.69/dist/eModal.min.js',)
+            }
+        }
+
 
 class NotesWidgetRenderer(WidgetRendererService):
 
@@ -158,10 +168,12 @@ class NotesWidgetRenderer(WidgetRendererService):
 
     def media(self):
         return {
-            'js': (
-                'notes.provider.local.js', 'notes.provider.remote.js', 'notes.provider.factory.js',
-                'notes.jquery.js', 'notes.init.js'
-            )
+            'js': {
+                'static': (
+                    'notes.provider.local.js', 'notes.provider.remote.js', 'notes.provider.factory.js',
+                    'notes.jquery.js', 'notes.init.js'
+                )
+            }
         }
 
     def global_vars(self):
@@ -206,9 +218,9 @@ class EventsWidgetRenderer(WidgetRendererService):
                 'calendar.css',
                 'tempus-dominus/css/font-awesome.css'
             ),
-            'js': (
-                'events.init.js',
-            )
+            'js': {
+                'static': ('events.init.js',)
+            }
         }
 
     def global_vars(self):

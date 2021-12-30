@@ -29,6 +29,9 @@ urlpatterns = [
     path('files/export', views.FileExportView.as_view(), name="file_export"),
     path('files/import', views.FileImportView.as_view(), name="file_import"),
 
+    # Images
+    path('carousel', views.CarouselView.as_view(), name="carousel"),
+
     # Widgets
     path('widgets/list', views.WidgetListView.as_view(), name="widget_list"),
     path('widgets/save', views.WidgetSaveView.as_view(), name="widget_save"),
