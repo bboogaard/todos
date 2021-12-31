@@ -468,12 +468,13 @@ class CarouselView(AccessMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        images = list(models.PrivateImage.objects.all())
         try:
             image_id = int(self.request.GET.get('image_id', ''))
         except ValueError:
-            image_id = 0
+            image_id = images[0].pk if images else 0
         context.update({
-            'images': models.PrivateImage.objects.all(),
+            'images': images,
             'image_id': image_id
         })
         return context

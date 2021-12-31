@@ -20,3 +20,4 @@ django-haystack==v3.1.1
 coverage==6.2
 django-taggit==2.0.0
 easy-thumbnails==2.8.0
+pyquery==1.4.3

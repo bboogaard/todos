@@ -13,6 +13,7 @@ from django.core.files.base import ContentFile
 from django.core.files.images import ImageFile
 from django.core.management import call_command
 from PIL import Image
+from pyquery import PyQuery
 from webtest import Upload
 
 from todos.models import Event, Note, PrivateFile, PrivateImage, Todo, Wallpaper, Widget
@@ -812,3 +813,69 @@ class TestEventDeleteView(TodosViewTest):
 
         result = Event.objects.filter(pk=self.event.pk).first()
         self.assertIsNone(result)
+
+
+class TestCarouselView(TodosViewTest):
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        images = [generate_image('foo'), generate_image('bar')]
+        cls.images = [
+            PrivateImageFactory(image=ImageFile(images[0], name='foo.png')),
+            PrivateImageFactory(image=ImageFile(images[1], name='bar.png'))
+        ]
+        cls.images[0].created_at = datetime.datetime(2020, 11, 20, 10, 0, tzinfo=pytz.timezone(settings.TIME_ZONE))
+        cls.images[0].save()
+        cls.images[1].created_at = datetime.datetime(2020, 11, 20, 11, 0, tzinfo=pytz.timezone(settings.TIME_ZONE))
+        cls.images[1].save()
+
+    def test_get(self):
+        response = self.app.get('/carousel', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        doc = response.pyquery
+
+        items = PyQuery(doc.find('.carousel-item'))
+
+        item = PyQuery(items[0])
+        result = item.attr('class')
+        expected = 'carousel-item active'
+        self.assertEqual(result, expected)
+
+        img = PyQuery(item.find('img'))
+        result = img.attr('src')
+        self.assertIn('/bar', result)
+
+        item = PyQuery(items[1])
+        result = item.attr('class')
+        expected = 'carousel-item'
+        self.assertEqual(result, expected)
+
+        img = PyQuery(item.find('img'))
+        result = img.attr('src')
+        self.assertIn('/foo', result)
+
+    def test_get_with_image_id(self):
+        response = self.app.get('/carousel?image_id={}'.format(self.images[0].pk), user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        doc = response.pyquery
+
+        items = PyQuery(doc.find('.carousel-item'))
+
+        item = PyQuery(items[0])
+        result = item.attr('class')
+        expected = 'carousel-item'
+        self.assertEqual(result, expected)
+
+        img = PyQuery(item.find('img'))
+        result = img.attr('src')
+        self.assertIn('/bar', result)
+
+        item = PyQuery(items[1])
+        result = item.attr('class')
+        expected = 'carousel-item active'
+        self.assertEqual(result, expected)
+
+        img = PyQuery(item.find('img'))
+        result = img.attr('src')
+        self.assertIn('/foo', result)
