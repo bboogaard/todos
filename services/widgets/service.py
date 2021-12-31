@@ -36,7 +36,8 @@ class WidgetRendererService:
 
     def get_context_data(self, **kwargs):
         kwargs.update({
-            'title': self.widget.title
+            'title': self.widget.title,
+            'widget_id': self.widget.widget_id
         })
         return kwargs
 

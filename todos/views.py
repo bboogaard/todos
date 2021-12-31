@@ -6,6 +6,7 @@ from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http.response import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
+from django.template.context import RequestContext
 from django.urls import reverse
 from django.views import generic, View
 from haystack.generic_views import SearchView as BaseSearchView
@@ -13,6 +14,7 @@ from private_storage.storage import private_storage
 
 from services.api import Api
 from services.factory import FilesServiceFactory, ItemServiceFactory
+from services.widgets.factory import WidgetRendererFactory
 from todos import forms, models
 from todos.settings import cache_settings
 
@@ -477,3 +479,16 @@ class CarouselView(AccessMixin, generic.TemplateView):
             'image_id': image_id
         })
         return context
+
+
+class WidgetView(AccessMixin, View):
+
+    def get(self, request, widget_id, *args, **kwargs):
+        try:
+            widget = models.Widget.objects.get(pk=widget_id)
+        except models.Widget.DoesNotExist:
+            return JsonResponse({}, status=404)
+
+        renderer = WidgetRendererFactory.get_renderer(widget)
+        html = renderer.render(RequestContext(request))
+        return JsonResponse({'html': html})

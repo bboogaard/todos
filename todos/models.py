@@ -337,3 +337,7 @@ class Widget(models.Model):
 
     def __str__(self):
         return self.title
+
+    @property
+    def widget_id(self):
+        return '{}-{}'.format(self.pk, self.type)
