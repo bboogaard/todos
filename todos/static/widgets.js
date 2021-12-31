@@ -9,7 +9,7 @@ Widget.prototype = {
 
     load: function() {
 
-        var self = this;
+        let self = this;
 
         $.get(this.url)
         .done(function(res) {

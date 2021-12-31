@@ -17,6 +17,8 @@ from todos.settings import cache_settings
 
 class WidgetRendererService:
 
+    content: str
+
     request: HttpRequest
 
     template_path: str = 'widgets'
@@ -31,14 +33,24 @@ class WidgetRendererService:
 
     def render(self, context: RequestContext):
         self.request = context.get('request')
+        self.content = self.render_content(context)
+        return render_to_string(
+            'widgets/widget.html',
+            {
+                'content': self.content,
+                'title': self.widget.title,
+                'widget_id': self.widget.widget_id,
+                'widget_type': self.widget.type
+            },
+            self.request
+        )
+
+    def render_content(self, context):
+        self.request = getattr(self, 'request', context.get('request'))
         context = self.get_context_data(**context.flatten())
         return render_to_string(self.get_template(), context, self.request)
 
     def get_context_data(self, **kwargs):
-        kwargs.update({
-            'title': self.widget.title,
-            'widget_id': self.widget.widget_id
-        })
         return kwargs
 
     def get_template(self):

@@ -491,5 +491,5 @@ class WidgetView(AccessMixin, View):
             return JsonResponse({}, status=404)
 
         renderer = WidgetRendererFactory.get_renderer(widget)
-        html = renderer.render(RequestContext(request))
+        html = renderer.render_content(RequestContext(request, {'request': request}))
         return JsonResponse({'html': html})

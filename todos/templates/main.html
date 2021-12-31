@@ -131,6 +131,15 @@
       $('body').wallPaper({
           items: JSON.parse(document.getElementById('wallpapers').textContent)
       });
+      const MANAGE_WIDGETS = 'Manage widgets';
+      const MANAGE_WALLPAPERS = 'Manage wallpapers';
+      const MANAGE_FILES = 'Manage files';
+      const MANAGE_IMAGES = 'Manage images';
+      const IMPORT_TODOS = "Import todo's";
+      const IMPORT_NOTES = "Import notes";
+      const IMPORT_FILES = "Import files";
+      const IMPORT_IMAGES = "Import images";
+
       $('[data-action="next-wallpaper"]').click(function() {
           $('body').trigger('next-wallpaper');
       });
@@ -140,38 +149,45 @@
       });
       $('[data-action="manage-widgets"]').click(function (event) {
          event.preventDefault();
-         eModal.iframe('{% url "todos:widget_list" %}', 'Manage widgets');
+         eModal.iframe('{% url "todos:widget_list" %}', MANAGE_WIDGETS);
       });
       $('[data-action="manage-wallpapers"]').click(function (event) {
          event.preventDefault();
-         eModal.iframe('{% url "todos:wallpaper_list" %}', 'Manage wallpapers');
+         eModal.iframe('{% url "todos:wallpaper_list" %}', MANAGE_WALLPAPERS);
       });
       $('[data-action="manage-files"]').click(function (event) {
          event.preventDefault();
-         eModal.iframe('{% url "todos:file_list" "file" %}', 'Manage files');
+         eModal.iframe('{% url "todos:file_list" "file" %}', MANAGE_FILES);
       });
       $('[data-action="manage-images"]').click(function (event) {
          event.preventDefault();
-         eModal.iframe('{% url "todos:file_list" "image" %}', 'Manage images');
+         eModal.iframe('{% url "todos:file_list" "image" %}', MANAGE_IMAGES);
       });
       $('[data-action="import-todos"]').click(function (event) {
          event.preventDefault();
-         eModal.iframe('{% url "todos:todos_import" %}', "Import todo's");
+         eModal.iframe('{% url "todos:todos_import" %}', IMPORT_TODOS);
       });
       $('[data-action="import-notes"]').click(function (event) {
          event.preventDefault();
-         eModal.iframe('{% url "todos:notes_import" %}', "Import notes");
+         eModal.iframe('{% url "todos:notes_import" %}', IMPORT_NOTES);
       });
       $('[data-action="import-files"]').click(function (event) {
          event.preventDefault();
-         eModal.iframe('{% url "todos:file_import" 'file' %}', "Import files");
+         eModal.iframe('{% url "todos:file_import" 'file' %}', IMPORT_FILES);
       });
       $('[data-action="import-images"]').click(function (event) {
          event.preventDefault();
-         eModal.iframe('{% url "todos:file_import" 'images' %}', "Import images");
+         eModal.iframe('{% url "todos:file_import" 'image' %}', IMPORT_IMAGES);
       });
-      $(document).on('hide.bs.modal', function() {
-          location.href = '{{ request.path }}';
+      $(document).on('hide.bs.modal', function(event) {
+          let modal = $.trim($(event.target).find('.modal-title').text());
+          let refreshModals = [
+              MANAGE_WIDGETS, MANAGE_WALLPAPERS, MANAGE_FILES, MANAGE_IMAGES, IMPORT_TODOS, IMPORT_NOTES,
+              IMPORT_FILES, IMPORT_IMAGES
+          ];
+          if (refreshModals.indexOf(modal) !== -1) {
+              location.href = '{{ request.path }}';
+          }
       });
   });
 </script>
