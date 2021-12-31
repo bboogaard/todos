@@ -3,8 +3,10 @@ import hashlib
 import factory
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
+from django.core.files.images import ImageFile
 from django.utils.timezone import now
 
+from tests.todos.utils import generate_image
 from todos import models
 
 
@@ -64,3 +66,11 @@ class PrivateFileFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.PrivateFile
+
+
+class PrivateImageFactory(factory.django.DjangoModelFactory):
+
+    image = ImageFile(generate_image(), name='foo.png')
+
+    class Meta:
+        model = models.PrivateImage

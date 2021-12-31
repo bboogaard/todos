@@ -11,7 +11,7 @@ from dateutil.relativedelta import relativedelta
 
 from services.factory import EventsServiceFactory, ItemServiceFactory
 from todos import forms
-from todos.models import PrivateFile, Widget
+from todos.models import PrivateFile, PrivateImage, Widget
 from todos.settings import cache_settings
 
 
@@ -78,10 +78,12 @@ class TodosWidgetRenderer(WidgetRendererService):
 
     def media(self):
         return {
-            'js': (
-                'checklist.provider.local.js', 'checklist.provider.remote.js', 'checklist.provider.factory.js',
-                'checklist.jquery.js', 'todos.init.js'
-            )
+            'js': {
+                'static': (
+                    'checklist.provider.local.js', 'checklist.provider.remote.js', 'checklist.provider.factory.js',
+                    'checklist.jquery.js', 'todos.init.js'
+                )
+            }
         }
 
     def global_vars(self):
@@ -107,6 +109,33 @@ class FilesWidgetRenderer(WidgetRendererService):
             files=files
         ))
         return context
+
+
+class ImagesWidgetRenderer(WidgetRendererService):
+
+    template_name = 'images.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        form = forms.ImageSearchForm(self.request.GET or None)
+        if form.is_valid():
+            images = PrivateImage.objects.filter(pk=form.cleaned_data['image_id'])
+        else:
+            images = PrivateImage.objects.all()
+
+        context.update(dict(
+            images=images
+        ))
+        return context
+
+    def media(self):
+        return {
+            'js': {
+                'static': ('images.init.js',),
+                'external': ('https://unpkg.com/emodal@1.2.69/dist/eModal.min.js',)
+            }
+        }
 
 
 class NotesWidgetRenderer(WidgetRendererService):
@@ -139,10 +168,12 @@ class NotesWidgetRenderer(WidgetRendererService):
 
     def media(self):
         return {
-            'js': (
-                'notes.provider.local.js', 'notes.provider.remote.js', 'notes.provider.factory.js',
-                'notes.jquery.js', 'notes.init.js'
-            )
+            'js': {
+                'static': (
+                    'notes.provider.local.js', 'notes.provider.remote.js', 'notes.provider.factory.js',
+                    'notes.jquery.js', 'notes.init.js'
+                )
+            }
         }
 
     def global_vars(self):
@@ -187,9 +218,9 @@ class EventsWidgetRenderer(WidgetRendererService):
                 'calendar.css',
                 'tempus-dominus/css/font-awesome.css'
             ),
-            'js': (
-                'events.init.js',
-            )
+            'js': {
+                'static': ('events.init.js',)
+            }
         }
 
     def global_vars(self):

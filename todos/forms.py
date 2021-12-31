@@ -85,6 +85,11 @@ class FileSearchForm(forms.Form):
     file_id = forms.IntegerField()
 
 
+class ImageSearchForm(forms.Form):
+
+    image_id = forms.IntegerField()
+
+
 class MonthForm(forms.Form):
 
     month = forms.IntegerField()
@@ -189,6 +194,24 @@ class FileForm(forms.ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             'file',
+            'tags',
+            ButtonHolder(
+                Submit('submit', 'Save', css_class='button white')
+            )
+        )
+
+
+class ImageForm(forms.ModelForm):
+
+    class Meta:
+        fields = ('image', 'tags')
+        model = models.PrivateImage
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            'image',
             'tags',
             ButtonHolder(
                 Submit('submit', 'Save', css_class='button white')

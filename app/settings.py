@@ -36,7 +36,8 @@ INSTALLED_APPS = [
     'private_storage',
     # Added.
     'haystack',
-    'taggit'
+    'taggit',
+    'easy_thumbnails'
 ]
 
 MIDDLEWARE = [

@@ -55,8 +55,14 @@
             <a class="dropdown-item" href="#" data-action="import-files">
                 Import files
             </a>
-            <a class="dropdown-item" href="{% url 'todos:file_export' %}">
+            <a class="dropdown-item" href="{% url 'todos:file_export' 'file' %}">
                 Export files
+            </a>
+            <a class="dropdown-item" href="#" data-action="import-images">
+                Import images
+            </a>
+            <a class="dropdown-item" href="{% url 'todos:file_export' 'image' %}">
+                Export images
             </a>
         </div>
       </li>
@@ -74,6 +80,9 @@
           Save todo's in database</a>
           <a class="dropdown-item" href="#" data-action="manage-files">
               Manage files
+          </a>
+          <a class="dropdown-item" href="#" data-action="manage-images">
+              Manage images
           </a>
           <a class="dropdown-item" href="#" data-setting-name="notes_provider" data-setting-value="{% if settings.notes_provider == 'local' %}remote{% else %}local{% endif %}">
               {% if settings.notes_provider == 'remote' %}
@@ -139,7 +148,11 @@
       });
       $('[data-action="manage-files"]').click(function (event) {
          event.preventDefault();
-         eModal.iframe('{% url "todos:file_list" %}', 'Manage files');
+         eModal.iframe('{% url "todos:file_list" "file" %}', 'Manage files');
+      });
+      $('[data-action="manage-images"]').click(function (event) {
+         event.preventDefault();
+         eModal.iframe('{% url "todos:file_list" "image" %}', 'Manage images');
       });
       $('[data-action="import-todos"]').click(function (event) {
          event.preventDefault();
@@ -151,7 +164,11 @@
       });
       $('[data-action="import-files"]').click(function (event) {
          event.preventDefault();
-         eModal.iframe('{% url "todos:file_import" %}', "Import files");
+         eModal.iframe('{% url "todos:file_import" 'file' %}', "Import files");
+      });
+      $('[data-action="import-images"]').click(function (event) {
+         event.preventDefault();
+         eModal.iframe('{% url "todos:file_import" 'images' %}', "Import images");
       });
       $(document).on('hide.bs.modal', function() {
           location.href = '{{ request.path }}';
