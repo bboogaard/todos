@@ -1,29 +1,22 @@
 function Widget(settings) {
     this.id = settings.id;
     this.url = settings.url;
-    this.callback = settings.callback;
     this.refreshInterval = settings.refreshInterval;
 }
 
 Widget.prototype = {
 
-    load: function() {
+    load: function(callback=null) {
 
         let self = this;
 
         $.get(this.url)
         .done(function(res) {
             $('#' + self.id).find('.card-text').html(res.html);
-            self.initJs();
+            if (callback) {
+                callback();
+            }
         });
-
-    },
-
-    initJs: function() {
-
-        if (this.callback) {
-            this.callback();
-        }
 
     }
 

@@ -1,6 +1,9 @@
 $(document).ready(function(){
-    $('[data-carousel-url]').click(function(event) {
+    $('[data-widget-type="images"]').on('click', '[data-carousel-url]', function(event) {
         event.preventDefault();
-        eModal.iframe($(this).data('carousel-url'), 'Images');
+        $('#todos-modal').Modal({
+          title: 'Images',
+          url: $(this).data('carousel-url')
+        });
     });
 })

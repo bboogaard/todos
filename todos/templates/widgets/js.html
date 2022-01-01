@@ -12,7 +12,6 @@
     widgets['{{ widget.type }}'] = new Widget({
         id: '{{ widget.widget_id }}',
         url: '{% url 'todos:widget' widget.pk %}',
-        callback: null,
         refreshInterval: null
     });
 </script>
