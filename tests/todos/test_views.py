@@ -725,6 +725,18 @@ class TestWidgetSaveView(TodosViewTest):
         self.assertFalse(widget.is_enabled)
 
 
+class TestWidgetView(TodosViewTest):
+
+    with_fixtures = True
+
+    def test_get(self):
+        widget = Widget.objects.get(type=Widget.WIDGET_TYPE_TODOS)
+        response = self.app.get('/widgets/{}'.format(widget.pk), user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        self.assertIn('Enter item', data['html'])
+
+
 class TestEventCreateView(TodosViewTest):
 
     csrf_checks = False
