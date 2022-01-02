@@ -6,15 +6,33 @@ function Widget(settings) {
 
 Widget.prototype = {
 
-    load: function(callback=null) {
+    addCallback: function(callback) {
+
+        this.callback = callback;
+
+    },
+
+    init: function() {
 
         let self = this;
 
-        $.get(this.url)
+        if (this.refreshInterval) {
+            setInterval(function() {
+                self.load();
+            }, this.refreshInterval);
+        }
+
+    },
+
+    load: function() {
+
+        let self = this;
+
+        $.get(this.url + window.location.search)
         .done(function(res) {
             $('#' + self.id).find('.card-text').html(res.html);
-            if (callback) {
-                callback();
+            if (self.callback) {
+                self.callback();
             }
         });
 

@@ -9,5 +9,8 @@ $(document).ready(function(){
             provider: notesProviderFactory.create(notes_vars.provider)
         });
     });
+    widgets['notes'].addCallback(function() {
+        $('[data-widget-type="notes"] textarea').trigger('init');
+    });
     $('[data-widget-type="notes"] textarea').trigger('init');
 });

@@ -149,7 +149,7 @@
              title: 'Manage widgets',
              url: '{% url "todos:widget_list" %}',
              onClose: function() {
-               location.href = '{{ request.path }}';
+               location.href = '{{ request.path }}' + window.location.search;
              }
          });
       });
@@ -159,7 +159,7 @@
              title: 'Manage wallpapers',
              url: '{% url "todos:wallpaper_list" %}',
              onClose: function() {
-               location.href = '{{ request.path }}';
+               location.href = '{{ request.path }}' + window.location.search;
              }
          });
       });
@@ -194,9 +194,7 @@
              url: '{% url "todos:todos_import" %}',
              onClose: function() {
                if (widgets['todos']) {
-                 widgets['todos'].load(function() {
-                   $('[data-widget-type="todos"] ul').trigger('init');
-                 });
+                 widgets['todos'].load();
                }
              }
          });
@@ -208,9 +206,7 @@
              url: '{% url "todos:notes_import" %}',
              onClose: function() {
                if (widgets['notes']) {
-                 widgets['notes'].load(function() {
-                   $('[data-widget-type="notes"] textarea').trigger('init');
-                 });
+                 widgets['notes'].load();
                }
              }
          });

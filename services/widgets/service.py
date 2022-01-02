@@ -211,11 +211,11 @@ class EventsWidgetRenderer(WidgetRendererService):
         prev_dt = date(prev_dt.year, prev_dt.month, 1)
         next_dt = dt + relativedelta(months=1)
         next_dt = date(next_dt.year, next_dt.month, calendar.monthrange(next_dt.year, next_dt.month)[1])
-        prev_url = self.request.path + '?' + urlencode({
+        prev_url = reverse('todos:index') + '?' + urlencode({
             'year': prev_dt.year,
             'month': prev_dt.month
         })
-        next_url = self.request.path + '?' + urlencode({
+        next_url = reverse('todos:index') + '?' + urlencode({
             'year': next_dt.year,
             'month': next_dt.month
         })

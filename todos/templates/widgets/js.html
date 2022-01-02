@@ -12,8 +12,9 @@
     widgets['{{ widget.type }}'] = new Widget({
         id: '{{ widget.widget_id }}',
         url: '{% url 'todos:widget' widget.pk %}',
-        refreshInterval: null
+        refreshInterval: 60000
     });
+    widgets['{{ widget.type }}'].init();
 </script>
 
 {% for file in static_files %}
