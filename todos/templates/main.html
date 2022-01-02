@@ -138,11 +138,14 @@
       });
       $('#about-link').click(function(event) {
           event.preventDefault();
-          eModal.alert("Todo's - Version 1.0");
+          tModal.Modal({
+             title: 'About',
+             content: "Todo's - Version 1.0"
+         });
       });
       $('[data-action="manage-widgets"]').click(function (event) {
          event.preventDefault();
-         tModal.Modal({
+         tModal.FullModal({
              title: 'Manage widgets',
              url: '{% url "todos:widget_list" %}',
              onClose: function() {
@@ -152,8 +155,7 @@
       });
       $('[data-action="manage-wallpapers"]').click(function (event) {
          event.preventDefault();
-         eModal.iframe('{% url "todos:wallpaper_list" %}', 'Manage wallpapers');
-         tModal.Modal({
+         tModal.FullModal({
              title: 'Manage wallpapers',
              url: '{% url "todos:wallpaper_list" %}',
              onClose: function() {
@@ -163,7 +165,7 @@
       });
       $('[data-action="manage-files"]').click(function (event) {
          event.preventDefault();
-         tModal.Modal({
+         tModal.FullModal({
              title: 'Manage files',
              url: '{% url "todos:file_list" "file" %}',
              onClose: function() {
@@ -175,7 +177,7 @@
       });
       $('[data-action="manage-images"]').click(function (event) {
          event.preventDefault();
-         tModal.Modal({
+         tModal.FullModal({
              title: 'Manage images',
              url: '{% url "todos:file_list" "image" %}',
              onClose: function() {
@@ -187,7 +189,7 @@
       });
       $('[data-action="import-todos"]').click(function (event) {
          event.preventDefault();
-         tModal.Modal({
+         tModal.FullModal({
              title: "Import todo's",
              url: '{% url "todos:todos_import" %}',
              onClose: function() {
@@ -201,7 +203,7 @@
       });
       $('[data-action="import-notes"]').click(function (event) {
          event.preventDefault();
-         tModal.Modal({
+         tModal.FullModal({
              title: "Import notes",
              url: '{% url "todos:notes_import" %}',
              onClose: function() {
@@ -215,7 +217,7 @@
       });
       $('[data-action="import-files"]').click(function (event) {
          event.preventDefault();
-         tModal.Modal({
+         tModal.FullModal({
              title: "Import files",
              url: '{% url "todos:file_import" 'file' %}',
              onClose: function() {
@@ -227,7 +229,7 @@
       });
       $('[data-action="import-images"]').click(function (event) {
          event.preventDefault();
-         tModal.Modal({
+         tModal.FullModal({
              title: "Import images",
              url: '{% url "todos:file_import" 'image' %}',
              onClose: function() {

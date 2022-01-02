@@ -145,8 +145,7 @@ class ImagesWidgetRenderer(WidgetRendererService):
     def media(self):
         return {
             'js': {
-                'static': ('images.init.js',),
-                'external': ('https://unpkg.com/emodal@1.2.69/dist/eModal.min.js',)
+                'static': ('images.init.js',)
             }
         }
 
