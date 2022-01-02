@@ -8,7 +8,6 @@ $(document).ready(function(){
             nextButton: $('#nextNotes'),
             provider: notesProviderFactory.create(notes_vars.provider)
         });
-        console.log($('[data-widget-type="notes"] textarea').val());
     });
     $('[data-widget-type="notes"] textarea').trigger('init');
 });
