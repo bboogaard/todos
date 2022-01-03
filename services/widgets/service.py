@@ -11,11 +11,13 @@ from dateutil.relativedelta import relativedelta
 
 from services.factory import EventsServiceFactory, ItemServiceFactory
 from todos import forms
-from todos.models import PrivateFile, Widget
+from todos.models import PrivateFile, PrivateImage, Widget
 from todos.settings import cache_settings
 
 
 class WidgetRendererService:
+
+    content: str
 
     request: HttpRequest
 
@@ -31,13 +33,24 @@ class WidgetRendererService:
 
     def render(self, context: RequestContext):
         self.request = context.get('request')
+        self.content = self.render_content(context)
+        return render_to_string(
+            'widgets/widget.html',
+            {
+                'content': self.content,
+                'title': self.widget.title,
+                'widget_id': self.widget.widget_id,
+                'widget_type': self.widget.type
+            },
+            self.request
+        )
+
+    def render_content(self, context):
+        self.request = getattr(self, 'request', context.get('request'))
         context = self.get_context_data(**context.flatten())
         return render_to_string(self.get_template(), context, self.request)
 
     def get_context_data(self, **kwargs):
-        kwargs.update({
-            'title': self.widget.title
-        })
         return kwargs
 
     def get_template(self):
@@ -78,10 +91,12 @@ class TodosWidgetRenderer(WidgetRendererService):
 
     def media(self):
         return {
-            'js': (
-                'checklist.provider.local.js', 'checklist.provider.remote.js', 'checklist.provider.factory.js',
-                'checklist.jquery.js', 'todos.init.js'
-            )
+            'js': {
+                'static': (
+                    'checklist.provider.local.js', 'checklist.provider.remote.js', 'checklist.provider.factory.js',
+                    'checklist.jquery.js', 'todos.init.js'
+                )
+            }
         }
 
     def global_vars(self):
@@ -107,6 +122,32 @@ class FilesWidgetRenderer(WidgetRendererService):
             files=files
         ))
         return context
+
+
+class ImagesWidgetRenderer(WidgetRendererService):
+
+    template_name = 'images.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        form = forms.ImageSearchForm(self.request.GET or None)
+        if form.is_valid():
+            images = PrivateImage.objects.filter(pk=form.cleaned_data['image_id'])
+        else:
+            images = PrivateImage.objects.all()
+
+        context.update(dict(
+            images=images
+        ))
+        return context
+
+    def media(self):
+        return {
+            'js': {
+                'static': ('images.init.js',)
+            }
+        }
 
 
 class NotesWidgetRenderer(WidgetRendererService):
@@ -139,10 +180,12 @@ class NotesWidgetRenderer(WidgetRendererService):
 
     def media(self):
         return {
-            'js': (
-                'notes.provider.local.js', 'notes.provider.remote.js', 'notes.provider.factory.js',
-                'notes.jquery.js', 'notes.init.js'
-            )
+            'js': {
+                'static': (
+                    'notes.provider.local.js', 'notes.provider.remote.js', 'notes.provider.factory.js',
+                    'notes.jquery.js', 'notes.init.js'
+                )
+            }
         }
 
     def global_vars(self):
@@ -168,11 +211,11 @@ class EventsWidgetRenderer(WidgetRendererService):
         prev_dt = date(prev_dt.year, prev_dt.month, 1)
         next_dt = dt + relativedelta(months=1)
         next_dt = date(next_dt.year, next_dt.month, calendar.monthrange(next_dt.year, next_dt.month)[1])
-        prev_url = self.request.path + '?' + urlencode({
+        prev_url = reverse('todos:index') + '?' + urlencode({
             'year': prev_dt.year,
             'month': prev_dt.month
         })
-        next_url = self.request.path + '?' + urlencode({
+        next_url = reverse('todos:index') + '?' + urlencode({
             'year': next_dt.year,
             'month': next_dt.month
         })
@@ -187,9 +230,9 @@ class EventsWidgetRenderer(WidgetRendererService):
                 'calendar.css',
                 'tempus-dominus/css/font-awesome.css'
             ),
-            'js': (
-                'events.init.js',
-            )
+            'js': {
+                'static': ('events.init.js',)
+            }
         }
 
     def global_vars(self):

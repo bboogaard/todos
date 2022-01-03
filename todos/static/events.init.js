@@ -1,9 +1,15 @@
 $(document).ready(function(){
-    $('[data-event-url]').click(function(event) {
+    $('[data-widget-type="events"]').on('click', '[data-event-url]', function(event) {
         event.stopPropagation();
-        eModal.iframe($(this).data('event-url'), $(this).data('event-title'));
+        $('#todos-modal').FullModal({
+            title: $(this).data('event-title'),
+            url: $(this).data('event-url'),
+            onClose: function() {
+                widgets['events'].load();
+            }
+        });
     });
-    $('.event .fa.fa-close').click(function(event) {
+    $('.event').on('click', '.fa.fa-close', function(event) {
         event.stopPropagation();
         $(this).parents('form').submit();
     });

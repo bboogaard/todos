@@ -6,7 +6,8 @@
       "type": "todos",
       "title": "Todo's",
       "is_enabled": true,
-      "position": 0
+      "position": 0,
+      "refresh_interval": null
     }
   },
   {
@@ -16,7 +17,8 @@
       "type": "files",
       "title": "Files",
       "is_enabled": true,
-      "position": 1
+      "position": 1,
+      "refresh_interval": null
     }
   },
   {
@@ -26,7 +28,8 @@
       "type": "notes",
       "title": "Notes",
       "is_enabled": true,
-      "position": 2
+      "position": 2,
+      "refresh_interval": null
     }
   },
   {
@@ -36,7 +39,19 @@
       "type": "events",
       "title": "Events",
       "is_enabled": true,
-      "position": 3
+      "position": 3,
+      "refresh_interval": 60
+    }
+  },
+  {
+    "model": "todos.widget",
+    "pk": 5,
+    "fields": {
+      "type": "images",
+      "title": "Images",
+      "is_enabled": true,
+      "position": 5,
+      "refresh_interval": null
     }
   }
 ]

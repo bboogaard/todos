@@ -25,3 +25,8 @@ li:first-child{
 .card-block {
     padding: 10px;
 }
+
+.modal-filling {
+    padding: 0px;
+    margin: 0px;
+}

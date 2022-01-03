@@ -85,41 +85,9 @@ class FileSearchForm(forms.Form):
     file_id = forms.IntegerField()
 
 
-class MonthForm(forms.Form):
+class ImageSearchForm(forms.Form):
 
-    month = forms.IntegerField()
-
-    year = forms.IntegerField()
-
-
-class EventForm(forms.ModelForm):
-
-    time = forms.TimeField(widget=TimePicker(), input_formats=['%H:%M'])
-
-    class Meta:
-        model = models.Event
-        fields = ('description',)
-
-    def __init__(self, *args, **kwargs):
-        self.date = kwargs.pop('date')
-        super().__init__(*args, **kwargs)
-        self.initial['time'] = self.instance.datetime_localized.time() if self.instance.datetime else None
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            'description',
-            'time',
-            ButtonHolder(
-                Submit('submit', 'Save', css_class='button white')
-            )
-        )
-
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        instance.datetime = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.combine(
-            self.date, self.cleaned_data['time']
-        ))
-        instance.save()
-        return instance
+    image_id = forms.IntegerField()
 
 
 class MonthForm(forms.Form):
@@ -196,6 +164,24 @@ class FileForm(forms.ModelForm):
         )
 
 
+class ImageForm(forms.ModelForm):
+
+    class Meta:
+        fields = ('image', 'tags')
+        model = models.PrivateImage
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            'image',
+            'tags',
+            ButtonHolder(
+                Submit('submit', 'Save', css_class='button white')
+            )
+        )
+
+
 class ImportForm(forms.Form):
 
     file = forms.FileField()
@@ -209,3 +195,13 @@ class ImportForm(forms.Form):
                 Submit('submit', 'Import', css_class='button white')
             )
         )
+
+
+class WidgetForm(forms.ModelForm):
+
+    class Meta:
+        fields = ('is_enabled', 'refresh_interval')
+        model = models.Widget
+
+
+WidgetFormSet = forms.modelformset_factory(models.Widget, WidgetForm, extra=0)

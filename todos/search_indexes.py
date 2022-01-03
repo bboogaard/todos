@@ -1,6 +1,6 @@
 from haystack import indexes
 
-from todos.models import Event, Note, PrivateFile, Todo
+from todos.models import Event, Note, PrivateFile, PrivateImage, Todo
 
 
 class SearchMixin:
@@ -29,3 +29,4 @@ EventSearchIndex = search_index_factory(Event)
 NoteSearchIndex = search_index_factory(Note)
 TodoSearchIndex = search_index_factory(Todo)
 FileSearchIndex = search_index_factory(PrivateFile)
+ImageSearchIndex = search_index_factory(PrivateImage)

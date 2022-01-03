@@ -6,6 +6,7 @@ from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http.response import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
+from django.template.context import RequestContext
 from django.urls import reverse
 from django.views import generic, View
 from haystack.generic_views import SearchView as BaseSearchView
@@ -13,6 +14,7 @@ from private_storage.storage import private_storage
 
 from services.api import Api
 from services.factory import FilesServiceFactory, ItemServiceFactory
+from services.widgets.factory import WidgetRendererFactory
 from todos import forms, models
 from todos.settings import cache_settings
 
@@ -174,19 +176,69 @@ class WallpaperDeleteView(AccessMixin, View):
         return redirect(reverse('todos:wallpaper_list'))
 
 
-class FileListView(AccessMixin, generic.TemplateView):
+class FileViewMixin:
+
+    file_type = None
+
+    model = None
+
+    object_name = None
+
+    object_name_plural = None
+
+    file_field = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.file_type = kwargs['file_type']
+        self.model = self.get_model(self.file_type)
+        self.object_name, self.object_name_plural = {
+            'file': ('File', 'Files'),
+            'image': ('Image', 'Images')
+        }.get(self.file_type)
+        self.file_field = {
+            'file': 'file',
+            'image': 'image'
+        }.get(self.file_type)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'file_type': self.file_type,
+            'object_name': self.object_name,
+            'object_name_plural': self.object_name_plural,
+        })
+        return context
+
+    def get_model(self, file_type):
+        return {
+            'file': models.PrivateFile,
+            'image': models.PrivateImage
+        }.get(file_type)
+
+
+class FileListView(FileViewMixin, AccessMixin, generic.TemplateView):
 
     template_name = 'files/file_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
-            'files': models.PrivateFile.objects.all()
+            'files': self.model.objects.all()
         })
         return context
 
 
-class FileEditMixin(generic.TemplateView):
+class FileEditMixin(FileViewMixin, generic.TemplateView):
+
+    form_class = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.form_class = {
+            'file': forms.FileForm,
+            'image': forms.ImageForm
+        }.get(kwargs['file_type'])
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         form = self.get_form()
@@ -197,13 +249,13 @@ class FileEditMixin(generic.TemplateView):
         form = self.get_form(request.POST or None, files=request.FILES or None)
         if form.is_valid():
             form.save()
-            return redirect(reverse('todos:file_list'))
+            return redirect(reverse('todos:file_list', args=[self.file_type]))
 
         context = self.get_context_data(form=form)
         return self.render_to_response(context)
 
     def get_form(self, data=None, files=None, **kwargs):
-        return forms.FileForm(data, files=files, **kwargs)
+        return self.form_class(data, files=files, **kwargs)
 
 
 class FileCreateView(AccessMixin, FileEditMixin):
@@ -216,7 +268,7 @@ class FileUpdateView(AccessMixin, FileEditMixin):
     template_name = 'files/file_update.html'
 
     def dispatch(self, request, pk, *args, **kwargs):
-        self.object = get_object_or_404(models.PrivateFile, pk=pk)
+        self.object = get_object_or_404(self.get_model(kwargs['file_type']), pk=pk)
         return super().dispatch(request, *args, **kwargs)
 
     def get_form(self, data=None, files=None, **kwargs):
@@ -229,22 +281,22 @@ class FileUpdateView(AccessMixin, FileEditMixin):
         return context
 
 
-class FileDeleteView(AccessMixin, View):
+class FileDeleteView(FileViewMixin, AccessMixin, View):
 
     def post(self, request, *args, **kwargs):
         file_ids = request.POST.getlist('file', [])
-        qs = models.PrivateFile.objects.filter(pk__in=file_ids)
-        file_names = [file.file.name for file in qs]
+        qs = self.model.objects.filter(pk__in=file_ids)
+        file_names = [getattr(file, self.file_field).name for file in qs]
         qs.delete()
         for file in file_names:
             private_storage.delete(file)
-        return redirect(reverse('todos:file_list'))
+        return redirect(reverse('todos:file_list', args=[self.file_type]))
 
 
-class FileExportView(AccessMixin, View):
+class FileExportView(FileViewMixin, AccessMixin, View):
 
     def get(self, request, *args, **kwargs):
-        fh = FilesServiceFactory.create().dump('files.zip')
+        fh = FilesServiceFactory.create(self.file_type).dump()
         response = HttpResponse(fh.read(), content_type='application/zip')
         response['Content-disposition'] = 'attachment'
         return response
@@ -268,8 +320,8 @@ class ImportView(AccessMixin, generic.TemplateView):
     def post(self, request, *args, **kwargs):
         form = self.get_form(request.POST or None, files=request.FILES or None)
         if form.is_valid():
-            self.service.load(BytesIO(form.files['file'].read()))
-            messages.add_message(request, messages.SUCCESS, self.message)
+            self.get_service().load(BytesIO(form.files['file'].read()))
+            messages.add_message(request, messages.SUCCESS, self.get_message())
             return redirect(request.path)
 
         context = self.get_context_data(form=form)
@@ -277,11 +329,20 @@ class ImportView(AccessMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = self.title
+        context['title'] = self.get_title()
         return context
 
     def get_form(self, data=None, files=None, **kwargs):
         return forms.ImportForm(data, files=files, **kwargs)
+
+    def get_service(self):
+        return self.service
+
+    def get_message(self):
+        return self.message
+
+    def get_title(self):
+        return self.title
 
 
 class TodosImportView(ImportView):
@@ -302,38 +363,39 @@ class NotesImportView(ImportView):
     title = "Import notes"
 
 
-class FileImportView(ImportView):
+class FileImportView(FileViewMixin, ImportView):
 
-    service = FilesServiceFactory.create()
+    def get_service(self):
+        return FilesServiceFactory.create(self.file_type)
 
-    message = "Files imported"
+    def get_message(self):
+        return "Files imported" if self.file_type == 'file' else "Images imported"
 
-    title = "Import files"
+    def get_title(self):
+        return "Import files" if self.file_type == 'file' else "Import images"
 
 
 class WidgetListView(AccessMixin, generic.TemplateView):
 
     template_name = 'widgets/widget_list.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'widgets': models.Widget.objects.all()
-        })
-        return context
-
-
-class WidgetSaveView(AccessMixin, View):
+    def get(self, request, *args, **kwargs):
+        formset = self.get_formset()
+        context = self.get_context_data(formset=formset)
+        return self.render_to_response(context)
 
     def post(self, request, *args, **kwargs):
-        widget_ids = request.POST.getlist('widget', [])
-        qs = models.Widget.objects.all()
-        widgets = []
-        for widget in qs:
-            widget.is_enabled = str(widget.pk) in widget_ids
-            widgets.append(widget)
-        models.Widget.objects.bulk_update(widgets, fields=['is_enabled'])
-        return redirect(reverse('todos:widget_list'))
+        formset = self.get_formset(request.POST or None)
+        if formset.is_valid():
+            formset.save()
+            messages.add_message(request, messages.SUCCESS, 'Widgets saved')
+            return redirect(reverse('todos:widget_list'))
+
+        context = self.get_context_data(formset=formset)
+        return self.render_to_response(context)
+
+    def get_formset(self, data=None, files=None, **kwargs):
+        return forms.WidgetFormSet(data, files, **kwargs)
 
 
 class EventCreateMixin(View):
@@ -398,3 +460,34 @@ class EventDeleteView(AccessMixin, generic.TemplateView):
         self.object = get_object_or_404(models.Event, pk=pk)
         self.object.delete()
         return redirect(reverse('todos:index'))
+
+
+class CarouselView(AccessMixin, generic.TemplateView):
+
+    template_name = 'carousel.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        images = list(models.PrivateImage.objects.all())
+        try:
+            image_id = int(self.request.GET.get('image_id', ''))
+        except ValueError:
+            image_id = images[0].pk if images else 0
+        context.update({
+            'images': images,
+            'image_id': image_id
+        })
+        return context
+
+
+class WidgetView(AccessMixin, View):
+
+    def get(self, request, widget_id, *args, **kwargs):
+        try:
+            widget = models.Widget.objects.get(pk=widget_id)
+        except models.Widget.DoesNotExist:
+            return JsonResponse({}, status=404)
+
+        renderer = WidgetRendererFactory.get_renderer(widget)
+        html = renderer.render_content(RequestContext(request, {'request': request}))
+        return JsonResponse({'html': html})

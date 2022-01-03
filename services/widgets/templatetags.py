@@ -24,15 +24,19 @@ def render_js(context, widget: Widget):
     renderer = WidgetRendererFactory.get_renderer(widget)
     if not renderer:
         return {
-            'files': [],
+            'static_files': [],
+            'external_files': [],
             'var_name': None,
             'values': None
         }
 
-    files = renderer.media().get('js', [])
+    static_files = renderer.media().get('js', {}).get('static', [])
+    external_files = renderer.media().get('js', {}).get('external', [])
     global_vars = renderer.global_vars()
     return {
-        'files': files,
+        'widget': widget,
+        'static_files': static_files,
+        'external_files': external_files,
         'var_name': '{}_vars'.format(widget.type),
         'values': mark_safe(json.dumps(global_vars))
     }
