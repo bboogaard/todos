@@ -7,7 +7,7 @@ $(document).ready(function(){
             provider: checkListProviderFactory.create(todos_vars.provider)
         });
     });
-    widgets['todos'].load(function() {
+    widgets['todos'].addCallback(function() {
         $('[data-widget-type="todos"] ul').trigger('init');
     });
     $('[data-widget-type="todos"] ul').trigger('init');
