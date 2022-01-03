@@ -315,6 +315,7 @@ class Widget(models.Model):
     WIDGET_TYPE_NOTES = 'notes'
     WIDGET_TYPE_EVENTS = 'events'
     WIDGET_TYPE_IMAGES = 'images'
+    WIDGET_TYPE_DATES = 'dates'
 
     WIDGET_TYPES = (
         (WIDGET_TYPE_TODOS, _("To do's")),
@@ -322,6 +323,7 @@ class Widget(models.Model):
         (WIDGET_TYPE_NOTES, _("Notes")),
         (WIDGET_TYPE_EVENTS, _("Events")),
         (WIDGET_TYPE_IMAGES, _("Images")),
+        (WIDGET_TYPE_DATES, _("Historical dates")),
     )
 
     type = models.CharField(max_length=8, choices=WIDGET_TYPES, unique=True)
@@ -347,3 +349,16 @@ class Widget(models.Model):
     @property
     def refresh_interval_msecs(self):
         return 1000 * self.refresh_interval if self.refresh_interval else None
+
+
+class HistoricalDate(models.Model):
+
+    date = models.DateField()
+
+    event = models.CharField(max_length=255)
+
+    class Meta:
+        ordering = ('date',)
+
+    def __str__(self):
+        return self.event

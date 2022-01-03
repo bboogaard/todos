@@ -11,7 +11,7 @@ from dateutil.relativedelta import relativedelta
 
 from services.factory import EventsServiceFactory, ItemServiceFactory
 from todos import forms
-from todos.models import PrivateFile, PrivateImage, Widget
+from todos.models import HistoricalDate, PrivateFile, PrivateImage, Widget
 from todos.settings import cache_settings
 
 
@@ -237,3 +237,18 @@ class EventsWidgetRenderer(WidgetRendererService):
 
     def global_vars(self):
         return {}
+
+
+class DatesWidgetRenderer(WidgetRendererService):
+
+    template_name = 'dates.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        current_date = date.today()
+        context['date'] = (
+            HistoricalDate.objects.filter(
+                date__month=current_date.month, date__day=current_date.day
+            ).order_by('?').first()
+        )
+        return context
