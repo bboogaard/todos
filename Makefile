@@ -12,3 +12,6 @@ index:
 
 test:
 	docker-compose run web scripts/test.sh
+
+make_fixtures:
+	docker-compose run web scripts/make_fixtures.sh

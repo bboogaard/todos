@@ -34,6 +34,7 @@ def render_js(context, widget: Widget):
     external_files = renderer.media().get('js', {}).get('external', [])
     global_vars = renderer.global_vars()
     return {
+        'widget': widget,
         'static_files': static_files,
         'external_files': external_files,
         'var_name': '{}_vars'.format(widget.type),

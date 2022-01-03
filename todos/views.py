@@ -6,6 +6,7 @@ from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http.response import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
+from django.template.context import RequestContext
 from django.urls import reverse
 from django.views import generic, View
 from haystack.generic_views import SearchView as BaseSearchView
@@ -13,6 +14,7 @@ from private_storage.storage import private_storage
 
 from services.api import Api
 from services.factory import FilesServiceFactory, ItemServiceFactory
+from services.widgets.factory import WidgetRendererFactory
 from todos import forms, models
 from todos.settings import cache_settings
 
@@ -377,25 +379,23 @@ class WidgetListView(AccessMixin, generic.TemplateView):
 
     template_name = 'widgets/widget_list.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'widgets': models.Widget.objects.all()
-        })
-        return context
-
-
-class WidgetSaveView(AccessMixin, View):
+    def get(self, request, *args, **kwargs):
+        formset = self.get_formset()
+        context = self.get_context_data(formset=formset)
+        return self.render_to_response(context)
 
     def post(self, request, *args, **kwargs):
-        widget_ids = request.POST.getlist('widget', [])
-        qs = models.Widget.objects.all()
-        widgets = []
-        for widget in qs:
-            widget.is_enabled = str(widget.pk) in widget_ids
-            widgets.append(widget)
-        models.Widget.objects.bulk_update(widgets, fields=['is_enabled'])
-        return redirect(reverse('todos:widget_list'))
+        formset = self.get_formset(request.POST or None)
+        if formset.is_valid():
+            formset.save()
+            messages.add_message(request, messages.SUCCESS, 'Widgets saved')
+            return redirect(reverse('todos:widget_list'))
+
+        context = self.get_context_data(formset=formset)
+        return self.render_to_response(context)
+
+    def get_formset(self, data=None, files=None, **kwargs):
+        return forms.WidgetFormSet(data, files, **kwargs)
 
 
 class EventCreateMixin(View):
@@ -478,3 +478,16 @@ class CarouselView(AccessMixin, generic.TemplateView):
             'image_id': image_id
         })
         return context
+
+
+class WidgetView(AccessMixin, View):
+
+    def get(self, request, widget_id, *args, **kwargs):
+        try:
+            widget = models.Widget.objects.get(pk=widget_id)
+        except models.Widget.DoesNotExist:
+            return JsonResponse({}, status=404)
+
+        renderer = WidgetRendererFactory.get_renderer(widget)
+        html = renderer.render_content(RequestContext(request, {'request': request}))
+        return JsonResponse({'html': html})

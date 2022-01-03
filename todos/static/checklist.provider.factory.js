@@ -7,7 +7,7 @@ function ChecklistProviderFactory(json_vars) {
 
 ChecklistProviderFactory.prototype = {
 
-    create: function (type) {
+    create_provider: function (type) {
         switch (type) {
             case "local":
                 return new ChecklistProviderLocal({
@@ -27,4 +27,10 @@ ChecklistProviderFactory.prototype = {
 
 }
 
-const checkListProviderFactory = new ChecklistProviderFactory(JSON.parse(document.getElementById('todo-vars').textContent));
+var checkListProviderFactory = {
+
+    create: function(type) {
+        return new ChecklistProviderFactory(JSON.parse(document.getElementById('todo-vars').textContent)).create_provider(type);
+    }
+
+}

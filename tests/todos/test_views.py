@@ -701,28 +701,52 @@ class TestImagesExportView(TodosViewTest):
 
 class TestWidgetListView(TodosViewTest):
 
+    csrf_checks = False
+
     with_fixtures = True
 
     def test_get(self):
         response = self.app.get('/widgets/list', user=self.test_user)
         self.assertEqual(response.status_code, 200)
 
+    def test_post(self):
+        data = {
+            'form-TOTAL_FORMS': ['5'],
+            'form-INITIAL_FORMS': ['5'],
+            'form-MIN_NUM_FORMS': ['0'],
+            'form-MAX_NUM_FORMS': ['1000'],
+            'form-0-is_enabled': ['on'],
+            'form-0-id': ['1'],
+            'form-0-refresh_interval': [''],
+            'form-1-is_enabled': ['on'],
+            'form-1-id': ['2'],
+            'form-1-refresh_interval': [''],
+            'form-2-is_enabled': ['on'],
+            'form-2-id': ['3'],
+            'form-2-refresh_interval': [''],
+            'form-3-is_enabled': ['on'],
+            'form-3-id': ['4'],
+            'form-3-refresh_interval': ['120'],
+            'form-4-is_enabled': ['on'],
+            'form-4-id': ['5'],
+            'form-4-refresh_interval': ['']
+        }
+        response = self.app.post('/widgets/list', data, user=self.test_user)
+        self.assertEqual(response.status_code, 302)
+        widget = Widget.objects.get(type=Widget.WIDGET_TYPE_EVENTS)
+        self.assertEqual(widget.refresh_interval, 120)
 
-class TestWidgetSaveView(TodosViewTest):
+
+class TestWidgetView(TodosViewTest):
 
     with_fixtures = True
 
-    csrf_checks = False
-
-    def test_post(self):
-        widgets = Widget.objects.exclude(type=Widget.WIDGET_TYPE_EVENTS)
-        data = {
-            'widget': [widget.pk for widget in widgets]
-        }
-        response = self.app.post('/widgets/save', data, user=self.test_user)
-        self.assertEqual(response.status_code, 302)
-        widget = Widget.objects.get(type=Widget.WIDGET_TYPE_EVENTS)
-        self.assertFalse(widget.is_enabled)
+    def test_get(self):
+        widget = Widget.objects.get(type=Widget.WIDGET_TYPE_TODOS)
+        response = self.app.get('/widgets/{}'.format(widget.pk), user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        self.assertIn('Enter item', data['html'])
 
 
 class TestEventCreateView(TodosViewTest):

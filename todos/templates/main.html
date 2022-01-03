@@ -131,47 +131,109 @@
       $('body').wallPaper({
           items: JSON.parse(document.getElementById('wallpapers').textContent)
       });
+      let tModal = $('#todos-modal');
+
       $('[data-action="next-wallpaper"]').click(function() {
           $('body').trigger('next-wallpaper');
       });
       $('#about-link').click(function(event) {
           event.preventDefault();
-          eModal.alert("Todo's - Version 1.0");
+          tModal.Modal({
+             title: 'About',
+             content: "Todo's - Version 1.0"
+         });
       });
       $('[data-action="manage-widgets"]').click(function (event) {
          event.preventDefault();
-         eModal.iframe('{% url "todos:widget_list" %}', 'Manage widgets');
+         tModal.FullModal({
+             title: 'Manage widgets',
+             url: '{% url "todos:widget_list" %}',
+             onClose: function() {
+               location.href = '{{ request.path }}' + window.location.search;
+             }
+         });
       });
       $('[data-action="manage-wallpapers"]').click(function (event) {
          event.preventDefault();
-         eModal.iframe('{% url "todos:wallpaper_list" %}', 'Manage wallpapers');
+         tModal.FullModal({
+             title: 'Manage wallpapers',
+             url: '{% url "todos:wallpaper_list" %}',
+             onClose: function() {
+               location.href = '{{ request.path }}' + window.location.search;
+             }
+         });
       });
       $('[data-action="manage-files"]').click(function (event) {
          event.preventDefault();
-         eModal.iframe('{% url "todos:file_list" "file" %}', 'Manage files');
+         tModal.FullModal({
+             title: 'Manage files',
+             url: '{% url "todos:file_list" "file" %}',
+             onClose: function() {
+               if (widgets['files']) {
+                 widgets['files'].load();
+               }
+             }
+         });
       });
       $('[data-action="manage-images"]').click(function (event) {
          event.preventDefault();
-         eModal.iframe('{% url "todos:file_list" "image" %}', 'Manage images');
+         tModal.FullModal({
+             title: 'Manage images',
+             url: '{% url "todos:file_list" "image" %}',
+             onClose: function() {
+               if (widgets['images']) {
+                 widgets['images'].load();
+               }
+             }
+         });
       });
       $('[data-action="import-todos"]').click(function (event) {
          event.preventDefault();
-         eModal.iframe('{% url "todos:todos_import" %}', "Import todo's");
+         tModal.FullModal({
+             title: "Import todo's",
+             url: '{% url "todos:todos_import" %}',
+             onClose: function() {
+               if (widgets['todos']) {
+                 widgets['todos'].load();
+               }
+             }
+         });
       });
       $('[data-action="import-notes"]').click(function (event) {
          event.preventDefault();
-         eModal.iframe('{% url "todos:notes_import" %}', "Import notes");
+         tModal.FullModal({
+             title: "Import notes",
+             url: '{% url "todos:notes_import" %}',
+             onClose: function() {
+               if (widgets['notes']) {
+                 widgets['notes'].load();
+               }
+             }
+         });
       });
       $('[data-action="import-files"]').click(function (event) {
          event.preventDefault();
-         eModal.iframe('{% url "todos:file_import" 'file' %}', "Import files");
+         tModal.FullModal({
+             title: "Import files",
+             url: '{% url "todos:file_import" 'file' %}',
+             onClose: function() {
+               if (widgets['files']) {
+                 widgets['files'].load();
+               }
+             }
+         });
       });
       $('[data-action="import-images"]').click(function (event) {
          event.preventDefault();
-         eModal.iframe('{% url "todos:file_import" 'images' %}', "Import images");
-      });
-      $(document).on('hide.bs.modal', function() {
-          location.href = '{{ request.path }}';
+         tModal.FullModal({
+             title: "Import images",
+             url: '{% url "todos:file_import" 'image' %}',
+             onClose: function() {
+               if (widgets['images']) {
+                 widgets['images'].load();
+               }
+             }
+         });
       });
   });
 </script>

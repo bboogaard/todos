@@ -7,7 +7,7 @@ function NotesProviderFactory(json_vars) {
 
 NotesProviderFactory.prototype = {
 
-    create: function (type) {
+    create_provider: function (type) {
         switch (type) {
             case "local":
                 return new NotesProviderLocal({
@@ -27,4 +27,10 @@ NotesProviderFactory.prototype = {
 
 }
 
-const notesProviderFactory = new NotesProviderFactory(JSON.parse(document.getElementById('note-vars').textContent));
+var notesProviderFactory = {
+
+    create: function(type) {
+        return new NotesProviderFactory(JSON.parse(document.getElementById('note-vars').textContent)).create_provider(type);
+    }
+
+}

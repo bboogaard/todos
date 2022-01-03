@@ -1,9 +1,4 @@
-{% extends 'widgets/base.html' %}
-
-
-{% block content %}
-
-<textarea id="notes" class="form-control" rows="10"></textarea>
+<textarea class="form-control" rows="10"></textarea>
 
 <br>
 <a href="javascript:void(0);" id="saveNotes" class="btn btn-primary">Save</a>
@@ -15,5 +10,3 @@
 <button class="btn" id="nextNotes">&raquo;</button>
 
 {{ note_vars|json_script:"note-vars" }}
-
-{% endblock %}
