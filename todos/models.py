@@ -332,6 +332,8 @@ class Widget(models.Model):
 
     position = models.PositiveIntegerField()
 
+    refresh_interval = models.PositiveIntegerField(null=True, blank=True)
+
     class Meta:
         ordering = ('position',)
 
@@ -341,3 +343,7 @@ class Widget(models.Model):
     @property
     def widget_id(self):
         return '{}-{}'.format(self.pk, self.type)
+
+    @property
+    def refresh_interval_msecs(self):
+        return 1000 * self.refresh_interval if self.refresh_interval else None

@@ -1,21 +1,29 @@
 {% extends 'base.html' %}
 
+{% load widget_tweaks %}
+
+
 {% block main %}
 <h1>Widgets</h1>
-<form method="post" action="{% url 'todos:widget_save' %}">
+<form method="post" action="{% url 'todos:widget_list' %}">
     {% csrf_token %}
+    {{ formset.management_form }}
     <table class="table table-striped">
       <thead>
         <tr>
           <th scope="col"><input type="checkbox" id="select-all"></th>
-          <th scope="col">Widget</th>
+          <th scope="col">Refresh interval (seconds)</th>
         </tr>
       </thead>
       <tbody>
-        {% for widget in widgets %}
+        {% for form in formset %}
         <tr>
-          <td><input type="checkbox" name="widget" value="{{ widget.id }}"{% if widget.is_enabled %} checked{% endif %}></td>
-          <td>{{ widget }}</td>
+          <td>{{ form.is_enabled }} {{ form.instance }} {{ form.id }}</td>
+          <td>
+              <div style="width: 100px">
+                  {% render_field form.refresh_interval class="form-control" %}
+              </div>
+          </td>
         </tr>
         {% endfor %}
       </tbody>
@@ -34,7 +42,7 @@ $(function() {
         $('form').submit();
     });
     $('#select-all').click(function() {
-        $('input[name="widget"]').prop('checked', $(this).prop('checked'));
+        $('input[type="checkbox"]').prop('checked', $(this).prop('checked'));
     });
 });
 </script>

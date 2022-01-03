@@ -379,25 +379,23 @@ class WidgetListView(AccessMixin, generic.TemplateView):
 
     template_name = 'widgets/widget_list.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'widgets': models.Widget.objects.all()
-        })
-        return context
-
-
-class WidgetSaveView(AccessMixin, View):
+    def get(self, request, *args, **kwargs):
+        formset = self.get_formset()
+        context = self.get_context_data(formset=formset)
+        return self.render_to_response(context)
 
     def post(self, request, *args, **kwargs):
-        widget_ids = request.POST.getlist('widget', [])
-        qs = models.Widget.objects.all()
-        widgets = []
-        for widget in qs:
-            widget.is_enabled = str(widget.pk) in widget_ids
-            widgets.append(widget)
-        models.Widget.objects.bulk_update(widgets, fields=['is_enabled'])
-        return redirect(reverse('todos:widget_list'))
+        formset = self.get_formset(request.POST or None)
+        if formset.is_valid():
+            formset.save()
+            messages.add_message(request, messages.SUCCESS, 'Widgets saved')
+            return redirect(reverse('todos:widget_list'))
+
+        context = self.get_context_data(formset=formset)
+        return self.render_to_response(context)
+
+    def get_formset(self, data=None, files=None, **kwargs):
+        return forms.WidgetFormSet(data, files, **kwargs)
 
 
 class EventCreateMixin(View):

@@ -34,7 +34,6 @@ urlpatterns = [
 
     # Widgets
     path('widgets/list', views.WidgetListView.as_view(), name="widget_list"),
-    path('widgets/save', views.WidgetSaveView.as_view(), name="widget_save"),
     path('widgets/<int:widget_id>', views.WidgetView.as_view(), name="widget"),
 
     # Events
