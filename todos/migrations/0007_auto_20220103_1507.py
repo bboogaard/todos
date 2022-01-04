@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                 ('event', models.CharField(max_length=255)),
             ],
             options={
-                'ordering': ('date',),
+                'ordering': ('date__month', 'date__day', 'date__year'),
             },
         ),
         migrations.AlterField(

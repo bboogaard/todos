@@ -358,7 +358,7 @@ class HistoricalDate(models.Model):
     event = models.CharField(max_length=255)
 
     class Meta:
-        ordering = ('date',)
+        ordering = ('date__month', 'date__day', 'date__year')
 
     def __str__(self):
         return self.event

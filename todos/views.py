@@ -17,6 +17,7 @@ from services.factory import FilesServiceFactory, ItemServiceFactory
 from services.widgets.factory import WidgetRendererFactory
 from todos import forms, models
 from todos.settings import cache_settings
+from todos.templatetags.url_tags import add_page_param
 
 
 class AccessMixin(View):
@@ -491,3 +492,64 @@ class WidgetView(AccessMixin, View):
         renderer = WidgetRendererFactory.get_renderer(widget)
         html = renderer.render_content(RequestContext(request, {'request': request}))
         return JsonResponse({'html': html})
+
+
+class DateListView(AccessMixin, generic.ListView):
+
+    model = models.HistoricalDate
+
+    paginate_by = 5
+
+    template_name = 'dates/date_list.html'
+
+
+class DateEditMixin(generic.TemplateView):
+
+    def get(self, request, *args, **kwargs):
+        form = self.get_form()
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form(request.POST or None)
+        if form.is_valid():
+            form.save()
+            redirect_url = reverse('todos:date_list')
+            return redirect(add_page_param({'request': request}, redirect_url))
+
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context)
+
+    def get_form(self, data=None, **kwargs):
+        return forms.DateForm(data, **kwargs)
+
+
+class DateCreateView(AccessMixin, DateEditMixin):
+
+    template_name = 'dates/date_create.html'
+
+
+class DateUpdateView(AccessMixin, DateEditMixin):
+
+    template_name = 'dates/date_update.html'
+
+    def dispatch(self, request, pk, *args, **kwargs):
+        self.object = get_object_or_404(models.HistoricalDate, pk=pk)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form(self, data=None, **kwargs):
+        kwargs['instance'] = self.object
+        return super().get_form(data, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['date'] = self.object
+        return context
+
+
+class DateDeleteView(AccessMixin, View):
+
+    def post(self, request, *args, **kwargs):
+        date_ids = request.POST.getlist('date', [])
+        models.HistoricalDate.objects.filter(pk__in=date_ids).delete()
+        return redirect(reverse('todos:date_list'))

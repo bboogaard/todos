@@ -10,9 +10,7 @@ from haystack.forms import ModelSearchForm as HaystackSearchForm
 from todos import models
 
 
-class TimePicker(forms.TimeInput):
-
-    template_name = 'forms/widgets/timepicker.html'
+class DateTimePicker(forms.DateTimeInput):
 
     class Media:
         css = {
@@ -41,6 +39,16 @@ class TimePicker(forms.TimeInput):
             'data-target': '#{}'.format(id),
         })
         return super().get_context(name, value, attrs)
+
+
+class TimePicker(DateTimePicker):
+
+    template_name = 'forms/widgets/timepicker.html'
+
+
+class DatePicker(DateTimePicker):
+
+    template_name = 'forms/widgets/datepicker.html'
 
 
 class SettingsForm(forms.Form):
@@ -99,7 +107,7 @@ class MonthForm(forms.Form):
 
 class EventForm(forms.ModelForm):
 
-    time = forms.TimeField(widget=TimePicker(), input_formats=['%H:%M'])
+    time = forms.TimeField(widget=TimePicker(format='%H:%M'), input_formats=['%H:%M'])
 
     class Meta:
         model = models.Event
@@ -205,3 +213,24 @@ class WidgetForm(forms.ModelForm):
 
 
 WidgetFormSet = forms.modelformset_factory(models.Widget, WidgetForm, extra=0)
+
+
+class DateForm(forms.ModelForm):
+
+    class Meta:
+        fields = ('date', 'event')
+        model = models.HistoricalDate
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['date'].widget = DatePicker(format='%d-%m-%Y')
+        self.fields['date'].input_formats = ['%d-%m-%Y']
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            'date',
+            'event',
+            ButtonHolder(
+                Submit('submit', 'Save', css_class='button white')
+            )
+        )
