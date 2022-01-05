@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load bootstrap_pagination %}
+{% load crispy_forms_tags %}
 {% load url_tags %}
 
 
@@ -10,6 +11,7 @@
     <a class="btn btn-primary" href="{% url 'todos:date_create' %}">Add date</a>&nbsp;
     <a class="btn btn-primary" id="delete-btn" href="">Delete dates</a>
 </div>
+{% crispy search_form %}
 <form method="post" action="{% url 'todos:date_delete' %}">
     {% csrf_token %}
     <table class="table table-striped">

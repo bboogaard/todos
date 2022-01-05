@@ -502,6 +502,24 @@ class DateListView(AccessMixin, generic.ListView):
 
     template_name = 'dates/date_list.html'
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(object_list=object_list, **kwargs)
+        context['search_form'] = forms.DateSearchForm(self.request.GET or None)
+        return context
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        form = forms.DateSearchForm(self.request.GET or None)
+        if form.is_valid():
+            data = form.cleaned_data
+            month = data.get('month')
+            if month:
+                queryset = queryset.filter(date__month=month)
+            event = data.get('event')
+            if event:
+                queryset = queryset.filter(event__icontains=event)
+        return queryset
+
 
 class DateEditMixin(generic.TemplateView):
 

@@ -911,6 +911,10 @@ class TestDateListView(TodosViewTest):
         response = self.app.get('/dates/list', user=self.test_user)
         self.assertEqual(response.status_code, 200)
 
+    def test_get_search(self):
+        response = self.app.get('/dates/list?month=1', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
 
 class TestDateCreateView(TodosViewTest):
 

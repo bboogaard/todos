@@ -7,6 +7,7 @@ from django import forms
 from django.conf import settings
 from haystack.forms import ModelSearchForm as HaystackSearchForm
 
+from lib.datetime import MONTH_NAMES
 from todos import models
 
 
@@ -232,5 +233,28 @@ class DateForm(forms.ModelForm):
             'event',
             ButtonHolder(
                 Submit('submit', 'Save', css_class='button white')
+            )
+        )
+
+
+class DateSearchForm(forms.Form):
+
+    month = forms.TypedChoiceField(choices=[('', '----------')] + [
+        (num, month_name)
+        for num, month_name in enumerate(MONTH_NAMES, start=1)
+    ], coerce=int, required=False)
+
+    event = forms.CharField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'GET'
+        self.helper.form_class = 'form-inline'
+        self.helper.layout = Layout(
+            'month',
+            'event',
+            ButtonHolder(
+                Submit('submit', 'Search', css_class='button white')
             )
         )
