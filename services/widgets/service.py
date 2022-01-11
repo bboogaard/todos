@@ -36,6 +36,9 @@ class WidgetRendererService:
     def render(self, context: RequestContext):
         self.request = context.get('request')
         self.content = self.render_content(context)
+        if not self.has_content():
+            return ''
+
         return render_to_string(
             'widgets/widget.html',
             {

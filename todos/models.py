@@ -1,3 +1,4 @@
+import datetime
 import os
 
 import pytz
@@ -9,6 +10,8 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from taggit.managers import TaggableManager
 from private_storage.fields import PrivateFileField, PrivateImageField
+
+from lib.datetime import date_range
 
 
 class SearchMixin(models.Model):
@@ -147,7 +150,18 @@ class Note(SearchMixin, Item):
         return self.text
 
 
-class Event(SearchMixin, models.Model):
+class EventMixin:
+
+    @property
+    def event_date(self):
+        raise NotImplementedError()
+
+    @property
+    def event_key(self):
+        raise NotImplementedError()
+
+
+class Event(EventMixin, SearchMixin, models.Model):
 
     description = models.CharField(max_length=100)
 
@@ -164,6 +178,15 @@ class Event(SearchMixin, models.Model):
     @property
     def datetime_localized(self):
         return self.datetime.astimezone(pytz.timezone(settings.TIME_ZONE))
+
+    @property
+    def event_date(self):
+        dt = self.datetime_localized.date()
+        return dt.day, dt.month
+
+    @property
+    def event_key(self):
+        return self.datetime
 
     @property
     def search_type(self):
@@ -351,14 +374,33 @@ class Widget(models.Model):
         return 1000 * self.refresh_interval if self.refresh_interval else None
 
 
-class HistoricalDate(models.Model):
+class HistoricalDateManager(models.Manager):
+
+    def for_date_range(self, start: datetime.date, end: datetime.date):
+        date_filter = models.Q()
+        for date in date_range(start, end):
+            date_filter |= models.Q(date__month=date.month, date__day=date.day)
+        return self.filter(date_filter)
+
+
+class HistoricalDate(EventMixin, models.Model):
 
     date = models.DateField()
 
     event = models.CharField(max_length=255)
+
+    objects = HistoricalDateManager()
 
     class Meta:
         ordering = ('date__month', 'date__day', 'date__year')
 
     def __str__(self):
         return self.event
+
+    @property
+    def event_date(self):
+        return self.date.day, self.date.month
+
+    @property
+    def event_key(self):
+        return self.date
