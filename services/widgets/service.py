@@ -1,9 +1,11 @@
 import calendar
 import os
 from datetime import date
+from typing import Dict, List
 
 from django.http.request import HttpRequest
 from django.template.context import RequestContext
+from django.template.defaultfilters import date as format_date
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.http import urlencode
@@ -11,7 +13,7 @@ from dateutil.relativedelta import relativedelta
 
 from services.factory import EventsServiceFactory, ItemServiceFactory
 from todos import forms
-from todos.models import PrivateFile, PrivateImage, Widget
+from todos.models import HistoricalDate, PrivateFile, PrivateImage, Widget
 from todos.settings import cache_settings
 
 
@@ -34,6 +36,9 @@ class WidgetRendererService:
     def render(self, context: RequestContext):
         self.request = context.get('request')
         self.content = self.render_content(context)
+        if not self.has_content():
+            return ''
+
         return render_to_string(
             'widgets/widget.html',
             {
@@ -61,6 +66,9 @@ class WidgetRendererService:
 
     def global_vars(self):
         return {}
+
+    def has_content(self):
+        raise NotImplementedError()
 
 
 class TodosWidgetRenderer(WidgetRendererService):
@@ -104,8 +112,13 @@ class TodosWidgetRenderer(WidgetRendererService):
             'provider': self.settings.todos_provider
         }
 
+    def has_content(self):
+        return True
+
 
 class FilesWidgetRenderer(WidgetRendererService):
+
+    files: List[PrivateFile] = []
 
     template_name = 'files.html'
 
@@ -114,17 +127,22 @@ class FilesWidgetRenderer(WidgetRendererService):
 
         form = forms.FileSearchForm(self.request.GET or None)
         if form.is_valid():
-            files = PrivateFile.objects.filter(pk=form.cleaned_data['file_id'])
+            self.files = PrivateFile.objects.filter(pk=form.cleaned_data['file_id'])
         else:
-            files = PrivateFile.objects.all()
+            self.files = PrivateFile.objects.all()
 
         context.update(dict(
-            files=files
+            files=self.files
         ))
         return context
 
+    def has_content(self):
+        return bool(len(self.files))
+
 
 class ImagesWidgetRenderer(WidgetRendererService):
+
+    images: List[PrivateImage] = []
 
     template_name = 'images.html'
 
@@ -133,12 +151,12 @@ class ImagesWidgetRenderer(WidgetRendererService):
 
         form = forms.ImageSearchForm(self.request.GET or None)
         if form.is_valid():
-            images = PrivateImage.objects.filter(pk=form.cleaned_data['image_id'])
+            self.images = PrivateImage.objects.filter(pk=form.cleaned_data['image_id'])
         else:
-            images = PrivateImage.objects.all()
+            self.images = PrivateImage.objects.all()
 
         context.update(dict(
-            images=images
+            images=self.images
         ))
         return context
 
@@ -148,6 +166,9 @@ class ImagesWidgetRenderer(WidgetRendererService):
                 'static': ('images.init.js',)
             }
         }
+
+    def has_content(self):
+        return bool(len(self.images))
 
 
 class NotesWidgetRenderer(WidgetRendererService):
@@ -193,6 +214,9 @@ class NotesWidgetRenderer(WidgetRendererService):
             'provider': self.settings.notes_provider
         }
 
+    def has_content(self):
+        return True
+
 
 class EventsWidgetRenderer(WidgetRendererService):
 
@@ -237,3 +261,45 @@ class EventsWidgetRenderer(WidgetRendererService):
 
     def global_vars(self):
         return {}
+
+    def has_content(self):
+        return True
+
+
+class DatesWidgetRenderer(WidgetRendererService):
+
+    dates: List[Dict[str, str]] = []
+
+    template_name = 'dates.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        current_date = date.today()
+        self.dates = [
+            {
+                'date': format_date(dt.date, 'j F Y'),
+                'event': dt.event
+            }
+            for dt in HistoricalDate.objects.filter(
+                date__month=current_date.month, date__day=current_date.day
+            )
+        ]
+        context.update({
+            'date': current_date,
+            'date_vars': {
+                'dates': self.dates
+            }
+        })
+        return context
+
+    def media(self):
+        return {
+            'js': {
+                'static': (
+                    'dates.jquery.js', 'dates.init.js'
+                )
+            }
+        }
+
+    def has_content(self):
+        return bool(len(self.dates))

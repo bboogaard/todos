@@ -16,10 +16,10 @@ from PIL import Image
 from pyquery import PyQuery
 from webtest import Upload
 
-from todos.models import Event, Note, PrivateFile, PrivateImage, Todo, Wallpaper, Widget
+from todos.models import Event, HistoricalDate, Note, PrivateFile, PrivateImage, Todo, Wallpaper, Widget
 from todos.settings import cache_settings
-from tests.todos.factories import EventFactory, NoteFactory, PrivateFileFactory, PrivateImageFactory, TodoFactory, \
-    UserFactory
+from tests.todos.factories import EventFactory, HistoricalDateFactory, NoteFactory, PrivateFileFactory, \
+    PrivateImageFactory, TodoFactory, UserFactory
 from tests.todos.utils import generate_image
 
 
@@ -903,3 +903,98 @@ class TestCarouselView(TodosViewTest):
         img = PyQuery(item.find('img'))
         result = img.attr('src')
         self.assertIn('/foo', result)
+
+
+class TestDateListView(TodosViewTest):
+
+    def test_get(self):
+        response = self.app.get('/dates/list', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_search(self):
+        response = self.app.get('/dates/list?month=1', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+
+class TestDateCreateView(TodosViewTest):
+
+    csrf_checks = False
+
+    def test_get(self):
+        response = self.app.get('/dates/create', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+    def test_post(self):
+        data = {
+            'date': '10-05-1940',
+            'event': 'German invasion'
+        }
+        response = self.app.post('/dates/create', data, user=self.test_user)
+        self.assertEqual(response.status_code, 302)
+
+        events = list(HistoricalDate.objects.filter(date=datetime.date(1940, 5, 10)).values_list('event', flat=True))
+        self.assertIn('German invasion', events)
+
+    def test_post_with_error(self):
+        data = {
+            'date': '10-05-1940',
+            'event': ''
+        }
+        response = self.app.post('/dates/create', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+
+class TestDateUpdateView(TodosViewTest):
+
+    csrf_checks = False
+
+    def setUp(self):
+        super().setUp()
+        self.date = HistoricalDateFactory(
+            date=datetime.date(1940, 5, 10),
+            event='German invasion'
+        )
+
+    def test_get(self):
+        response = self.app.get('/dates/{}/update'.format(self.date.pk), user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+    def test_post(self):
+        data = {
+            'date': '10-05-1940',
+            'event': 'Germans invaded'
+        }
+        response = self.app.post('/dates/{}/update'.format(self.date.pk), data, user=self.test_user)
+        self.assertEqual(response.status_code, 302)
+
+        date = HistoricalDate.objects.get(pk=self.date.pk)
+        result = date.event
+        expected = 'Germans invaded'
+        self.assertEqual(result, expected)
+
+    def test_post_with_error(self):
+        data = {
+            'date': '10-05-1940',
+            'event': ''
+        }
+        response = self.app.post('/dates/{}/update'.format(self.date.pk), data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+
+class TestDateDeleteView(TodosViewTest):
+
+    csrf_checks = False
+
+    def setUp(self):
+        super().setUp()
+        self.date = HistoricalDateFactory(
+            date=datetime.date(1940, 5, 10),
+            event='German invasion'
+        )
+
+    def test_post(self):
+        response = self.app.post('/dates/delete', {'date': [self.date.pk]}, user=self.test_user)
+        self.assertEqual(response.status_code, 302)
+
+        result = HistoricalDate.objects.filter(pk=self.date.pk).first()
+        self.assertIsNone(result)

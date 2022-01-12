@@ -41,10 +41,17 @@ class NoteAdmin(ItemAdmin, admin.ModelAdmin):
         return str(obj)
 
 
+class HistoricalDateAdmin(admin.ModelAdmin):
+
+    list_display = ('date', 'event')
+
+
 admin.site.register(models.Todo, TodoAdmin)
 admin.site.register(models.Gallery)
 admin.site.register(models.Wallpaper)
 admin.site.register(models.PrivateFile)
+admin.site.register(models.PrivateImage)
 admin.site.register(models.Note, NoteAdmin)
 admin.site.register(models.Widget)
 admin.site.register(models.Event)
+admin.site.register(models.HistoricalDate, HistoricalDateAdmin)

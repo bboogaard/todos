@@ -83,6 +83,8 @@
           </a>
           <a class="dropdown-item" href="#" data-action="manage-images">
               Manage images
+          </a><a class="dropdown-item" href="#" data-action="manage-dates">
+              Manage historical dates
           </a>
           <a class="dropdown-item" href="#" data-setting-name="notes_provider" data-setting-value="{% if settings.notes_provider == 'local' %}remote{% else %}local{% endif %}">
               {% if settings.notes_provider == 'remote' %}
@@ -183,6 +185,18 @@
              onClose: function() {
                if (widgets['images']) {
                  widgets['images'].load();
+               }
+             }
+         });
+      });
+      $('[data-action="manage-dates"]').click(function (event) {
+         event.preventDefault();
+         tModal.FullModal({
+             title: 'Manage historical dates',
+             url: '{% url "todos:date_list" %}',
+             onClose: function() {
+               if (widgets['dates']) {
+                 widgets['dates'].load();
                }
              }
          });

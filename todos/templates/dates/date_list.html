@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% load bootstrap_pagination %}
+{% load crispy_forms_tags %}
+{% load url_tags %}
+
+
+{% block main %}
+<h1>Historical dates</h1>
+<div class="float-right mb-2">
+    <a class="btn btn-primary" href="{% url 'todos:date_create' %}">Add date</a>&nbsp;
+    <a class="btn btn-primary" id="delete-btn" href="">Delete dates</a>
+</div>
+{% crispy search_form %}
+<form method="post" action="{% url 'todos:date_delete' %}">
+    {% csrf_token %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col"><input type="checkbox" id="select-all"></th>
+          <th scope="col">Date</th>
+          <th scope="col">Event</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for date in page_obj %}
+        <tr>
+          <td><input type="checkbox" name="date" value="{{ date.id }}"></td>
+          {% url 'todos:date_update' date.pk as update_url %}
+          <td><a href="{% add_page_param update_url %}">{{ date.date|date:'j F Y' }}</a></td>
+          <td>{{ date.event }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    {% bootstrap_paginate page_obj range=10 %}
+</form>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript">
+$(function() {
+    $('#delete-btn').click(function(event) {
+        event.preventDefault();
+        $('form').submit();
+    });
+    $('#select-all').click(function() {
+        $('input[name="date"]').prop('checked', $(this).prop('checked'));
+    });
+});
+</script>
+{% endblock %}

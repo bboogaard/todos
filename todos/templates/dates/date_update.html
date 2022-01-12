@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+{% load url_tags %}
+
+{% block main %}
+<h1>Update historical date</h1>
+{% url 'todos:date_update' pk=date.pk as update_url %}
+<form action="{% add_page_param update_url %}" method="post">
+{% crispy form %}
+</form>
+{% endblock %}
