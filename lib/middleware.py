@@ -1,3 +1,5 @@
+from django.urls import reverse
+
 from services.cron.factory import CronServiceFactory
 
 
@@ -7,7 +9,8 @@ class CronMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        CronServiceFactory.create_for_middleware().run()
+        if not request.path.startswith('/cron'):
+            CronServiceFactory.create_for_middleware().run()
 
         response = self.get_response(request)
 

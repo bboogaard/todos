@@ -18,6 +18,7 @@ from webtest import Upload
 
 from todos.models import Event, HistoricalDate, Note, PrivateFile, PrivateImage, Todo, Wallpaper, Widget
 from todos.settings import cache_settings
+from tests.services.cron.testcases import CronTestCase
 from tests.todos.factories import EventFactory, HistoricalDateFactory, NoteFactory, PrivateFileFactory, \
     PrivateImageFactory, TodoFactory, UserFactory
 from tests.todos.utils import generate_image
@@ -998,3 +999,19 @@ class TestDateDeleteView(TodosViewTest):
 
         result = HistoricalDate.objects.filter(pk=self.date.pk).first()
         self.assertIsNone(result)
+
+
+class TestCronView(CronTestCase, TodosViewTest):
+
+    frequency = 60 * 60
+
+    job_name = 'cron_job'
+
+    def test_get(self):
+        response = self.app.get('/cron/cron_job', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        self.assertJobRun()
+
+    def test_get_not_found(self):
+        response = self.app.get('/cron/other_job', user=self.test_user, expect_errors=True)
+        self.assertEqual(response.status_code, 404)

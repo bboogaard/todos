@@ -14,3 +14,7 @@ class Job:
     @property
     def cache_key(self):
         return 'cron-run-{}'.format(slugify(self.job_name))
+
+    @property
+    def next_run(self):
+        return self.last_run + self.frequency

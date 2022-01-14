@@ -4,6 +4,7 @@ from io import BytesIO
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
+from django.http import Http404
 from django.http.response import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.template.context import RequestContext
@@ -13,6 +14,7 @@ from haystack.generic_views import SearchView as BaseSearchView
 from private_storage.storage import private_storage
 
 from services.api import Api
+from services.cron.exceptions import JobNotFound
 from services.cron.factory import CronServiceFactory
 from services.factory import FilesServiceFactory, ItemServiceFactory
 from services.widgets.factory import WidgetRendererFactory
@@ -578,5 +580,9 @@ class CronView(AccessMixin, View):
 
     def get(self, request, job_name, *args, **kwargs):
         cron_service = CronServiceFactory.create_for_view()
-        cron_service.run(job_name, force=True)
+        try:
+            cron_service.run(job_name, force=True)
+        except JobNotFound:
+            raise Http404()
+
         return HttpResponse(cron_service.logger.get_value().encode(), content_type='text/plain')
