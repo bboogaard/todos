@@ -114,9 +114,19 @@ class Todo(SearchMixin, Item):
 
 class Note(SearchMixin, Item):
 
+    NOTE_TYPE_PLAIN_TEXT = 'plain_text'
+    NOTE_TYPE_MARKDOWN = 'markdown'
+
+    NOTE_TYPES = (
+        (NOTE_TYPE_PLAIN_TEXT, 'Plain text'),
+        (NOTE_TYPE_MARKDOWN, 'Markdown'),
+    )
+
     text = models.TextField(blank=True)
 
     position = models.PositiveIntegerField()
+
+    note_type = models.CharField(max_length=16, choices=NOTE_TYPES, default=NOTE_TYPE_PLAIN_TEXT)
 
     def __str__(self):
         return truncatewords(self.text, 7) if self.text else '...'

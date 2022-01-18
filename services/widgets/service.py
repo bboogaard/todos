@@ -204,9 +204,10 @@ class NotesWidgetRenderer(WidgetRendererService):
             'js': {
                 'static': (
                     'notes.provider.local.js', 'notes.provider.remote.js', 'notes.provider.factory.js',
-                    'notes.jquery.js', 'notes.init.js'
+                    'notes.jquery.js', 'notes.init.js', 'easymde.min.js'
                 )
-            }
+            },
+            'css': ('easymde.min.css',)
         }
 
     def global_vars(self):
