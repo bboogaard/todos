@@ -633,7 +633,7 @@ class CodeSnippetEditView(CodeSnippetFormMixin, AccessMixin, View):
         if not form.is_valid():
             return JsonResponse({}, status=400)
 
-        self.object.text = form.cleaned_data['text']
+        self.object.text = form.cleaned_data['text'] if not action or action != 'new' else ''
         self.object.save()
         form = self.get_form()
         return JsonResponse({'html': self.render_form(form)})

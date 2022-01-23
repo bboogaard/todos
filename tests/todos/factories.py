@@ -80,3 +80,9 @@ class HistoricalDateFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = models.HistoricalDate
+
+
+class CodeSnippetFactory(factory.django.DjangoModelFactory):
+
+    class Meta:
+        model = models.CodeSnippet
