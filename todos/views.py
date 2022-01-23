@@ -8,11 +8,14 @@ from django.http import Http404
 from django.http.response import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.template.context import RequestContext
+from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.http import urlencode
 from django.views import generic, View
 from haystack.generic_views import SearchView as BaseSearchView
 from private_storage.storage import private_storage
 
+from lib.code_snippets import get_navigation_objects
 from services.api import Api
 from services.cron.exceptions import JobNotFound
 from services.cron.factory import CronServiceFactory
@@ -586,3 +589,46 @@ class CronView(AccessMixin, View):
             raise Http404()
 
         return HttpResponse(cron_service.logger.get_value().encode(), content_type='text/plain')
+
+
+class CodeSnippetEditView(AccessMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        navigation_objects = get_navigation_objects(self.object)
+        action = reverse('todos:snippet_update') + urlencode({
+            'object_id': self.object.pk
+        })
+        html = render_to_string(
+            'snippets/snippet_update.html',
+            {
+                'action': action,
+                'form': form,
+                'navigation': navigation_objects
+            },
+            request=request
+        )
+        return JsonResponse({'html': html})
+
+    def post(self, request, pk, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form(request.POST or None)
+        if not form.is_valid():
+            return JsonResponse({}, status=400)
+
+        self.object.text = form.cleaned_data['text']
+        self.object.save()
+        return JsonResponse({})
+
+    def get_object(self):
+        try:
+            return models.CodeSnippet.objects.get(pk=self.request.GET.get('object_id'))
+        except (models.CodeSnippet.DoesNotExist, TypeError):
+            return models.CodeSnippet.objects.create()
+
+    def get_form(self, data=None, **kwargs):
+        kwargs['initial'] = {
+            'text': self.object.text
+        }
+        return forms.CodeSnippetForm(data=data, **kwargs)

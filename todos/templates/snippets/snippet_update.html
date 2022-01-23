@@ -1,0 +1,12 @@
+<form method="post" action="{{ action }}">
+    {% csrf_token %}
+    {{ form.text }}
+<br>
+<a href="javascript:void(0);" data-action="save" class="btn btn-primary">Save</a>
+<a href="javascript:void(0);" data-action="new" class="btn btn-primary">New</a>
+<a href="javascript:void(0);" data-action="delete" class="btn btn-primary">Delete</a>
+<button class="btn" data-action="prev" disabled>&laquo;</button>
+<button class="btn" data-action="next" disabled>&raquo;</button>
+</form>
+
+{{ navigation|json_script:"snippet-navigation" }}

@@ -339,6 +339,7 @@ class Widget(models.Model):
     WIDGET_TYPE_EVENTS = 'events'
     WIDGET_TYPE_IMAGES = 'images'
     WIDGET_TYPE_DATES = 'dates'
+    WIDGET_TYPE_SNIPPET = 'snippet'
 
     WIDGET_TYPES = (
         (WIDGET_TYPE_TODOS, _("To do's")),
@@ -347,6 +348,7 @@ class Widget(models.Model):
         (WIDGET_TYPE_EVENTS, _("Events")),
         (WIDGET_TYPE_IMAGES, _("Images")),
         (WIDGET_TYPE_DATES, _("Historical dates")),
+        (WIDGET_TYPE_SNIPPET, _("Code snippets")),
     )
 
     type = models.CharField(max_length=8, choices=WIDGET_TYPES, unique=True)
@@ -404,3 +406,22 @@ class HistoricalDate(EventMixin, models.Model):
     @property
     def event_key(self):
         return self.date
+
+
+class CodeSnippet(models.Model):
+
+    text = models.TextField(blank=True)
+
+    position = models.PositiveIntegerField(unique=True)
+
+    class Meta:
+        ordering = ('position',)
+
+    def __str__(self):
+        return truncatewords(self.text, 7) if self.text else '...'
+
+    def save(self, *args, **kwargs):
+        if self._state.adding:
+            manager = self.__class__.objects
+            self.position = (manager.aggregate(max_pos=models.Max('position'))['max_pos'] or 0) + 1
+        super().save(*args, **kwargs)
