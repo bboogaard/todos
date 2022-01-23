@@ -262,4 +262,4 @@ class DateSearchForm(forms.Form):
 
 class CodeSnippetForm(forms.Form):
 
-    text = forms.CharField(widget=forms.Textarea())
+    text = forms.CharField(widget=forms.Textarea(), required=False)

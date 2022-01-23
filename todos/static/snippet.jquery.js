@@ -7,6 +7,7 @@
             prev: null,
             next: null
         }
+        this.easyMDE = null;
 
     }
 
@@ -28,8 +29,8 @@
                 event.preventDefault();
                 $.post($(this).attr('action'), $(this).serialize())
                 .done(function(res) {
-                    self.container.html(res.html);
-                    self.parseNavigation();
+                    self.initEditor(res.html);
+                    self.toggleButtons();
                 });
             });
 
@@ -38,8 +39,24 @@
             });
 
             this.container.on('click', '[data-action="new"]', function () {
-                $(this).attr('action', self.updateUrl);
+                $(this).parents('form').find('textarea').val('');
+                $(this).parents('form').attr('action', self.updateUrl + '?action=new');
                 $(this).parents('form').submit();
+            });
+
+            this.container.on('click', '[data-action="delete"]', function () {
+                $(this).parents('form').attr('action', $(this).data('action-url'));
+                $(this).parents('form').submit();
+            });
+
+            this.container.on('click', '[data-action="prev"]', function (event) {
+                event.preventDefault();
+                self.prev();
+            });
+
+            this.container.on('click', '[data-action="next"]', function (event) {
+                event.preventDefault();
+                self.next();
             });
 
         },
@@ -50,15 +67,30 @@
 
             $.get(this.updateUrl + (object_id ? "?object_id=" + object_id : ""))
             .done(function(res) {
-                self.container.html(res.html);
-                new EasyMDE({element: self.container.find('textarea')[0]});
-                self.parseNavigation();
+                self.initEditor(res.html);
+                self.toggleButtons();
             });
 
         },
 
-        parseNavigation: function() {
+        initEditor: function(html) {
 
+            this.container.html(html);
+            if (this.easyMDE) {
+                this.easyMDE.toTextArea();
+                this.easyMDE = null;
+            }
+            this.easyMDE = new EasyMDE(
+                {element: this.container.find('textarea')[0], maxHeight: "250px", forceSync: true}
+            );
+
+        },
+
+        toggleButtons: function() {
+
+            this.container.find('[data-action="save"]').prop('disabled', false);
+            this.container.find('[data-action="new"]').prop('disabled', false);
+            this.container.find('[data-action="delete"]').prop('disabled', false);
             this.navigation = JSON.parse(document.getElementById('snippet-navigation').textContent);
             this.container.find('[data-action="prev"]').prop('disabled', this.navigation.prev === null);
             this.container.find('[data-action="next"]').prop('disabled', this.navigation.next === null);

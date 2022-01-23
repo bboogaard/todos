@@ -50,4 +50,5 @@ urlpatterns = [
 
     # Snippets
     path('snippet/update', views.CodeSnippetEditView.as_view(), name="snippet_update"),
+    path('snippet/delete', views.CodeSnippetDeleteView.as_view(), name="snippet_delete"),
 ]
