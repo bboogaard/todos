@@ -654,9 +654,9 @@ class CodeSnippetDeleteView(CodeSnippetFormMixin, AccessMixin, View):
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
-        navigation_objects = get_navigation_objects(self.object)
         if not self.object:
             return JsonResponse({}, status=404)
+        navigation_objects = get_navigation_objects(self.object)
 
         self.object.delete()
         self.object = self.get_or_create_object(navigation_objects)

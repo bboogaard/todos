@@ -1068,6 +1068,13 @@ class TestCodeSnippetEditView(TodosViewTest):
         data = response.json
         self.assertIn('/snippet/update?object_id={}'.format(snippet.pk), data['html'])
 
+    def test_post_with_error(self):
+        snippet = CodeSnippetFactory(text='Lorem')
+        response = self.app.post(
+            '/snippet/update?object_id={}'.format(snippet.pk), {}, user=self.test_user, expect_errors=True
+        )
+        self.assertEqual(response.status_code, 400)
+
 
 class TestCodeSnippetDeleteView(TodosViewTest):
 
@@ -1093,3 +1100,9 @@ class TestCodeSnippetDeleteView(TodosViewTest):
         self.assertIsNone(snippet)
         data = response.json
         self.assertIn('/snippet/update?object_id={}'.format(existing_snippet.pk), data['html'])
+
+    def test_post_not_found(self):
+        existing_snippet = CodeSnippetFactory(text='Lorem')
+        response = self.app.post('/snippet/delete?object_id={}'.format(existing_snippet.pk + 1), {},
+                                 user=self.test_user, expect_errors=True)
+        self.assertEqual(response.status_code, 404)
