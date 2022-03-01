@@ -303,3 +303,22 @@ class DatesWidgetRenderer(WidgetRendererService):
 
     def has_content(self):
         return bool(len(self.dates))
+
+
+class CodeSnippetWidgetRenderer(WidgetRendererService):
+
+    template_name = 'snippet.html'
+
+    def media(self):
+        return {
+            'js': {
+                'static': (
+                    'easymde/js/easymde.min.js',
+                    'snippet.jquery.js', 'snippet.init.js'
+                )
+            },
+            'css': ('easymde/css/easymde.min.css',)
+        }
+
+    def has_content(self):
+        return True

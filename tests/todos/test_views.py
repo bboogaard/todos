@@ -16,11 +16,11 @@ from PIL import Image
 from pyquery import PyQuery
 from webtest import Upload
 
-from todos.models import Event, HistoricalDate, Note, PrivateFile, PrivateImage, Todo, Wallpaper, Widget
+from todos.models import CodeSnippet, Event, HistoricalDate, Note, PrivateFile, PrivateImage, Todo, Wallpaper, Widget
 from todos.settings import cache_settings
 from tests.services.cron.testcases import CronTestCase
-from tests.todos.factories import EventFactory, HistoricalDateFactory, NoteFactory, PrivateFileFactory, \
-    PrivateImageFactory, TodoFactory, UserFactory
+from tests.todos.factories import CodeSnippetFactory, EventFactory, HistoricalDateFactory, NoteFactory, \
+    PrivateFileFactory, PrivateImageFactory, TodoFactory, UserFactory
 from tests.todos.utils import generate_image
 
 
@@ -1014,4 +1014,95 @@ class TestCronView(CronTestCase, TodosViewTest):
 
     def test_get_not_found(self):
         response = self.app.get('/cron/other_job', user=self.test_user, expect_errors=True)
+        self.assertEqual(response.status_code, 404)
+
+
+class TestCodeSnippetEditView(TodosViewTest):
+
+    csrf_checks = False
+
+    def test_get_default_new(self):
+        response = self.app.get('/snippet/update', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        snippet = CodeSnippet.objects.first()
+        self.assertIsNotNone(snippet)
+        data = response.json
+        self.assertIn('/snippet/update?object_id={}'.format(snippet.pk), data['html'])
+
+    def test_get_default_first(self):
+        snippet = CodeSnippetFactory(text='Lorem')
+        response = self.app.get('/snippet/update', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        self.assertIn('/snippet/update?object_id={}'.format(snippet.pk), data['html'])
+        self.assertIn('Lorem', data['html'])
+
+    def test_get_existing(self):
+        snippet = CodeSnippetFactory(text='Lorem')
+        response = self.app.get('/snippet/update?object_id={}'.format(snippet.pk), user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        self.assertIn('/snippet/update?object_id={}'.format(snippet.pk), data['html'])
+        self.assertIn('Lorem', data['html'])
+
+    def test_post_save(self):
+        snippet = CodeSnippetFactory(text='Lorem')
+        response = self.app.post(
+            '/snippet/update?object_id={}'.format(snippet.pk), {'text': 'Lorem ipsum'}, user=self.test_user
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        self.assertIn('/snippet/update?object_id={}'.format(snippet.pk), data['html'])
+        self.assertIn('Lorem ipsum', data['html'])
+        snippet.refresh_from_db()
+        self.assertEqual(snippet.text, 'Lorem ipsum')
+
+    def test_post_new(self):
+        existing_snippet = CodeSnippetFactory(text='Lorem')
+        response = self.app.post(
+            '/snippet/update?action=new', {'text': ''}, user=self.test_user
+        )
+        self.assertEqual(response.status_code, 200)
+        snippet = CodeSnippet.objects.last()
+        self.assertEqual(snippet.position, existing_snippet.position + 1)
+        data = response.json
+        self.assertIn('/snippet/update?object_id={}'.format(snippet.pk), data['html'])
+
+    def test_post_with_error(self):
+        snippet = CodeSnippetFactory(text='Lorem')
+        response = self.app.post(
+            '/snippet/update?object_id={}'.format(snippet.pk), {}, user=self.test_user, expect_errors=True
+        )
+        self.assertEqual(response.status_code, 400)
+
+
+class TestCodeSnippetDeleteView(TodosViewTest):
+
+    csrf_checks = False
+
+    def test_post_default_new(self):
+        existing_snippet = CodeSnippetFactory(text='Lorem')
+        response = self.app.post('/snippet/delete?object_id={}'.format(existing_snippet.pk), {}, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        snippet = CodeSnippet.objects.filter(pk=existing_snippet.pk).first()
+        self.assertIsNone(snippet)
+        snippet = CodeSnippet.objects.first()
+        self.assertIsNotNone(snippet)
+        data = response.json
+        self.assertIn('/snippet/update?object_id={}'.format(snippet.pk), data['html'])
+
+    def test_post_previous(self):
+        existing_snippet = CodeSnippetFactory(text='Lorem')
+        delete_snippet = CodeSnippetFactory(text='Ipsum')
+        response = self.app.post('/snippet/delete?object_id={}'.format(delete_snippet.pk), {}, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        snippet = CodeSnippet.objects.filter(pk=delete_snippet.pk).first()
+        self.assertIsNone(snippet)
+        data = response.json
+        self.assertIn('/snippet/update?object_id={}'.format(existing_snippet.pk), data['html'])
+
+    def test_post_not_found(self):
+        existing_snippet = CodeSnippetFactory(text='Lorem')
+        response = self.app.post('/snippet/delete?object_id={}'.format(existing_snippet.pk + 1), {},
+                                 user=self.test_user, expect_errors=True)
         self.assertEqual(response.status_code, 404)
