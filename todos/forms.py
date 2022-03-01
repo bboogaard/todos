@@ -209,7 +209,7 @@ class ImportForm(forms.Form):
 class WidgetForm(forms.ModelForm):
 
     class Meta:
-        fields = ('is_enabled', 'refresh_interval')
+        fields = ('is_enabled', 'refresh_interval', 'position')
         model = models.Widget
 
 
