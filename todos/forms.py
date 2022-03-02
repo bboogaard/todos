@@ -7,12 +7,11 @@ from django import forms
 from django.conf import settings
 from haystack.forms import ModelSearchForm as HaystackSearchForm
 
+from lib.datetime import MONTH_NAMES
 from todos import models
 
 
-class TimePicker(forms.TimeInput):
-
-    template_name = 'forms/widgets/timepicker.html'
+class DateTimePicker(forms.DateTimeInput):
 
     class Media:
         css = {
@@ -41,6 +40,16 @@ class TimePicker(forms.TimeInput):
             'data-target': '#{}'.format(id),
         })
         return super().get_context(name, value, attrs)
+
+
+class TimePicker(DateTimePicker):
+
+    template_name = 'forms/widgets/timepicker.html'
+
+
+class DatePicker(DateTimePicker):
+
+    template_name = 'forms/widgets/datepicker.html'
 
 
 class SettingsForm(forms.Form):
@@ -99,7 +108,7 @@ class MonthForm(forms.Form):
 
 class EventForm(forms.ModelForm):
 
-    time = forms.TimeField(widget=TimePicker(), input_formats=['%H:%M'])
+    time = forms.TimeField(widget=TimePicker(format='%H:%M'), input_formats=['%H:%M'])
 
     class Meta:
         model = models.Event
@@ -200,8 +209,57 @@ class ImportForm(forms.Form):
 class WidgetForm(forms.ModelForm):
 
     class Meta:
-        fields = ('is_enabled', 'refresh_interval')
+        fields = ('is_enabled', 'refresh_interval', 'position')
         model = models.Widget
 
 
 WidgetFormSet = forms.modelformset_factory(models.Widget, WidgetForm, extra=0)
+
+
+class DateForm(forms.ModelForm):
+
+    class Meta:
+        fields = ('date', 'event')
+        model = models.HistoricalDate
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['date'].widget = DatePicker(format='%d-%m-%Y')
+        self.fields['date'].input_formats = ['%d-%m-%Y']
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            'date',
+            'event',
+            ButtonHolder(
+                Submit('submit', 'Save', css_class='button white')
+            )
+        )
+
+
+class DateSearchForm(forms.Form):
+
+    month = forms.TypedChoiceField(choices=[('', '----------')] + [
+        (num, month_name)
+        for num, month_name in enumerate(MONTH_NAMES, start=1)
+    ], coerce=int, required=False)
+
+    event = forms.CharField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'GET'
+        self.helper.form_class = 'form-inline'
+        self.helper.layout = Layout(
+            'month',
+            'event',
+            ButtonHolder(
+                Submit('submit', 'Search', css_class='button white')
+            )
+        )
+
+
+class CodeSnippetForm(forms.Form):
+
+    text = forms.CharField(widget=forms.Textarea(), required=False)

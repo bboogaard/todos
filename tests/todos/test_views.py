@@ -16,10 +16,11 @@ from PIL import Image
 from pyquery import PyQuery
 from webtest import Upload
 
-from todos.models import Event, Note, PrivateFile, PrivateImage, Todo, Wallpaper, Widget
+from todos.models import CodeSnippet, Event, HistoricalDate, Note, PrivateFile, PrivateImage, Todo, Wallpaper, Widget
 from todos.settings import cache_settings
-from tests.todos.factories import EventFactory, NoteFactory, PrivateFileFactory, PrivateImageFactory, TodoFactory, \
-    UserFactory
+from tests.services.cron.testcases import CronTestCase
+from tests.todos.factories import CodeSnippetFactory, EventFactory, HistoricalDateFactory, NoteFactory, \
+    PrivateFileFactory, PrivateImageFactory, TodoFactory, UserFactory
 from tests.todos.utils import generate_image
 
 
@@ -718,18 +719,23 @@ class TestWidgetListView(TodosViewTest):
             'form-0-is_enabled': ['on'],
             'form-0-id': ['1'],
             'form-0-refresh_interval': [''],
+            'form-0-position': ['0'],
             'form-1-is_enabled': ['on'],
             'form-1-id': ['2'],
             'form-1-refresh_interval': [''],
+            'form-1-position': ['1'],
             'form-2-is_enabled': ['on'],
             'form-2-id': ['3'],
             'form-2-refresh_interval': [''],
+            'form-2-position': ['2'],
             'form-3-is_enabled': ['on'],
             'form-3-id': ['4'],
             'form-3-refresh_interval': ['120'],
+            'form-3-position': ['3'],
             'form-4-is_enabled': ['on'],
             'form-4-id': ['5'],
-            'form-4-refresh_interval': ['']
+            'form-4-refresh_interval': [''],
+            'form-4-position': ['4'],
         }
         response = self.app.post('/widgets/list', data, user=self.test_user)
         self.assertEqual(response.status_code, 302)
@@ -903,3 +909,205 @@ class TestCarouselView(TodosViewTest):
         img = PyQuery(item.find('img'))
         result = img.attr('src')
         self.assertIn('/foo', result)
+
+
+class TestDateListView(TodosViewTest):
+
+    def test_get(self):
+        response = self.app.get('/dates/list', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_search(self):
+        response = self.app.get('/dates/list?month=1', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+
+class TestDateCreateView(TodosViewTest):
+
+    csrf_checks = False
+
+    def test_get(self):
+        response = self.app.get('/dates/create', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+    def test_post(self):
+        data = {
+            'date': '10-05-1940',
+            'event': 'German invasion'
+        }
+        response = self.app.post('/dates/create', data, user=self.test_user)
+        self.assertEqual(response.status_code, 302)
+
+        events = list(HistoricalDate.objects.filter(date=datetime.date(1940, 5, 10)).values_list('event', flat=True))
+        self.assertIn('German invasion', events)
+
+    def test_post_with_error(self):
+        data = {
+            'date': '10-05-1940',
+            'event': ''
+        }
+        response = self.app.post('/dates/create', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+
+class TestDateUpdateView(TodosViewTest):
+
+    csrf_checks = False
+
+    def setUp(self):
+        super().setUp()
+        self.date = HistoricalDateFactory(
+            date=datetime.date(1940, 5, 10),
+            event='German invasion'
+        )
+
+    def test_get(self):
+        response = self.app.get('/dates/{}/update'.format(self.date.pk), user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+    def test_post(self):
+        data = {
+            'date': '10-05-1940',
+            'event': 'Germans invaded'
+        }
+        response = self.app.post('/dates/{}/update'.format(self.date.pk), data, user=self.test_user)
+        self.assertEqual(response.status_code, 302)
+
+        date = HistoricalDate.objects.get(pk=self.date.pk)
+        result = date.event
+        expected = 'Germans invaded'
+        self.assertEqual(result, expected)
+
+    def test_post_with_error(self):
+        data = {
+            'date': '10-05-1940',
+            'event': ''
+        }
+        response = self.app.post('/dates/{}/update'.format(self.date.pk), data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+
+class TestDateDeleteView(TodosViewTest):
+
+    csrf_checks = False
+
+    def setUp(self):
+        super().setUp()
+        self.date = HistoricalDateFactory(
+            date=datetime.date(1940, 5, 10),
+            event='German invasion'
+        )
+
+    def test_post(self):
+        response = self.app.post('/dates/delete', {'date': [self.date.pk]}, user=self.test_user)
+        self.assertEqual(response.status_code, 302)
+
+        result = HistoricalDate.objects.filter(pk=self.date.pk).first()
+        self.assertIsNone(result)
+
+
+class TestCronView(CronTestCase, TodosViewTest):
+
+    frequency = 60 * 60
+
+    job_name = 'cron_job'
+
+    def test_get(self):
+        response = self.app.get('/cron/cron_job', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        self.assertJobRun()
+
+    def test_get_not_found(self):
+        response = self.app.get('/cron/other_job', user=self.test_user, expect_errors=True)
+        self.assertEqual(response.status_code, 404)
+
+
+class TestCodeSnippetEditView(TodosViewTest):
+
+    csrf_checks = False
+
+    def test_get_default_new(self):
+        response = self.app.get('/snippet/update', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        snippet = CodeSnippet.objects.first()
+        self.assertIsNotNone(snippet)
+        data = response.json
+        self.assertIn('/snippet/update?object_id={}'.format(snippet.pk), data['html'])
+
+    def test_get_default_first(self):
+        snippet = CodeSnippetFactory(text='Lorem')
+        response = self.app.get('/snippet/update', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        self.assertIn('/snippet/update?object_id={}'.format(snippet.pk), data['html'])
+        self.assertIn('Lorem', data['html'])
+
+    def test_get_existing(self):
+        snippet = CodeSnippetFactory(text='Lorem')
+        response = self.app.get('/snippet/update?object_id={}'.format(snippet.pk), user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        self.assertIn('/snippet/update?object_id={}'.format(snippet.pk), data['html'])
+        self.assertIn('Lorem', data['html'])
+
+    def test_post_save(self):
+        snippet = CodeSnippetFactory(text='Lorem')
+        response = self.app.post(
+            '/snippet/update?object_id={}'.format(snippet.pk), {'text': 'Lorem ipsum'}, user=self.test_user
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        self.assertIn('/snippet/update?object_id={}'.format(snippet.pk), data['html'])
+        self.assertIn('Lorem ipsum', data['html'])
+        snippet.refresh_from_db()
+        self.assertEqual(snippet.text, 'Lorem ipsum')
+
+    def test_post_new(self):
+        existing_snippet = CodeSnippetFactory(text='Lorem')
+        response = self.app.post(
+            '/snippet/update?action=new', {'text': ''}, user=self.test_user
+        )
+        self.assertEqual(response.status_code, 200)
+        snippet = CodeSnippet.objects.last()
+        self.assertEqual(snippet.position, existing_snippet.position + 1)
+        data = response.json
+        self.assertIn('/snippet/update?object_id={}'.format(snippet.pk), data['html'])
+
+    def test_post_with_error(self):
+        snippet = CodeSnippetFactory(text='Lorem')
+        response = self.app.post(
+            '/snippet/update?object_id={}'.format(snippet.pk), {}, user=self.test_user, expect_errors=True
+        )
+        self.assertEqual(response.status_code, 400)
+
+
+class TestCodeSnippetDeleteView(TodosViewTest):
+
+    csrf_checks = False
+
+    def test_post_default_new(self):
+        existing_snippet = CodeSnippetFactory(text='Lorem')
+        response = self.app.post('/snippet/delete?object_id={}'.format(existing_snippet.pk), {}, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        snippet = CodeSnippet.objects.filter(pk=existing_snippet.pk).first()
+        self.assertIsNone(snippet)
+        snippet = CodeSnippet.objects.first()
+        self.assertIsNotNone(snippet)
+        data = response.json
+        self.assertIn('/snippet/update?object_id={}'.format(snippet.pk), data['html'])
+
+    def test_post_previous(self):
+        existing_snippet = CodeSnippetFactory(text='Lorem')
+        delete_snippet = CodeSnippetFactory(text='Ipsum')
+        response = self.app.post('/snippet/delete?object_id={}'.format(delete_snippet.pk), {}, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        snippet = CodeSnippet.objects.filter(pk=delete_snippet.pk).first()
+        self.assertIsNone(snippet)
+        data = response.json
+        self.assertIn('/snippet/update?object_id={}'.format(existing_snippet.pk), data['html'])
+
+    def test_post_not_found(self):
+        existing_snippet = CodeSnippetFactory(text='Lorem')
+        response = self.app.post('/snippet/delete?object_id={}'.format(existing_snippet.pk + 1), {},
+                                 user=self.test_user, expect_errors=True)
+        self.assertEqual(response.status_code, 404)

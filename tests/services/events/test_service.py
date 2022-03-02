@@ -8,7 +8,7 @@ from freezegun import freeze_time
 
 from services.factory import EventsServiceFactory
 from todos.models import Event
-from tests.todos.factories import EventFactory
+from tests.todos.factories import EventFactory, HistoricalDateFactory
 
 
 class TestEventService(TestCase):
@@ -19,40 +19,60 @@ class TestEventService(TestCase):
         self.events = [
             EventFactory(
                 description='Halloween',
-                datetime=datetime.datetime(2020, 10, 31, 10, 0, tzinfo=pytz.timezone(settings.TIME_ZONE))
+                datetime=datetime.datetime(2021, 10, 31, 10, 0, tzinfo=pytz.timezone(settings.TIME_ZONE))
             ),
             EventFactory(
                 description='Pay bills',
-                datetime=datetime.datetime(2020, 11, 20, 10, 0, tzinfo=pytz.timezone(settings.TIME_ZONE))
+                datetime=datetime.datetime(2021, 11, 20, 10, 0, tzinfo=pytz.timezone(settings.TIME_ZONE))
             ),
             EventFactory(
                 description='Take out trash',
-                datetime=datetime.datetime(2020, 11, 20, 12, 0, tzinfo=pytz.timezone(settings.TIME_ZONE))
+                datetime=datetime.datetime(2021, 11, 20, 12, 0, tzinfo=pytz.timezone(settings.TIME_ZONE))
             ),
             EventFactory(
                 description='Dentist',
-                datetime=datetime.datetime(2020, 12, 1, 10, 0, tzinfo=pytz.timezone(settings.TIME_ZONE))
+                datetime=datetime.datetime(2021, 12, 1, 10, 0, tzinfo=pytz.timezone(settings.TIME_ZONE))
             )
         ]
+        HistoricalDateFactory(
+            date=datetime.date(1517, 10, 31),
+            event="Luther's Ninety-five Theses posted"
+        )
+        HistoricalDateFactory(
+            date=datetime.date(1941, 10, 31),
+            event="Mount Rushmore Memorial finished"
+        )
 
     def test_get_events(self):
 
         def _get_events(week_events):
-            return [(event_date.date, ", ".join(map(str, event_date.events))) for event_date in week_events if event_date.events]
+            return [
+                (event_date.date, ", ".join(map(str, event_date.events)))
+                for event_date in week_events if event_date.events
+            ]
 
-        events = self.service.get_events(2020, 11, datetime.date(2020, 10, 1), datetime.date(2020, 12, 31))
-        week1 = _get_events(events[0])
-        self.assertEqual(week1, [])
-        week2 = _get_events(events[1])
+        events = self.service.get_events(2021, 11, datetime.date(2021, 10, 1), datetime.date(2021, 12, 31))
+        self.assertEqual(events[0][0], 43)
+        week1 = _get_events(events[0][1])
+        self.assertEqual(week1, [
+            (datetime.date(2021, 10, 31),
+             "Halloween")
+            # "Halloween, Luther's Ninety-five Theses posted, Mount Rushmore Memorial finished")
+        ])
+        self.assertEqual(events[1][0], 44)
+        week2 = _get_events(events[1][1])
         self.assertEqual(week2, [])
-        week3 = _get_events(events[2])
-        self.assertEqual(week3, [(datetime.date(2020, 11, 20), "Pay bills, Take out trash")])
-        week4 = _get_events(events[3])
+        self.assertEqual(events[2][0], 45)
+        week3 = _get_events(events[2][1])
+        self.assertEqual(week3, [(datetime.date(2021, 11, 20), "Pay bills, Take out trash")])
+        self.assertEqual(events[3][0], 46)
+        week4 = _get_events(events[3][1])
         self.assertEqual(week4, [])
-        week5 = _get_events(events[4])
-        self.assertEqual(week5, [(datetime.date(2020, 12, 1), "Dentist")])
+        self.assertEqual(events[4][0], 47)
+        week5 = _get_events(events[4][1])
+        self.assertEqual(week5, [(datetime.date(2021, 12, 1), "Dentist")])
 
-    @freeze_time('2020-11-18T12:00:00Z')
+    @freeze_time('2021-11-18T12:00:00Z')
     def test_send_upcoming_events(self):
         with unittest.mock.patch('services.messages.service.MessageService.send') as mock_send:
             self.service.send_upcoming_events()

@@ -13,7 +13,7 @@
     </div>
   </header>
   <div class="row border border-right-0 border-bottom-0">
-    {% for week in events %}
+    {% for weeknumber, week in events %}
       {% for event_date in week %}
     <div class="day col-sm p-2 border border-left-0 border-top-0 text-truncate d-none d-sm-inline-block bg-light text-muted" data-event-url="{% url 'todos:event_create' %}?event_date={{ event_date.date|date:'Y-m-d' }}" data-event-title="Create event">
       <h5 class="row align-items-center">
@@ -22,8 +22,13 @@
         <span class="col-1"></span>
       </h5>
       {% for event in event_date.events %}
-      <a class="event d-block p-1 pl-2 pr-2 mb-1 rounded text-truncate small bg-info text-white" data-event-url="{% url 'todos:event_update' pk=event.pk %}" data-event-title="Update event">{{ event.datetime|date:'H:i' }}<br>{{ event }} <form method="post" action="{% url 'todos:event_delete' pk=event.pk %}" style="width:0;height:0"><i class="fa fa-close" style="cursor: hand"></i>{% csrf_token %}</form></a>
+          {% if event.type == 'event' %}
+          <a class="event d-block p-1 pl-2 pr-2 mb-1 rounded text-truncate small bg-info text-white" data-event-type="event" data-event-url="{% url 'todos:event_update' pk=event.instance.pk %}" data-event-title="Update event">{{ event.instance.datetime|date:'H:i' }}<br>{{ event }} <form method="post" action="{% url 'todos:event_delete' pk=event.instance.pk %}" style="width:0;height:0"><i class="fa fa-close" style="cursor: hand"></i>{% csrf_token %}</form></a>
+{#          {% elif event.type == 'hist_date' %}#}
+{#          <a class="event d-block p-1 pl-2 pr-2 mb-1 rounded text-truncate small bg-success text-white" data-event-type="hist_date" data-event-title="{{ event.instance.date|date:'j F Y' }}" data-event-content="{{ event.instance.event|escape }}">{{ event.instance.date|date:'Y' }}</a>#}
+          {% endif %}
       {% endfor %}
+        <small>{% if forloop.counter == 1 %}week {{ weeknumber }}{% endif %}</small>
     </div>
       {% endfor %}
     <div class="w-100"></div>

@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'django_media_fixtures',
     'crispy_forms',
     'private_storage',
+    'bootstrap_pagination',
     # Added.
     'haystack',
     'taggit',
@@ -65,6 +66,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.request',
                 'todos.context_processors.settings',
                 'todos.context_processors.wallpapers'
             ],

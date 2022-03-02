@@ -9,7 +9,14 @@ $(document).ready(function(){
             }
         });
     });
-    $('.event').on('click', '.fa.fa-close', function(event) {
+    /*$('[data-widget-type="events"]').on('click', '[data-event-type="hist_date"]', function(event) {
+        event.stopPropagation();
+        $('#todos-modal').Modal({
+            title: $(this).data('event-title'),
+            content: $(this).data('event-content')
+        });
+    });*/
+    $('[data-widget-type="events"]').on('click', '.event .fa.fa-close', function(event) {
         event.stopPropagation();
         $(this).parents('form').submit();
     });

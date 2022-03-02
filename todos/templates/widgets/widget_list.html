@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base_modal.html' %}
 
 {% load widget_tweaks %}
 
@@ -13,6 +13,7 @@
         <tr>
           <th scope="col"><input type="checkbox" id="select-all"></th>
           <th scope="col">Refresh interval (seconds)</th>
+          <th scope="col">Position</th>
         </tr>
       </thead>
       <tbody>
@@ -22,6 +23,11 @@
           <td>
               <div style="width: 100px">
                   {% render_field form.refresh_interval class="form-control" %}
+              </div>
+          </td>
+          <td>
+              <div style="width: 100px">
+                  {% render_field form.position class="form-control" %}
               </div>
           </td>
         </tr>

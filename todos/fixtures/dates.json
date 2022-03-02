@@ -1,0 +1,1482 @@
+[
+  {
+    "model": "todos.historicaldate",
+    "pk": 1,
+    "fields": {
+      "date": "1955-12-01",
+      "event": "Rosa Parks arrested for not moving to the back of the bus"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 2,
+    "fields": {
+      "date": "1973-12-04",
+      "event": "Pioneer 10 reaches Jupiter"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 3,
+    "fields": {
+      "date": "1933-12-05",
+      "event": "Prohibition ends"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 4,
+    "fields": {
+      "date": "1941-12-07",
+      "event": "Japan bombs Pearl Harbor, Hawaii"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 5,
+    "fields": {
+      "date": "1980-12-08",
+      "event": "John Lennon shot and killed in NYC"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 6,
+    "fields": {
+      "date": "1941-12-11",
+      "event": "US declares war on Germany and Italy"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 7,
+    "fields": {
+      "date": "1911-12-14",
+      "event": "South Pole first reached by Roald Amundsen"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 8,
+    "fields": {
+      "date": "1791-12-15",
+      "event": "U.S. Bill of Rights signed"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 9,
+    "fields": {
+      "date": "1773-12-16",
+      "event": "The Boston Tea Party"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 10,
+    "fields": {
+      "date": "1770-12-17",
+      "event": "Ludwig Von Beethoven is born"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 11,
+    "fields": {
+      "date": "1998-12-20",
+      "event": "U.S. President William Jefferson Clinton is impeached"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 12,
+    "fields": {
+      "date": "1898-12-21",
+      "event": "Pierre and Marie Curie discover radium"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 13,
+    "fields": {
+      "date": "1865-12-22",
+      "event": "General Sherman takes Savannah"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 14,
+    "fields": {
+      "date": "1888-12-23",
+      "event": "Dutch Painter Vincent Van Gogh cuts off his own ear"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 15,
+    "fields": {
+      "date": "1814-12-24",
+      "event": "War of 1812 Peace Treaty signed"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 16,
+    "fields": {
+      "date": "1776-12-25",
+      "event": "General George Washington and his troops cross the Delaware River"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 17,
+    "fields": {
+      "date": "1895-12-28",
+      "event": "World's first movie theater opens in Paris"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 18,
+    "fields": {
+      "date": "1890-12-29",
+      "event": "The Battle of Wounded Knee, S.D."
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 19,
+    "fields": {
+      "date": "1968-01-02",
+      "event": "First successful human heart transplant performed"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 20,
+    "fields": {
+      "date": "1959-01-03",
+      "event": "Alaska becomes 49th U.S. state"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 21,
+    "fields": {
+      "date": "1642-01-04",
+      "event": "Sir Isaac Newton is born"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 22,
+    "fields": {
+      "date": "1920-01-05",
+      "event": "Boston Red Sox sell Babe Ruth to NY Yankees"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 23,
+    "fields": {
+      "date": "1412-01-06",
+      "event": "French heroine Joan of Arc born"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 24,
+    "fields": {
+      "date": "1935-01-08",
+      "event": "Elvis Presley is born"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 25,
+    "fields": {
+      "date": "1930-01-13",
+      "event": "First Mickey Mouse comic strip appears"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 26,
+    "fields": {
+      "date": "1706-01-17",
+      "event": "Benjamin Franklin is born"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 27,
+    "fields": {
+      "date": "1778-01-18",
+      "event": "Capt. James Cook finds Sandwich (Hawaiian) Islands"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 28,
+    "fields": {
+      "date": "1799-01-21",
+      "event": "Edward Jenners smallpox vaccine introduced"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 29,
+    "fields": {
+      "date": "1924-01-24",
+      "event": "St. Petersburg, Russia renamed Leningrad"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 30,
+    "fields": {
+      "date": "1915-01-25",
+      "event": "Alexander Graham Bell makes 1st transcontinental phone call"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 31,
+    "fields": {
+      "date": "1875-01-26",
+      "event": "Dentist's electric drill patented"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 32,
+    "fields": {
+      "date": "1967-01-27",
+      "event": "Apollo 1 fire kills astronauts Grissom, White, and Chaffee"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 33,
+    "fields": {
+      "date": "1933-01-30",
+      "event": "The Lone Ranger premieres on ABC radio"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 34,
+    "fields": {
+      "date": "1865-01-31",
+      "event": "Congress passes 13th Amendment abolishing slavery"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 35,
+    "fields": {
+      "date": "1848-02-02",
+      "event": "Treaty of Guadalupe Hidalgo end U.S-Mexican War"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 36,
+    "fields": {
+      "date": "1587-02-08",
+      "event": "Mary Queen of Scots beheaded"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 37,
+    "fields": {
+      "date": "1866-02-13",
+      "event": "Jesse James hold up his first bank in Liberty, MO"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 38,
+    "fields": {
+      "date": "1923-02-16",
+      "event": "Tutankhamen's burial chamber is opened"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 39,
+    "fields": {
+      "date": "1878-02-19",
+      "event": "Edison patents the gramophone"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 40,
+    "fields": {
+      "date": "1792-02-20",
+      "event": "U.S. Postal Service is created"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 41,
+    "fields": {
+      "date": "1945-02-23",
+      "event": "U.S. Marines raise the flag on Iwo Jima"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 42,
+    "fields": {
+      "date": "1821-02-24",
+      "event": "Mexico gains independence from Spain"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 43,
+    "fields": {
+      "date": "1870-02-26",
+      "event": "First NYC subway line opens"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 44,
+    "fields": {
+      "date": "1854-02-28",
+      "event": "Republican Party formally organized"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 45,
+    "fields": {
+      "date": "1790-03-01",
+      "event": "First U.S. census authorized"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 46,
+    "fields": {
+      "date": "1973-03-02",
+      "event": "Vietnam peace treaty signed in Paris"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 47,
+    "fields": {
+      "date": "1931-03-03",
+      "event": "The Star Spangled Banner become the U.S. national athem"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 48,
+    "fields": {
+      "date": "1926-03-07",
+      "event": "First transatlantic telephone call"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 49,
+    "fields": {
+      "date": "1965-03-08",
+      "event": "First U.S. troops arrive in Vietnam"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 50,
+    "fields": {
+      "date": "1862-03-10",
+      "event": "First U.S. paper currency is issued"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 51,
+    "fields": {
+      "date": "1953-03-11",
+      "event": "Nuclear bomb accidentally dropped on North Carolina"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 52,
+    "fields": {
+      "date": "1830-03-16",
+      "event": "Slowest day ever for NY Stock Exchange"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 53,
+    "fields": {
+      "date": "1949-03-18",
+      "event": "NATO is formed"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 54,
+    "fields": {
+      "date": "1965-03-21",
+      "event": "Martin Luther King Jr. leads march from Selma to Montgomery, AL"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 55,
+    "fields": {
+      "date": "1903-03-22",
+      "event": "Niagra Falls runs dry due to drought"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 56,
+    "fields": {
+      "date": "1837-03-24",
+      "event": "Canada grants blacks the right to vote"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 57,
+    "fields": {
+      "date": "1911-03-25",
+      "event": "Triangle Shirtwaist Factory fire kills 145, only 13 girls survive"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 58,
+    "fields": {
+      "date": "1914-03-27",
+      "event": "First successful blood transfusion"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 59,
+    "fields": {
+      "date": "1932-03-29",
+      "event": "Jack Benny debuts on radio"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 60,
+    "fields": {
+      "date": "1932-03-30",
+      "event": "Amelia Earhart is first woman to fly solo across the Atlantic"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 61,
+    "fields": {
+      "date": "1978-04-02",
+      "event": "Velcro is first sold"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 62,
+    "fields": {
+      "date": "1882-04-03",
+      "event": "Jesse James is killed"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 63,
+    "fields": {
+      "date": "1581-04-04",
+      "event": "Frances Drake completes circumnavigation of the world"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 64,
+    "fields": {
+      "date": "1513-04-08",
+      "event": "Ponce de Leon claims Florida for Spain"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 65,
+    "fields": {
+      "date": "1865-04-09",
+      "event": "Gen. Lee surrenders to Gen. Grant at Appomattox"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 66,
+    "fields": {
+      "date": "1849-04-10",
+      "event": "The safety pin is patented"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 67,
+    "fields": {
+      "date": "1614-04-14",
+      "event": "Pochahontas marries John Rolfe"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 68,
+    "fields": {
+      "date": "1452-04-15",
+      "event": "Leonardo da Vinci is born"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 69,
+    "fields": {
+      "date": "1922-04-16",
+      "event": "Annie Oakley shoot a record 100 clay targets in a row"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 70,
+    "fields": {
+      "date": "1906-04-19",
+      "event": "The Great San Francisco Earthquake"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 71,
+    "fields": {
+      "date": "1956-04-19",
+      "event": "Grace Kelley marries Prince Ranier III of Monaco"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 72,
+    "fields": {
+      "date": "1889-04-20",
+      "event": "Adolf Hitler was born"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 73,
+    "fields": {
+      "date": "1564-04-23",
+      "event": "WIlliam Shakespeare was born"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 74,
+    "fields": {
+      "date": "1986-04-26",
+      "event": "The Chernobyl nuclear disaster"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 75,
+    "fields": {
+      "date": "1789-04-28",
+      "event": "Fletcher Christian leads mutiny on HMS Bounty"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 76,
+    "fields": {
+      "date": "1913-04-29",
+      "event": "The zipper is patented"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 77,
+    "fields": {
+      "date": "1803-04-30",
+      "event": "U.S. purchased Louisiana Territory"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 78,
+    "fields": {
+      "date": "1945-05-02",
+      "event": "Berlin surrenders to the Russian army"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 79,
+    "fields": {
+      "date": "1970-05-04",
+      "event": "Four students killed by National Guard at Kent State University"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 80,
+    "fields": {
+      "date": "1961-05-05",
+      "event": "Alan Shepard is first American in space"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 81,
+    "fields": {
+      "date": "1915-05-06",
+      "event": "Ocean liner Lusitania sunk by German submarines"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 82,
+    "fields": {
+      "date": "1994-05-10",
+      "event": "Nelson Mandela sworn in as South Africa's first black president"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 83,
+    "fields": {
+      "date": "1845-05-17",
+      "event": "The rubber band was patented"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 84,
+    "fields": {
+      "date": "1804-05-18",
+      "event": "Napoleon became Emperor of France"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 85,
+    "fields": {
+      "date": "1881-05-21",
+      "event": "Clara Barton founded the American Red Cross"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 86,
+    "fields": {
+      "date": "1945-05-23",
+      "event": "British Prime Minister Winston Churchill resigns"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 87,
+    "fields": {
+      "date": "1884-05-24",
+      "event": "Samuel Morse send the first telegraph message"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 88,
+    "fields": {
+      "date": "1896-05-26",
+      "event": "Nicholas II crowned Czar of Russia"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 89,
+    "fields": {
+      "date": "1934-05-28",
+      "event": "The Dionne quintuplets were born"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 90,
+    "fields": {
+      "date": "1923-05-27",
+      "event": "Henry Kissenger was born"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 91,
+    "fields": {
+      "date": "1962-05-31",
+      "event": "Nazi war criminal Adolf Eichmann executed"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 92,
+    "fields": {
+      "date": "1924-06-02",
+      "event": "U.S. Congress grants Native Americans citizenship"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 93,
+    "fields": {
+      "date": "1940-06-04",
+      "event": "German forces invade Paris"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 94,
+    "fields": {
+      "date": "1967-06-05",
+      "event": "Six Day War begins between Isreal and it's Arab neighbors"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 95,
+    "fields": {
+      "date": "1939-06-12",
+      "event": "Baseball Hall of Fame opens in Cooperstown"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 96,
+    "fields": {
+      "date": "1815-06-18",
+      "event": "Wellington defeats Napolean at Waterloo"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 97,
+    "fields": {
+      "date": "1970-06-22",
+      "event": "26th Amendment lowers voting age to 18"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 98,
+    "fields": {
+      "date": "1948-06-24",
+      "event": "Soviet Union begins the Berlin Blockade"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 99,
+    "fields": {
+      "date": "1919-06-28",
+      "event": "Treaty of Versailles signed, ending WWI"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 100,
+    "fields": {
+      "date": "1854-06-29",
+      "event": "Gadsen Purchase--U.S. aquires parts of present day AZ & NM"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 101,
+    "fields": {
+      "date": "1936-06-30",
+      "event": "Gone With the Wind is published"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 102,
+    "fields": {
+      "date": "1963-07-01",
+      "event": "U.S. Postal Service starts using ZIP code system"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 103,
+    "fields": {
+      "date": "1997-07-04",
+      "event": "Mars Pathfinder lands on Mars"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 104,
+    "fields": {
+      "date": "1933-07-06",
+      "event": "First all star game is played at Chicago's Wrigley Field"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 105,
+    "fields": {
+      "date": "1835-07-08",
+      "event": "The Libery Bell cracks"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 106,
+    "fields": {
+      "date": "1804-07-11",
+      "event": "Alexander Hamilton shot by V.P. Aaron Burr in a duel"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 107,
+    "fields": {
+      "date": "1977-07-13",
+      "event": "New York City paralyzed by 25 hour black-out"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 108,
+    "fields": {
+      "date": "1099-07-15",
+      "event": "Crusaders take control of Jerusalem"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 109,
+    "fields": {
+      "date": "1945-07-16",
+      "event": "First atomic bomb detonated in NM"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 110,
+    "fields": {
+      "date": "1998-07-17",
+      "event": "Nicholas II of Russia and family buried 80 years after they are assasinated"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 111,
+    "fields": {
+      "date": "1921-07-18",
+      "event": "Black Sox trial begins in Chicago"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 112,
+    "fields": {
+      "date": "1944-07-20",
+      "event": "Franklin D. Roosevelt nominated for a fourth term as U.S. President"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 113,
+    "fields": {
+      "date": "1934-07-22",
+      "event": "Public Enemy #1 John Dillinger killed by FBI agents in Chicago"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 114,
+    "fields": {
+      "date": "1935-07-23",
+      "event": "An airplane crashes into the Empire State Building"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 115,
+    "fields": {
+      "date": "1952-07-25",
+      "event": "Puerto Rico becomes a self-governing commonwealth of the U.S."
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 116,
+    "fields": {
+      "date": "1946-07-26",
+      "event": "President Truman orders desegregation of all U.S. forces"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 117,
+    "fields": {
+      "date": "1940-07-27",
+      "event": "Bugs Bunny makes his debut"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 118,
+    "fields": {
+      "date": "1959-07-28",
+      "event": "Hawaii's first U.S. election send first Asian American to Congress"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 119,
+    "fields": {
+      "date": "1957-07-29",
+      "event": "Pres. Eisenhower signs legislation creating NASA"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 120,
+    "fields": {
+      "date": "1830-07-30",
+      "event": "Henry Ford born in Dearborn, MI"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 121,
+    "fields": {
+      "date": "1291-08-01",
+      "event": "Republic of Switerland founded, the oldest republic still existing"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 122,
+    "fields": {
+      "date": "1990-08-02",
+      "event": "Iraq invades Kuwait, Emir flees to Saudi Arabia"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 123,
+    "fields": {
+      "date": "1492-08-03",
+      "event": "Christopher Columbus sets sail from Spain"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 124,
+    "fields": {
+      "date": "1914-08-04",
+      "event": "England declares war on Germany; U.S. declares neutrality"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 125,
+    "fields": {
+      "date": "1936-08-05",
+      "event": "Jesse Owens wins his third gold medal at Berlin Olympics"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 126,
+    "fields": {
+      "date": "1926-08-06",
+      "event": "Warner Bros. Studios premieres first talking pictures"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 127,
+    "fields": {
+      "date": "1942-08-07",
+      "event": "Battle of Guadalcanal"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 128,
+    "fields": {
+      "date": "1521-08-13",
+      "event": "Spanish conqerors take Tenochtitlan (now Mexico City) from the Aztecs"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 129,
+    "fields": {
+      "date": "1935-08-14",
+      "event": "Social Security Law is established"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 130,
+    "fields": {
+      "date": "1057-08-15",
+      "event": "Macbeth killed by Duncan, his rival for the Scottish throne"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 131,
+    "fields": {
+      "date": "1969-08-16",
+      "event": "Woostock rock festival begins"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 132,
+    "fields": {
+      "date": "1920-08-26",
+      "event": "19th Amendment ratified, giving women the right to vote"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 133,
+    "fields": {
+      "date": "1967-08-30",
+      "event": "Thurgood Marshall becomes the first black Supreme Court Justice"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 134,
+    "fields": {
+      "date": "1939-09-01",
+      "event": "WWII begins as Germany invades Poland"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 135,
+    "fields": {
+      "date": "1888-09-03",
+      "event": "George Eastman patents roll film and registers the Kodak name"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 136,
+    "fields": {
+      "date": "1781-09-04",
+      "event": "Villiage of Los Angeles was founded"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 137,
+    "fields": {
+      "date": "1997-09-05",
+      "event": "Mother Theresa dies in Calcutta at age 87"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 138,
+    "fields": {
+      "date": "1966-09-06",
+      "event": "Star Trek television program premieres"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 139,
+    "fields": {
+      "date": "1533-09-07",
+      "event": "England's Elizabeth I is born"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 140,
+    "fields": {
+      "date": "1565-09-08",
+      "event": "St. Augustine, FL founded, first permanent European settlement in North America"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 141,
+    "fields": {
+      "date": "1953-09-12",
+      "event": "Nikita Khrushcheb becomes Soviet Prime Minister"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 142,
+    "fields": {
+      "date": "1788-09-13",
+      "event": "New York City becomes the first U.S. capital"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 143,
+    "fields": {
+      "date": "1814-09-14",
+      "event": "Francis Scott Key writes the Star Spangled Banner"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 144,
+    "fields": {
+      "date": "1890-09-15",
+      "event": "Mystery writer Agatha Christie was born"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 145,
+    "fields": {
+      "date": "1851-09-18",
+      "event": "First issue of the New York Times is published"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 146,
+    "fields": {
+      "date": "1932-09-20",
+      "event": "Gandhi begins a hunger strike protesting treatment of India's untouchables"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 147,
+    "fields": {
+      "date": "1981-09-21",
+      "event": "Sandra Day O'Connor becomes the first female U.S. Supreme Court Justice"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 148,
+    "fields": {
+      "date": "1789-09-22",
+      "event": "The U.S. Postal Service is established"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 149,
+    "fields": {
+      "date": "1908-10-01",
+      "event": "Henry Ford introduces the Model T car, selling for $825"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 150,
+    "fields": {
+      "date": "1944-10-02",
+      "event": "Nazis crush the Warsaw uprising, killing 250,000 people"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 151,
+    "fields": {
+      "date": "1974-10-03",
+      "event": "The Watergate trial began"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 152,
+    "fields": {
+      "date": "1957-10-04",
+      "event": "The Soviet Sputnik satellite is the first to orbit the earth"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 153,
+    "fields": {
+      "date": "1947-10-14",
+      "event": "U.S. Air Force Capt. Chuch Yeager is first pilot to exceed the speed of sound"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 154,
+    "fields": {
+      "date": "1933-10-17",
+      "event": "Albert Einstein emigrates to U.S. from Germany"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 155,
+    "fields": {
+      "date": "1879-10-21",
+      "event": "Thomas Edison demonstrates his incandescent electric lamp"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 156,
+    "fields": {
+      "date": "1854-10-25",
+      "event": "Charge of the Light Brigade during the Crimean War"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 157,
+    "fields": {
+      "date": "1881-10-26",
+      "event": "Wyatt Earp & Doc Holliday face the Clanton gang at the OK Corral"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 158,
+    "fields": {
+      "date": "1938-10-27",
+      "event": "Dupont announces invention of Nylon, named for New York and London"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 159,
+    "fields": {
+      "date": "1886-10-28",
+      "event": "The Statue of Liberty is dedicated"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 160,
+    "fields": {
+      "date": "1517-10-31",
+      "event": "Martin Luther posts his 95 Theses, triggering the Protestant Reformation"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 161,
+    "fields": {
+      "date": "1895-11-05",
+      "event": "George Selden receives the first U.S. patent for an automobile"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 162,
+    "fields": {
+      "date": "1869-11-06",
+      "event": "Rutgers and Princeton play the first intercollegiate football game"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 163,
+    "fields": {
+      "date": "1731-11-08",
+      "event": "Benjamin Franklin opens the first public library in Philadelphia"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 164,
+    "fields": {
+      "date": "1906-11-09",
+      "event": "Theodore Roosevelt is the first U.S. president to visit other countries (Puerto Rico and Panama)"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 165,
+    "fields": {
+      "date": "1926-11-10",
+      "event": "Hirohito becomes Emperor of Japan"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 166,
+    "fields": {
+      "date": "1939-11-11",
+      "event": "God Bless America is publicly sung for the first time by Kate Smith"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 167,
+    "fields": {
+      "date": "1954-11-12",
+      "event": "Ellis Island immigration station in NY Harbor is closed"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 168,
+    "fields": {
+      "date": "1532-11-16",
+      "event": "Inca Empire falls to Spaniard Pizarro"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 169,
+    "fields": {
+      "date": "1868-11-17",
+      "event": "Suez Canal in Egypt opens, linking Mediterranean and Red Seas"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 170,
+    "fields": {
+      "date": "1928-11-18",
+      "event": "Mickey Mouse makes his animated debut in Steamboat Willie"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 171,
+    "fields": {
+      "date": "1945-11-20",
+      "event": "International War Crimes Tribunal begins trials in Neuremburg, Germany"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 172,
+    "fields": {
+      "date": "1620-11-21",
+      "event": "The Mayflower Compact was signed"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 173,
+    "fields": {
+      "date": "1962-11-22",
+      "event": "President John F. Kennedy was assasinated"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 174,
+    "fields": {
+      "date": "1929-11-29",
+      "event": "Commander Richard E. Byrd flies over the South Pole"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 175,
+    "fields": {
+      "date": "1880-12-01",
+      "event": "The White House has its first telephone installed"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 176,
+    "fields": {
+      "date": "1823-12-02",
+      "event": "The Monroe Doctrine declares European powers must stay out of the Western Hemisphere"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 177,
+    "fields": {
+      "date": "1787-12-07",
+      "event": "Delaware is the first state to ratify the U.S. Constitution"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 178,
+    "fields": {
+      "date": "1941-12-08",
+      "event": "U.S. and Britain declare war on Japan"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 179,
+    "fields": {
+      "date": "1620-12-11",
+      "event": "103 pilgrims land at Plymouth Rock"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 180,
+    "fields": {
+      "date": "1800-12-12",
+      "event": "Washington, D.C. is established as the U.S. capital"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 181,
+    "fields": {
+      "date": "1863-01-01",
+      "event": "Abraham Lincoln signs the Emancipation Proclamation ending slavery"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 182,
+    "fields": {
+      "date": "1793-01-19",
+      "event": "French King Louis XVI sentenced to death"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 183,
+    "fields": {
+      "date": "1848-01-24",
+      "event": "Gold discovered at Sutter's Mill starts California Gold Rush"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 184,
+    "fields": {
+      "date": "1986-01-28",
+      "event": "Space Shuttle Chanlleger explodes killing all on board"
+    }
+  },
+  {
+    "model": "todos.historicaldate",
+    "pk": 185,
+    "fields": {
+      "date": "1886-01-29",
+      "event": "First successful gasoline driven car patented by Karl Benz in Germany"
+    }
+  }
+]

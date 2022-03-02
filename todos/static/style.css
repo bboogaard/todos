@@ -7,6 +7,10 @@ body {
   -o-background-size: cover;
 }
 
+body.modal-body {
+    padding-top: 1rem;
+}
+
 ul{
     margin:0;
     padding:0;

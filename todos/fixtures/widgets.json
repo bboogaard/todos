@@ -53,5 +53,27 @@
       "position": 5,
       "refresh_interval": null
     }
+  },
+  {
+    "model": "todos.widget",
+    "pk": 6,
+    "fields": {
+      "type": "dates",
+      "title": "Today in history",
+      "is_enabled": true,
+      "position": 5,
+      "refresh_interval": 60
+    }
+  },
+  {
+    "model": "todos.widget",
+    "pk": 7,
+    "fields": {
+      "type": "snippet",
+      "title": "Code snippets",
+      "is_enabled": true,
+      "position": 6,
+      "refresh_interval": null
+    }
   }
 ]
