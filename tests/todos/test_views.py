@@ -719,18 +719,23 @@ class TestWidgetListView(TodosViewTest):
             'form-0-is_enabled': ['on'],
             'form-0-id': ['1'],
             'form-0-refresh_interval': [''],
+            'form-0-position': ['0'],
             'form-1-is_enabled': ['on'],
             'form-1-id': ['2'],
             'form-1-refresh_interval': [''],
+            'form-1-position': ['1'],
             'form-2-is_enabled': ['on'],
             'form-2-id': ['3'],
             'form-2-refresh_interval': [''],
+            'form-2-position': ['2'],
             'form-3-is_enabled': ['on'],
             'form-3-id': ['4'],
             'form-3-refresh_interval': ['120'],
+            'form-3-position': ['3'],
             'form-4-is_enabled': ['on'],
             'form-4-id': ['5'],
-            'form-4-refresh_interval': ['']
+            'form-4-refresh_interval': [''],
+            'form-4-position': ['4'],
         }
         response = self.app.post('/widgets/list', data, user=self.test_user)
         self.assertEqual(response.status_code, 302)
