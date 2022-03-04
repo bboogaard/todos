@@ -22,7 +22,6 @@ from services.cron.factory import CronServiceFactory
 from services.factory import FilesServiceFactory, ItemServiceFactory
 from services.widgets.factory import WidgetRendererFactory
 from todos import forms, models
-from todos.settings import cache_settings
 from todos.templatetags.url_tags import add_page_param
 
 
@@ -107,17 +106,6 @@ class NotesExportView(AccessMixin, View):
         response = HttpResponse(fh.read(), content_type='text/plain')
         response['Content-disposition'] = 'attachment'
         return response
-
-
-class SettingsSave(AccessMixin, View):
-
-    @transaction.atomic()
-    def post(self, request, *args, **kwargs):
-        form = forms.SettingsForm(request.POST or None)
-        if form.is_valid():
-            cache_settings.save(**form.cleaned_data)
-
-        return redirect(reverse('todos:index'))
 
 
 class WallpaperListView(AccessMixin, generic.TemplateView):
@@ -673,36 +661,3 @@ class CodeSnippetDeleteView(CodeSnippetFormMixin, AccessMixin, View):
     def get_or_create_object(self, navigation):
         pk = navigation['prev'] if navigation['prev'] else navigation['next']
         return models.CodeSnippet.objects.get(pk=pk) if pk else models.CodeSnippet.objects.create()
-
-
-class CalendarSettingsView(AccessMixin, generic.TemplateView):
-
-    template_name = 'calendar_settings.html'
-
-    def get(self, request, *args, **kwargs):
-        settings = cache_settings.load()
-        form = self.get_form(initial={
-            'odd_weeks_background': settings.odd_weeks_background,
-            'odd_weeks_background_active': settings.odd_weeks_background != '',
-            'odd_weeks_color': settings.odd_weeks_color,
-            'odd_weeks_color_active': settings.odd_weeks_color != '',
-            'even_weeks_background': settings.even_weeks_background,
-            'even_weeks_background_active': settings.even_weeks_background != '',
-            'even_weeks_color': settings.even_weeks_color,
-            'even_weeks_color_active': settings.even_weeks_color != '',
-        })
-        context = self.get_context_data(form=form)
-        return self.render_to_response(context)
-
-    def post(self, request, *args, **kwargs):
-        form = self.get_form(request.POST or None)
-        if form.is_valid():
-            cache_settings.save(**form.cleaned_data)
-            redirect_url = reverse('todos:calendar_settings')
-            return redirect(redirect_url)
-
-        context = self.get_context_data(form=form)
-        return self.render_to_response(context)
-
-    def get_form(self, data=None, **kwargs):
-        return forms.CalendarSettingsForm(data, **kwargs)

@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     'taggit',
     'easy_thumbnails',
     'widget_tweaks',
-    'colorfield'
+    'colorfield',
+    'constance',
+    'constance.backends.database',
 ]
 
 MIDDLEWARE = [
@@ -68,7 +70,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.request',
-                'todos.context_processors.settings',
                 'todos.context_processors.wallpapers'
             ],
             'libraries': {
@@ -161,4 +162,40 @@ HAYSTACK_CONNECTIONS = {
         'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
         'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
     },
+}
+
+CONSTANCE_ADDITIONAL_FIELDS = {
+    'constance_color': [
+        'django.forms.fields.CharField', {
+            'widget': 'colorfield.widgets.ColorWidget',
+            'required': False
+        }
+    ],
+    'constance_provider': [
+        'django.forms.fields.ChoiceField', {
+            'choices': [
+                ('local', 'Local'),
+                ('remote', 'Remote')
+            ]
+        }
+    ],
+    'constance_gallery': [
+        'lib.config.GalleryChoiceField', {}
+    ]
+}
+
+CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
+
+CONSTANCE_CONFIG = {
+    'odd_weeks_background': ['#FFFFFF', 'Odd weeks background', 'constance_color'],
+    'odd_weeks_background_active': [False, 'Odd weeks background active', bool],
+    'odd_weeks_color': ['#000000', 'Odd weeks color', 'constance_color'],
+    'odd_weeks_color_active': [False, 'Odd weeks color active', bool],
+    'even_weeks_background': ['#FFFFFF', 'Even weeks background', 'constance_color'],
+    'even_weeks_background_active': [False, 'Even weeks background active', bool],
+    'even_weeks_color': ['#000000', 'Even weeks color', 'constance_color'],
+    'even_weeks_color_active': [False, 'Even weeks color active', bool],
+    'todos_provider': ['remote', 'Todos provider', 'constance_provider'],
+    'notes_provider': ['remote', 'Notes provider', 'constance_provider'],
+    'gallery': [3, 'Gallery', 'constance_gallery'],
 }
