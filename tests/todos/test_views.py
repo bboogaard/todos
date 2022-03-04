@@ -1111,3 +1111,40 @@ class TestCodeSnippetDeleteView(TodosViewTest):
         response = self.app.post('/snippet/delete?object_id={}'.format(existing_snippet.pk + 1), {},
                                  user=self.test_user, expect_errors=True)
         self.assertEqual(response.status_code, 404)
+
+
+class TestCalendarSettingsView(TodosViewTest):
+
+    csrf_checks = False
+
+    def test_round_trip(self):
+        cache_settings.save(
+            odd_weeks_background='#FF5D17',
+            odd_weeks_color='#FFFFFF'
+        )
+        response = self.app.get('/calendar-settings', user=self.test_user)
+        form = response.form
+        self.assertEqual(form['odd_weeks_background'].value, '#FF5D17')
+        self.assertTrue(form['odd_weeks_background_active'].checked)
+        self.assertEqual(form['odd_weeks_color'].value, '#FFFFFF')
+        self.assertTrue(form['odd_weeks_color_active'].checked)
+        self.assertFalse(form['even_weeks_background_active'].checked)
+        self.assertFalse(form['even_weeks_color_active'].checked)
+
+        data = {
+            'odd_weeks_background': '#FF5D17',
+            'odd_weeks_background_active': False,
+            'odd_weeks_color': '#FFFFFF',
+            'odd_weeks_color_active': False,
+            'even_weeks_background': '#FF5D17',
+            'even_weeks_background_active': True,
+            'even_weeks_color': '#FFFFFF',
+            'even_weeks_color_active': True,
+        }
+        response = self.app.post('/calendar-settings', data, user=self.test_user)
+        self.assertEqual(response.status_code, 302)
+        _settings = cache_settings.load()
+        self.assertEqual(_settings.odd_weeks_background, '')
+        self.assertEqual(_settings.odd_weeks_color, '')
+        self.assertEqual(_settings.even_weeks_background, '#FF5D17')
+        self.assertEqual(_settings.even_weeks_color, '#FFFFFF')

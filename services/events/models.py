@@ -2,6 +2,8 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import List, Optional
 
+from django.utils.html import mark_safe
+
 from todos import models
 
 
@@ -33,3 +35,19 @@ class Event:
 class EventDate:
     date: date
     events: Optional[List[Event]] = field(default_factory=lambda: [])
+
+
+@dataclass
+class WeekEvents:
+    background: str
+    color: str
+    week_number: int
+    dates: List[EventDate]
+
+    def week_style(self):
+        parts = []
+        if self.background:
+            parts.append('background-color:{}'.format(self.background))
+        if self.color:
+            parts.append('color:{}'.format(self.color))
+        return mark_safe(";".join(parts))

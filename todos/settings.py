@@ -10,6 +10,14 @@ class CacheSettings(BaseCacheSettings):
 
     notes_provider = CharField(default='local')
 
+    odd_weeks_background = CharField(default='')
+
+    odd_weeks_color = CharField(default='')
+
+    even_weeks_background = CharField(default='')
+
+    even_weeks_color = CharField(default='')
+
     def load(self, **defaults):
         gallery = models.Gallery.objects.with_images().first()
         defaults['gallery'] = gallery.pk if gallery else None

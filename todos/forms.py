@@ -1,6 +1,7 @@
 import datetime
 
 import pytz
+from colorfield.widgets import ColorWidget
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import ButtonHolder, Layout, Submit
 from django import forms
@@ -263,3 +264,63 @@ class DateSearchForm(forms.Form):
 class CodeSnippetForm(forms.Form):
 
     text = forms.CharField(widget=forms.Textarea(), required=False)
+
+
+class CalendarSettingsForm(forms.Form):
+
+    odd_weeks_background = forms.CharField(widget=ColorWidget(), required=False)
+
+    odd_weeks_background_active = forms.BooleanField(required=False, label='Active')
+
+    odd_weeks_color = forms.CharField(widget=ColorWidget(), required=False)
+
+    odd_weeks_color_active = forms.BooleanField(required=False, label='Active')
+
+    even_weeks_background = forms.CharField(widget=ColorWidget(), required=False)
+
+    even_weeks_background_active = forms.BooleanField(required=False, label='Active')
+
+    even_weeks_color = forms.CharField(widget=ColorWidget(), required=False)
+
+    even_weeks_color_active = forms.BooleanField(required=False, label='Active')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            'odd_weeks_background',
+            'odd_weeks_background_active',
+            'odd_weeks_color',
+            'odd_weeks_color_active',
+            'even_weeks_background',
+            'even_weeks_background_active',
+            'even_weeks_color',
+            'even_weeks_color_active',
+            ButtonHolder(
+                Submit('submit', 'Save', css_class='button white')
+            )
+        )
+
+    def clean(self):
+        data = self.cleaned_data
+
+        if data:
+            data['odd_weeks_background'] = self._set_or_reset_field(
+                data, 'odd_weeks_background', 'odd_weeks_background_active'
+            )
+            data['odd_weeks_color'] = self._set_or_reset_field(
+                data, 'odd_weeks_color', 'odd_weeks_color_active'
+            )
+            data['even_weeks_background'] = self._set_or_reset_field(
+                data, 'even_weeks_background', 'even_weeks_background_active'
+            )
+            data['even_weeks_color'] = self._set_or_reset_field(
+                data, 'even_weeks_color', 'even_weeks_color_active'
+            )
+
+        return data
+
+    @staticmethod
+    def _set_or_reset_field(data, field, activate_field):
+        active = data.pop(activate_field)
+        return data.get(field, '') if active else ''
