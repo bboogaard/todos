@@ -1,15 +1,10 @@
+from constance import config
+
 from todos import models
-from todos.settings import cache_settings
-
-
-def settings(request):
-    return {
-        'settings': cache_settings.load()
-    }
 
 
 def wallpapers(request):
-    gallery = cache_settings.load().gallery
+    gallery = config.gallery
     if gallery:
         wallpaper_images = [
             wallpaper.get_image_url()

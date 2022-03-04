@@ -2,6 +2,7 @@ import datetime
 import unittest.mock
 
 import pytz
+from constance.test import override_config
 from django.conf import settings
 from django.test.testcases import TestCase
 from freezegun import freeze_time
@@ -11,6 +12,8 @@ from todos.models import Event
 from tests.todos.factories import EventFactory, HistoricalDateFactory
 
 
+@override_config(even_weeks_background='#FF3B0D', even_weeks_background_active=True,
+                 even_weeks_color='#FFFFFF', even_weeks_color_active=True)
 class TestEventService(TestCase):
 
     def setUp(self):
@@ -53,6 +56,7 @@ class TestEventService(TestCase):
 
         events = self.service.get_events(2021, 11, datetime.date(2021, 10, 1), datetime.date(2021, 12, 31))
         self.assertEqual(events[0].week_number, 43)
+        self.assertEqual(events[0].week_style(), '')
         week1 = _get_events(events[0].dates)
         self.assertEqual(week1, [
             (datetime.date(2021, 10, 31),
@@ -60,15 +64,19 @@ class TestEventService(TestCase):
             # "Halloween, Luther's Ninety-five Theses posted, Mount Rushmore Memorial finished")
         ])
         self.assertEqual(events[1].week_number, 44)
+        self.assertEqual(events[1].week_style(), 'background-color:#FF3B0D;color:#FFFFFF')
         week2 = _get_events(events[1].dates)
         self.assertEqual(week2, [])
         self.assertEqual(events[2].week_number, 45)
+        self.assertEqual(events[2].week_style(), '')
         week3 = _get_events(events[2].dates)
         self.assertEqual(week3, [(datetime.date(2021, 11, 20), "Pay bills, Take out trash")])
         self.assertEqual(events[3].week_number, 46)
+        self.assertEqual(events[3].week_style(), 'background-color:#FF3B0D;color:#FFFFFF')
         week4 = _get_events(events[3].dates)
         self.assertEqual(week4, [])
         self.assertEqual(events[4].week_number, 47)
+        self.assertEqual(events[4].week_style(), '')
         week5 = _get_events(events[4].dates)
         self.assertEqual(week5, [(datetime.date(2021, 12, 1), "Dentist")])
 
