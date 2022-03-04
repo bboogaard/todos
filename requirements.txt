@@ -24,3 +24,5 @@ pyquery==1.4.3
 django-widget-tweaks==1.4.9
 django-bootstrap-pagination==1.7.1
 django-colorfield==0.6.3
+django-constance==2.8.0
+django-picklefield==3.0.1

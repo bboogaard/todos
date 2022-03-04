@@ -2,10 +2,10 @@ import calendar
 import datetime
 import operator
 from collections import defaultdict
-from typing import List, Tuple
+from constance import config
+from typing import List
 
 from todos import models
-from todos.settings import cache_settings
 from services.api import EventsApi
 from services.events.message_factory import EventMessageFactory
 from services.events.models import Event, EventDate, WeekEvents
@@ -16,11 +16,10 @@ class EventsService(EventsApi):
 
     def __init__(self):
         self.calendar = calendar.Calendar(firstweekday=6)
-        settings = cache_settings.load()
-        self.odd_weeks_background = settings.odd_weeks_background
-        self.odd_weeks_color = settings.odd_weeks_color
-        self.even_weeks_background = settings.even_weeks_background
-        self.even_weeks_color = settings.even_weeks_color
+        self.odd_weeks_background = config.odd_weeks_background if config.odd_weeks_background_active else ''
+        self.odd_weeks_color = config.odd_weeks_color if config.odd_weeks_color_active else ''
+        self.even_weeks_background = config.even_weeks_background if config.even_weeks_background_active else ''
+        self.even_weeks_color = config.even_weeks_color if config.even_weeks_color_active else ''
 
     def get_events(self, year: int, month: int, start: datetime.date, end: datetime.date) -> \
             List[WeekEvents]:

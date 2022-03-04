@@ -3,6 +3,7 @@ import os
 from datetime import date
 from typing import Dict, List
 
+from constance import config
 from django.http.request import HttpRequest
 from django.template.context import RequestContext
 from django.template.defaultfilters import date as format_date
@@ -14,7 +15,6 @@ from dateutil.relativedelta import relativedelta
 from services.factory import EventsServiceFactory, ItemServiceFactory
 from todos import forms
 from todos.models import HistoricalDate, PrivateFile, PrivateImage, Widget
-from todos.settings import cache_settings
 
 
 class WidgetRendererService:
@@ -31,7 +31,6 @@ class WidgetRendererService:
 
     def __init__(self, widget: Widget):
         self.widget = widget
-        self.settings = cache_settings.load()
 
     def render(self, context: RequestContext):
         self.request = context.get('request')
@@ -109,7 +108,7 @@ class TodosWidgetRenderer(WidgetRendererService):
 
     def global_vars(self):
         return {
-            'provider': self.settings.todos_provider
+            'provider': config.todos_provider
         }
 
     def has_content(self):
@@ -211,7 +210,7 @@ class NotesWidgetRenderer(WidgetRendererService):
 
     def global_vars(self):
         return {
-            'provider': self.settings.notes_provider
+            'provider': config.notes_provider
         }
 
     def has_content(self):
