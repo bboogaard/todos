@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'haystack',
     'taggit',
     'easy_thumbnails',
-    'widget_tweaks'
+    'widget_tweaks',
+    'colorfield'
 ]
 
 MIDDLEWARE = [

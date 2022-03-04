@@ -15,6 +15,7 @@ urlpatterns = [
     path('notes-export', views.NotesExportView.as_view(), name='notes_export'),
     path('notes-import', views.NotesImportView.as_view(), name='notes_import'),
     path('settings-save', views.SettingsSave.as_view(), name='settings_save'),
+    path('calendar-settings', views.CalendarSettingsView.as_view(), name='calendar_settings'),
 
     # Wallpapers
     path('wallpapers/list', views.WallpaperListView.as_view(), name="wallpaper_list"),

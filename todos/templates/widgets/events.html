@@ -13,9 +13,9 @@
     </div>
   </header>
   <div class="row border border-right-0 border-bottom-0">
-    {% for weeknumber, week in events %}
-      {% for event_date in week %}
-    <div class="day col-sm p-2 border border-left-0 border-top-0 text-truncate d-none d-sm-inline-block bg-light text-muted" data-event-url="{% url 'todos:event_create' %}?event_date={{ event_date.date|date:'Y-m-d' }}" data-event-title="Create event">
+    {% for week_events in events %}
+      {% for event_date in week_events.dates %}
+    <div class="day col-sm p-2 border border-left-0 border-top-0 text-truncate d-none d-sm-inline-block{% if not week_events.color %} text-muted{%endif %}" data-event-url="{% url 'todos:event_create' %}?event_date={{ event_date.date|date:'Y-m-d' }}" data-event-title="Create event"{% if week_events.week_style %} style="{{ week_events.week_style }}"{% endif %}>
       <h5 class="row align-items-center">
         <span class="date{% if event_date.date == today %} current{% endif %} col-1">{{ event_date.date.day }}</span>
         <small class="col d-sm-none text-center text-muted"></small>
@@ -28,7 +28,7 @@
 {#          <a class="event d-block p-1 pl-2 pr-2 mb-1 rounded text-truncate small bg-success text-white" data-event-type="hist_date" data-event-title="{{ event.instance.date|date:'j F Y' }}" data-event-content="{{ event.instance.event|escape }}">{{ event.instance.date|date:'Y' }}</a>#}
           {% endif %}
       {% endfor %}
-        <small>{% if forloop.counter == 1 %}week {{ weeknumber }}{% endif %}</small>
+        <small>{% if forloop.counter == 1 %}week {{ week_events.week_number }}{% endif %}</small>
     </div>
       {% endfor %}
     <div class="w-100"></div>

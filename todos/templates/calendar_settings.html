@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block body_attrs %} class="modal-body"{% endblock %}
+
+{% block main %}
+<h1>{{ title }}</h1>
+{% crispy form %}
+{% endblock %}
