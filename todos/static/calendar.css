@@ -18,5 +18,6 @@
     }
     .date.current {
         color: red;
+        text-decoration: underline;
     }
 }

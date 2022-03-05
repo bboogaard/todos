@@ -13,7 +13,8 @@ from tests.todos.factories import EventFactory, HistoricalDateFactory
 
 
 @override_config(even_weeks_background='#FF3B0D', even_weeks_background_active=True,
-                 even_weeks_color='#FFFFFF', even_weeks_color_active=True)
+                 even_weeks_color='#FFFFFF', even_weeks_color_active=True,
+                 odd_weeks_current_date_color='#6C757D', odd_weeks_current_date_color_active=True)
 class TestEventService(TestCase):
 
     def setUp(self):
@@ -46,6 +47,7 @@ class TestEventService(TestCase):
             event="Mount Rushmore Memorial finished"
         )
 
+    @freeze_time('2021-10-31')
     def test_get_events(self):
 
         def _get_events(week_events):
@@ -57,6 +59,7 @@ class TestEventService(TestCase):
         events = self.service.get_events(2021, 11, datetime.date(2021, 10, 1), datetime.date(2021, 12, 31))
         self.assertEqual(events[0].week_number, 43)
         self.assertEqual(events[0].week_style(), '')
+        self.assertEqual(events[0].dates[0].date_style(), 'color:#6C757D')
         week1 = _get_events(events[0].dates)
         self.assertEqual(week1, [
             (datetime.date(2021, 10, 31),

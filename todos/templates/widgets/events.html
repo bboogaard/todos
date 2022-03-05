@@ -17,7 +17,7 @@
       {% for event_date in week_events.dates %}
     <div class="day col-sm p-2 border border-left-0 border-top-0 text-truncate d-none d-sm-inline-block{% if not week_events.color %} text-muted{%endif %}" data-event-url="{% url 'todos:event_create' %}?event_date={{ event_date.date|date:'Y-m-d' }}" data-event-title="Create event"{% if week_events.week_style %} style="{{ week_events.week_style }}"{% endif %}>
       <h5 class="row align-items-center">
-        <span class="date{% if event_date.date == today %} current{% endif %} col-1">{{ event_date.date.day }}</span>
+        <span class="date{% if event_date.date == today %} current{% endif %} col-1"{% if event_date.date_style %}style="{{ event_date.date_style }}"{% endif %}>{{ event_date.date.day }}</span>
         <small class="col d-sm-none text-center text-muted"></small>
         <span class="col-1"></span>
       </h5>
