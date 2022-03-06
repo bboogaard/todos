@@ -18,8 +18,12 @@ class EventsService(EventsApi):
         self.calendar = calendar.Calendar(firstweekday=6)
         self.odd_weeks_background = config.odd_weeks_background if config.odd_weeks_background_active else ''
         self.odd_weeks_color = config.odd_weeks_color if config.odd_weeks_color_active else ''
+        self.odd_weeks_current_date_color = config.odd_weeks_current_date_color if \
+            config.odd_weeks_current_date_color_active else ''
         self.even_weeks_background = config.even_weeks_background if config.even_weeks_background_active else ''
         self.even_weeks_color = config.even_weeks_color if config.even_weeks_color_active else ''
+        self.even_weeks_current_date_color = config.even_weeks_current_date_color if \
+            config.even_weeks_current_date_color_active else ''
 
     def get_events(self, year: int, month: int, start: datetime.date, end: datetime.date) -> \
             List[WeekEvents]:
@@ -37,6 +41,8 @@ class EventsService(EventsApi):
                 dates.append(
                     EventDate(
                         date=day,
+                        current_date_color=(
+                            self.odd_weeks_current_date_color if odd else self.even_weeks_current_date_color),
                         events=list(sorted(events_in_db[(day.day, day.month)], key=operator.attrgetter('key')))
                     )
                 )

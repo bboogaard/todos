@@ -1,3 +1,4 @@
+import datetime
 from dataclasses import dataclass, field
 from datetime import date
 from typing import List, Optional
@@ -34,7 +35,13 @@ class Event:
 @dataclass
 class EventDate:
     date: date
+    current_date_color: Optional[str] = ''
     events: Optional[List[Event]] = field(default_factory=lambda: [])
+
+    def date_style(self):
+        if self.date != datetime.date.today():
+            return ''
+        return mark_safe('color:{}'.format(self.current_date_color)) if self.current_date_color else ''
 
 
 @dataclass
