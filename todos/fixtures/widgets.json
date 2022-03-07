@@ -75,5 +75,16 @@
       "position": 6,
       "refresh_interval": null
     }
+  },
+  {
+    "model": "todos.widget",
+    "pk": 8,
+    "fields": {
+      "type": "upload",
+      "title": "Upload",
+      "is_enabled": true,
+      "position": 2,
+      "refresh_interval": null
+    }
   }
 ]

@@ -270,6 +270,13 @@ class BasePrivateFile(SearchMixin, models.Model):
     def search_field(self):
         return ' '.join(map(str, self.tags.all()))
 
+    def save_file(self, file):
+        file_field = self.get_file_field()
+        file_field.save(file.name, file)
+
+    def get_file_field(self):
+        raise NotImplementedError()
+
     def search_type(self):
         raise NotImplementedError()
 
@@ -303,6 +310,9 @@ class PrivateFile(BasePrivateFile):
     def search_result(self):
         return self.file.name
 
+    def get_file_field(self):
+        return self.file
+
 
 class PrivateImage(BasePrivateFile):
 
@@ -330,6 +340,9 @@ class PrivateImage(BasePrivateFile):
     def search_result(self):
         return self.image.name
 
+    def get_file_field(self):
+        return self.image
+
 
 class Widget(models.Model):
 
@@ -340,6 +353,7 @@ class Widget(models.Model):
     WIDGET_TYPE_IMAGES = 'images'
     WIDGET_TYPE_DATES = 'dates'
     WIDGET_TYPE_SNIPPET = 'snippet'
+    WIDGET_TYPE_UPLOAD = 'upload'
 
     WIDGET_TYPES = (
         (WIDGET_TYPE_TODOS, _("To do's")),
@@ -349,6 +363,7 @@ class Widget(models.Model):
         (WIDGET_TYPE_IMAGES, _("Images")),
         (WIDGET_TYPE_DATES, _("Historical dates")),
         (WIDGET_TYPE_SNIPPET, _("Code snippets")),
+        (WIDGET_TYPE_UPLOAD, _("Upload")),
     )
 
     type = models.CharField(max_length=8, choices=WIDGET_TYPES, unique=True)

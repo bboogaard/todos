@@ -288,6 +288,22 @@ class FileDeleteView(FileViewMixin, AccessMixin, View):
         return redirect(reverse('todos:file_list', args=[self.file_type]))
 
 
+class FileUploadView(AccessMixin, View):
+
+    form_class = forms.UploadFileForm
+
+    def post(self, request, *args, **kwargs):
+        form = self.get_form(request.POST or None, files=request.FILES or None)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({})
+
+        return JsonResponse({}, status=400)
+
+    def get_form(self, data=None, files=None, **kwargs):
+        return self.form_class(data, files=files, **kwargs)
+
+
 class FileExportView(FileViewMixin, AccessMixin, View):
 
     def get(self, request, *args, **kwargs):

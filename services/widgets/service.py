@@ -321,3 +321,21 @@ class CodeSnippetWidgetRenderer(WidgetRendererService):
 
     def has_content(self):
         return True
+
+
+class UploadWidgetRenderer(WidgetRendererService):
+
+    template_name = 'upload.html'
+
+    def media(self):
+        return {
+            'js': {
+                'static': (
+                    'dropzone/dropzone.min.js', 'upload.init.js'
+                )
+            },
+            'css': ('dropzone/dropzone.min.css',)
+        }
+
+    def has_content(self):
+        return True
