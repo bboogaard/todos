@@ -1,5 +1,6 @@
 import datetime
 
+import magic
 import pytz
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import ButtonHolder, Layout, Submit
@@ -152,6 +153,24 @@ class FileForm(forms.ModelForm):
                 Submit('submit', 'Save', css_class='button white')
             )
         )
+
+
+class UploadFileForm(forms.Form):
+
+    file = forms.FileField()
+
+    def save(self):
+        file = self.cleaned_data['file']
+        model = self.get_model(file)
+        instance = model()
+        instance.save_file(file)
+        return instance
+
+    @staticmethod
+    def get_model(file):
+        mimetype = magic.from_buffer(file.read(), mime=True)
+        file.seek(0)
+        return models.PrivateImage if mimetype.startswith('image') else models.PrivateFile
 
 
 class ImageForm(forms.ModelForm):
