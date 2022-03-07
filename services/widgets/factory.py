@@ -1,7 +1,8 @@
 from typing import Optional
 
 from services.widgets.service import CodeSnippetWidgetRenderer, DatesWidgetRenderer, EventsWidgetRenderer, \
-    FilesWidgetRenderer, ImagesWidgetRenderer, NotesWidgetRenderer, TodosWidgetRenderer, WidgetRendererService
+    FilesWidgetRenderer, ImagesWidgetRenderer, NotesWidgetRenderer, TodosWidgetRenderer, UploadWidgetRenderer, \
+    WidgetRendererService
 from todos.models import Widget
 
 
@@ -23,5 +24,7 @@ class WidgetRendererFactory:
             return DatesWidgetRenderer(widget)
         elif widget.type == Widget.WIDGET_TYPE_SNIPPET:
             return CodeSnippetWidgetRenderer(widget)
+        elif widget.type == Widget.WIDGET_TYPE_UPLOAD:
+            return UploadWidgetRenderer(widget)
         else:
             raise NotImplementedError()

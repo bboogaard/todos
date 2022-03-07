@@ -28,6 +28,7 @@ urlpatterns = [
     path('files/<file_type>/delete', views.FileDeleteView.as_view(), name="file_delete"),
     path('files/<file_type>/export', views.FileExportView.as_view(), name="file_export"),
     path('files/<file_type>/import', views.FileImportView.as_view(), name="file_import"),
+    path('files/upload', views.FileUploadView.as_view(), name="file_upload"),
 
     # Images
     path('carousel', views.CarouselView.as_view(), name="carousel"),

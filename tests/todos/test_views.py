@@ -438,6 +438,37 @@ class TestImageDeleteView(ImageTestMixin, FileViewTest):
         self._post('delete', data, count=0)
 
 
+class TestFileUploadView(TodosViewTest):
+
+    csrf_checks = False
+
+    def test_post_file(self):
+        upload_file = b'Foo'
+        data = {
+            'file': Upload('file.txt', upload_file, 'text/plain')
+        }
+
+        response = self.app.post('/files/upload', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        pfile = PrivateFile.objects.first()
+        self.assertEqual(pfile.file.read(), upload_file)
+
+    def test_post_image(self):
+        upload_file = generate_image().getvalue()
+        data = {
+            'file': Upload('foo.png', upload_file, 'image/png')
+        }
+
+        response = self.app.post('/files/upload', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        pfile = PrivateImage.objects.first()
+        self.assertEqual(pfile.image.read(), upload_file)
+
+    def test_post_with_error(self):
+        response = self.app.post('/files/upload', {}, user=self.test_user, expect_errors=True)
+        self.assertEqual(response.status_code, 400)
+
+
 class TestTodosImportView(TodosViewTest):
 
     csrf_checks = False
