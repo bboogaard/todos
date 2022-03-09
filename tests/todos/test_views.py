@@ -246,196 +246,40 @@ class TestWallpaperDeleteView(TodosViewTest):
         self.assertEqual(Wallpaper.objects.count(), 2)
 
 
-class FileViewTest(TodosViewTest):
+class FileDeleteTest(TodosViewTest):
 
     file_type = None
 
-    upload_file = None
-
     model = None
 
-    file_field = None
+    csrf_checks = False
 
-    def _get(self, path, status_code=200):
-        response = self.app.get('/files/{}/{}'.format(self.file_type, path), user=self.test_user)
+    def _post(self, path, pk, status_code=200):
+        response = self.app.post('/files/{}/{}/{}.json'.format(self.file_type, pk, path), user=self.test_user)
         self.assertEqual(response.status_code, status_code)
-
-    def _post(self, path, data, status_code=302, count=1):
-        response = self.app.post('/files/{}/{}'.format(self.file_type, path), data, user=self.test_user)
-        self.assertEqual(response.status_code, status_code)
-        self.assertEqual(self.model.objects.count(), count)
-        if count:
-            pfile = self.model.objects.first()
-            self.assertEqual(getattr(pfile, self.file_field).read(), self.upload_file)
-            self.assertEqual('.'.join(map(str, pfile.tags.all())), 'Foo')
+        self.assertEqual(self.model.objects.filter(pk=pk).count(), 0)
 
 
-class FileTestMixin:
+class TestFileDeleteView(FileDeleteTest):
 
     file_type = 'file'
 
-    upload_file = b'Foo'
-
     model = PrivateFile
-
-    file_field = 'file'
-
-
-class TestFileListView(FileTestMixin, FileViewTest):
-
-    def test_get(self):
-        self._get('list')
-
-
-class TestFileCreateView(FileTestMixin, FileViewTest):
-
-    csrf_checks = False
-
-    def test_get(self):
-        self._get('create')
-
-    def test_post(self):
-        data = {
-            'file': Upload('file.txt', self.upload_file, 'text/plain'),
-            'tags': 'Foo'
-        }
-
-        self._post('create', data)
-
-    def test_post_with_error(self):
-        data = {
-            'file': '',
-            'tags': 'Foo'
-        }
-
-        self._post('create', data, status_code=200, count=0)
-
-
-class TestFileUpdateView(FileTestMixin, FileViewTest):
-
-    csrf_checks = False
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-        cls.file = PrivateFileFactory()
-        cls.file.tags.add('Foo')
-
-    def test_get(self):
-        self._get('{}/update'.format(self.file.pk))
-
-    def test_post(self):
-        data = {
-            'file': Upload('file.txt', self.upload_file, 'text/plain'),
-            'tags': 'Foo'
-        }
-
-        self._post('{}/update'.format(self.file.pk), data)
-
-    def test_post_with_error(self):
-        data = {
-            'file': '',
-            'tags': ''
-        }
-
-        self._post('{}/update'.format(self.file.pk), data, status_code=200)
-
-
-class TestFileDeleteView(FileTestMixin, FileViewTest):
-
-    csrf_checks = False
 
     def test_post(self):
         pfile = PrivateFileFactory()
-        data = {
-            'file': [pfile.pk]
-        }
-
-        self._post('delete', data, count=0)
+        self._post('delete', pfile.pk)
 
 
-class ImageTestMixin:
+class TestImageDeleteView(FileDeleteTest):
 
     file_type = 'image'
 
-    upload_file = generate_image().getvalue()
-
     model = PrivateImage
-
-    file_field = 'image'
-
-
-class TestImageListView(ImageTestMixin, FileViewTest):
-
-    def test_get(self):
-        self._get('list')
-
-
-class TestImageCreateView(ImageTestMixin, FileViewTest):
-
-    csrf_checks = False
-
-    def test_get(self):
-        self._get('create')
-
-    def test_post(self):
-        data = {
-            'image': Upload('foo.png', self.upload_file, 'image/png'),
-            'tags': 'Foo'
-        }
-
-        self._post('create', data)
-
-    def test_post_with_error(self):
-        data = {
-            'image': '',
-            'tags': 'Foo'
-        }
-
-        self._post('create', data, status_code=200, count=0)
-
-
-class TestImageUpdateView(ImageTestMixin, FileViewTest):
-
-    csrf_checks = False
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-        cls.file = PrivateImageFactory()
-        cls.file.tags.add('Foo')
-
-    def test_get(self):
-        self._get('{}/update'.format(self.file.pk))
-
-    def test_post(self):
-        data = {
-            'image': Upload('foo.png', self.upload_file, 'image/png'),
-            'tags': 'Foo'
-        }
-
-        self._post('{}/update'.format(self.file.pk), data)
-
-    def test_post_with_error(self):
-        data = {
-            'image': '',
-            'tags': ''
-        }
-
-        self._post('{}/update'.format(self.file.pk), data, status_code=200)
-
-
-class TestImageDeleteView(ImageTestMixin, FileViewTest):
-
-    csrf_checks = False
 
     def test_post(self):
         pfile = PrivateImageFactory()
-        data = {
-            'file': [pfile.pk]
-        }
-
-        self._post('delete', data, count=0)
+        self._post('delete', pfile.pk)
 
 
 class TestFileUploadView(TodosViewTest):
@@ -577,7 +421,13 @@ class FilesImportTest(TodosViewTest):
             self.assertEqual(getattr(pfile, self.file_field).read(), files[num])
 
 
-class TestFilesImportView(FileTestMixin, FilesImportTest):
+class TestFilesImportView(FilesImportTest):
+
+    file_type = 'file'
+
+    model = PrivateFile
+
+    file_field = 'file'
 
     def test_get(self):
         self._get()
@@ -611,7 +461,13 @@ class TestFilesImportView(FileTestMixin, FilesImportTest):
         self._post(data, [], [], 200)
 
 
-class TestImagesImportView(ImageTestMixin, FilesImportTest):
+class TestImagesImportView(FilesImportTest):
+
+    file_type = 'image'
+
+    model = PrivateImage
+
+    file_field = 'image'
 
     def test_get(self):
         self._get()
