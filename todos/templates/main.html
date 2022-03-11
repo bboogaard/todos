@@ -59,12 +59,7 @@
           <a class="dropdown-item" href="#" data-action="manage-widgets">
               Manage widgets
           </a>
-          <a class="dropdown-item" href="#" data-action="manage-files">
-              Manage files
-          </a>
-          <a class="dropdown-item" href="#" data-action="manage-images">
-              Manage images
-          </a><a class="dropdown-item" href="#" data-action="manage-dates">
+          <a class="dropdown-item" href="#" data-action="manage-dates">
               Manage historical dates
           </a>
           <a class="dropdown-item" id="about-link" href="#">About</a>
@@ -122,30 +117,6 @@
              url: '{% url "todos:wallpaper_list" %}',
              onClose: function() {
                location.href = '{{ request.path }}' + window.location.search;
-             }
-         });
-      });
-      $('[data-action="manage-files"]').click(function (event) {
-         event.preventDefault();
-         tModal.FullModal({
-             title: 'Manage files',
-             url: '{% url "todos:file_list" "file" %}',
-             onClose: function() {
-               if (widgets['files']) {
-                 widgets['files'].load();
-               }
-             }
-         });
-      });
-      $('[data-action="manage-images"]').click(function (event) {
-         event.preventDefault();
-         tModal.FullModal({
-             title: 'Manage images',
-             url: '{% url "todos:file_list" "image" %}',
-             onClose: function() {
-               if (widgets['images']) {
-                 widgets['images'].load();
-               }
              }
          });
       });

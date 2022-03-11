@@ -260,15 +260,18 @@ class BasePrivateFile(SearchMixin, models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
 
-    tags = TaggableManager()
-
     class Meta:
         abstract = True
         ordering = ('-created',)
 
     @property
     def search_field(self):
-        return ' '.join(map(str, self.tags.all()))
+        return self.filename
+
+    @property
+    def filename(self):
+        file_field = self.get_file_field()
+        return file_field.name
 
     def save_file(self, file):
         file_field = self.get_file_field()

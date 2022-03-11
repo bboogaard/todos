@@ -34,3 +34,8 @@ li:first-child{
     padding: 0px;
     margin: 0px;
 }
+
+[data-widget-type="files"] small a,
+[data-widget-type="images"] small a {
+    color: #FF3B0D;
+}

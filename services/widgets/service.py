@@ -135,8 +135,15 @@ class FilesWidgetRenderer(WidgetRendererService):
         ))
         return context
 
+    def media(self):
+        return {
+            'js': {
+                'static': ('files.init.js',)
+            }
+        }
+
     def has_content(self):
-        return bool(len(self.files))
+        return True
 
 
 class ImagesWidgetRenderer(WidgetRendererService):
@@ -167,7 +174,7 @@ class ImagesWidgetRenderer(WidgetRendererService):
         }
 
     def has_content(self):
-        return bool(len(self.images))
+        return True
 
 
 class NotesWidgetRenderer(WidgetRendererService):

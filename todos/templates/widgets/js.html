@@ -11,7 +11,7 @@
     var widgets = widgets || {};
     widgets['{{ widget.type }}'] = new Widget({
         id: '{{ widget.widget_id }}',
-        url: '{% url 'todos:widget' widget.pk %}',
+        url: '{% url 'todos:widget.json' widget.pk %}',
         refreshInterval: {{ widget.refresh_interval_msecs|default_if_none:'null' }}
     });
     widgets['{{ widget.type }}'].init();
