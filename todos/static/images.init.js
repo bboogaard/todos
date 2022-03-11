@@ -6,4 +6,11 @@ $(document).ready(function(){
           url: $(this).data('carousel-url')
         });
     });
+    $('[data-widget-type="images"]').on('click', 'small a', function(event) {
+        event.preventDefault();
+        $.post($(this).attr('href'))
+        .done(function() {
+            widgets['images'].load();
+        });
+    });
 })

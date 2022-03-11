@@ -137,24 +137,6 @@ class WallpaperForm(forms.ModelForm):
         )
 
 
-class FileForm(forms.ModelForm):
-
-    class Meta:
-        fields = ('file', 'tags')
-        model = models.PrivateFile
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            'file',
-            'tags',
-            ButtonHolder(
-                Submit('submit', 'Save', css_class='button white')
-            )
-        )
-
-
 class UploadFileForm(forms.Form):
 
     file = forms.FileField()
@@ -171,24 +153,6 @@ class UploadFileForm(forms.Form):
         mimetype = magic.from_buffer(file.read(), mime=True)
         file.seek(0)
         return models.PrivateImage if mimetype.startswith('image') else models.PrivateFile
-
-
-class ImageForm(forms.ModelForm):
-
-    class Meta:
-        fields = ('image', 'tags')
-        model = models.PrivateImage
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            'image',
-            'tags',
-            ButtonHolder(
-                Submit('submit', 'Save', css_class='button white')
-            )
-        )
 
 
 class ImportForm(forms.Form):

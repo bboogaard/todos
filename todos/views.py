@@ -171,124 +171,7 @@ class WallpaperDeleteView(AccessMixin, View):
         return redirect(reverse('todos:wallpaper_list'))
 
 
-class FileViewMixin:
-
-    file_type = None
-
-    model = None
-
-    object_name = None
-
-    object_name_plural = None
-
-    file_field = None
-
-    def dispatch(self, request, *args, **kwargs):
-        self.file_type = kwargs['file_type']
-        self.model = self.get_model(self.file_type)
-        self.object_name, self.object_name_plural = {
-            'file': ('File', 'Files'),
-            'image': ('Image', 'Images')
-        }.get(self.file_type)
-        self.file_field = {
-            'file': 'file',
-            'image': 'image'
-        }.get(self.file_type)
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'file_type': self.file_type,
-            'object_name': self.object_name,
-            'object_name_plural': self.object_name_plural,
-        })
-        return context
-
-    def get_model(self, file_type):
-        return {
-            'file': models.PrivateFile,
-            'image': models.PrivateImage
-        }.get(file_type)
-
-
-class FileListView(FileViewMixin, AccessMixin, generic.TemplateView):
-
-    template_name = 'files/file_list.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'files': self.model.objects.all()
-        })
-        return context
-
-
-class FileEditMixin(FileViewMixin, generic.TemplateView):
-
-    form_class = None
-
-    def dispatch(self, request, *args, **kwargs):
-        self.form_class = {
-            'file': forms.FileForm,
-            'image': forms.ImageForm
-        }.get(kwargs['file_type'])
-        return super().dispatch(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        form = self.get_form()
-        context = self.get_context_data(form=form)
-        return self.render_to_response(context)
-
-    def post(self, request, *args, **kwargs):
-        form = self.get_form(request.POST or None, files=request.FILES or None)
-        if form.is_valid():
-            form.save()
-            return redirect(reverse('todos:file_list', args=[self.file_type]))
-
-        context = self.get_context_data(form=form)
-        return self.render_to_response(context)
-
-    def get_form(self, data=None, files=None, **kwargs):
-        return self.form_class(data, files=files, **kwargs)
-
-
-class FileCreateView(AccessMixin, FileEditMixin):
-
-    template_name = 'files/file_create.html'
-
-
-class FileUpdateView(AccessMixin, FileEditMixin):
-
-    template_name = 'files/file_update.html'
-
-    def dispatch(self, request, pk, *args, **kwargs):
-        self.object = get_object_or_404(self.get_model(kwargs['file_type']), pk=pk)
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_form(self, data=None, files=None, **kwargs):
-        kwargs['instance'] = self.object
-        return super().get_form(data, files, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['file'] = self.object
-        return context
-
-
-class FileDeleteView(FileViewMixin, AccessMixin, View):
-
-    def post(self, request, *args, **kwargs):
-        file_ids = request.POST.getlist('file', [])
-        qs = self.model.objects.filter(pk__in=file_ids)
-        file_names = [getattr(file, self.file_field).name for file in qs]
-        qs.delete()
-        for file in file_names:
-            private_storage.delete(file)
-        return redirect(reverse('todos:file_list', args=[self.file_type]))
-
-
-class FileUploadView(AccessMixin, View):
+class FileUploadJson(AccessMixin, View):
 
     form_class = forms.UploadFileForm
 
@@ -302,6 +185,37 @@ class FileUploadView(AccessMixin, View):
 
     def get_form(self, data=None, files=None, **kwargs):
         return self.form_class(data, files=files, **kwargs)
+
+
+class FileViewMixin:
+
+    file_type = None
+
+    def dispatch(self, request, *args, **kwargs):
+        self.file_type = kwargs['file_type']
+        return super().dispatch(request, *args, **kwargs)
+
+
+class FileDeleteJson(FileViewMixin, AccessMixin, View):
+
+    def post(self, request, *args, **kwargs):
+        obj = self.get_object()
+        if not obj:
+            return JsonResponse({}, status=404)
+        filename = obj.filename
+        obj.delete()
+        private_storage.delete(filename)
+        return JsonResponse({})
+
+    def get_object(self):
+        model = {
+            'file': models.PrivateFile,
+            'image': models.PrivateImage
+        }.get(self.file_type)
+        try:
+            return model.objects.get(pk=self.kwargs['pk'])
+        except model.DoesNotExist:
+            return None
 
 
 class FileExportView(FileViewMixin, AccessMixin, View):
@@ -491,7 +405,7 @@ class CarouselView(AccessMixin, generic.TemplateView):
         return context
 
 
-class WidgetView(AccessMixin, View):
+class WidgetJson(AccessMixin, View):
 
     def get(self, request, widget_id, *args, **kwargs):
         try:
@@ -605,10 +519,10 @@ class CodeSnippetFormMixin:
 
     def render_form(self, form):
         navigation_objects = get_navigation_objects(self.object)
-        update_action = reverse('todos:snippet_update') + '?' + urlencode({
+        update_action = reverse('todos:snippet_update.json') + '?' + urlencode({
             'object_id': self.object.pk
         })
-        delete_action = reverse('todos:snippet_delete') + '?' + urlencode({
+        delete_action = reverse('todos:snippet_delete.json') + '?' + urlencode({
             'object_id': self.object.pk
         })
         return render_to_string(
@@ -623,7 +537,7 @@ class CodeSnippetFormMixin:
         )
 
 
-class CodeSnippetEditView(CodeSnippetFormMixin, AccessMixin, View):
+class CodeSnippetEditJson(CodeSnippetFormMixin, AccessMixin, View):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -654,7 +568,7 @@ class CodeSnippetEditView(CodeSnippetFormMixin, AccessMixin, View):
         return queryset
 
 
-class CodeSnippetDeleteView(CodeSnippetFormMixin, AccessMixin, View):
+class CodeSnippetDeleteJson(CodeSnippetFormMixin, AccessMixin, View):
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
