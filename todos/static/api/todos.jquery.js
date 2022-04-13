@@ -115,11 +115,19 @@
 
         activate: function() {
 
-            let items = this.list.find('input[type="checkbox"]:checked').map(function () {
-                return $(this).parent().text().trim();
+            let self = this;
+
+            let ids = this.list.find('input[type="checkbox"]:checked').map(function () {
+                return $(this).parent().data('id');
             }).get();
-            this.provider.activate(this.items);
-            this.list.find('input[type="checkbox"]:checked').parent().remove();
+
+            $.when(this.provider.activate({id: ids}))
+            .then(function() {
+                self.provider.list()
+                .done(function(items) {
+                    self.render(items);
+                })
+            });
 
         },
 

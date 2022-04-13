@@ -79,7 +79,7 @@ class TodosWidgetRenderer(WidgetRendererService):
 
         form = forms.TodoSearchForm(self.request.GET or None)
         if form.is_valid():
-            search_query = form.cleaned_data
+            search_query = form.cleaned_data['description']
         else:
             search_query = None
 
@@ -91,6 +91,7 @@ class TodosWidgetRenderer(WidgetRendererService):
                     'create': reverse('api:todos-create-many'),
                     'update': reverse('api:todos-update-many'),
                     'delete': reverse('api:todos-delete-many'),
+                    'activate': reverse('api:todos-activate-many'),
                 },
                 'search_query': search_query
             }

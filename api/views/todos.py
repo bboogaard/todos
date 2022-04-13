@@ -21,7 +21,10 @@ class TodoViewSet(ListModelMixin, ProcessSerializerMixin, GenericViewSet):
     serializer_class = ListTodoSerializer
 
     def get_queryset(self):
-        return Todo.objects.active().order_by('-activate_date')
+        backend = self.filter_backends[0]()
+        queryset = Todo.objects.all()
+        queryset = queryset.active() if not backend.get_search_terms(self.request) else queryset.inactive()
+        return queryset.order_by('-activate_date')
 
     @action(['post'], detail=False, url_path='create_many')
     def create_many(self, request, *args, **kwargs):
@@ -38,4 +41,9 @@ class TodoViewSet(ListModelMixin, ProcessSerializerMixin, GenericViewSet):
     @action(['post'], detail=False, url_path='delete_many')
     def delete_many(self, request, *args, **kwargs):
         Todo.objects.deactivate(request.data.get('id'))
+        return Response({})
+
+    @action(['post'], detail=False, url_path='activate_many')
+    def activate_many(self, request, *args, **kwargs):
+        Todo.objects.activate(request.data.get('id'))
         return Response({})

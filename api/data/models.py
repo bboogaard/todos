@@ -7,6 +7,12 @@ from todos.models import SearchMixin
 
 class ActivatorModelManager(BaseActivatorModelManager):
 
+    def activate(self, ids):
+        self.get_queryset().filter(pk__in=ids).update(
+            status=ActivatorModel.ACTIVE_STATUS,
+            activate_date=now()
+        )
+
     def deactivate(self, ids):
         self.get_queryset().filter(pk__in=ids).update(
             status=ActivatorModel.INACTIVE_STATUS,

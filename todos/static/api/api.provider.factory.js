@@ -6,10 +6,21 @@ ApiProviderFactory.prototype = {
 
     create_todos_provider: function () {
 
-        return new ApiProvider({
+        let provider = new ApiProvider({
             urls: this.settings.urls,
             search_query: this.settings.search_query
         });
+        let self = this;
+        provider.activate = function (data) {
+            return $.ajax({
+                url: self.settings.urls['activate'],
+                type: "POST",
+                data: JSON.stringify( data ),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json"
+            });
+        }
+        return provider;
 
     }
 

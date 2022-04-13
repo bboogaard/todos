@@ -7,10 +7,15 @@ ApiProvider.prototype = {
 
     list: function () {
 
+        let params = {};
+        if (this.search_query) {
+            params.search = this.search_query;
+        }
+
         return $.ajax({
             url: this.urls['list'],
             type: "GET",
-            data: this.search_query
+            data: params
         });
 
     },
