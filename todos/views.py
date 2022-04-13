@@ -19,6 +19,7 @@ from lib.code_snippets import get_navigation_objects
 from services.api import Api
 from services.cron.exceptions import JobNotFound
 from services.cron.factory import CronServiceFactory
+from services.export.factory import ExportServiceFactory
 from services.factory import FilesServiceFactory, ItemServiceFactory
 from services.widgets.factory import WidgetRendererFactory
 from todos import forms, models
@@ -79,7 +80,7 @@ class TodosActivateJson(AccessMixin, View):
 class TodosExportView(AccessMixin, View):
 
     def get(self, request, *args, **kwargs):
-        fh = ItemServiceFactory.todos().dump('todos.txt')
+        fh = ExportServiceFactory.todos().dump()
         response = HttpResponse(fh.read(), content_type='text/plain')
         response['Content-disposition'] = 'attachment'
         return response
@@ -229,8 +230,6 @@ class FileExportView(FileViewMixin, AccessMixin, View):
 
 class ImportView(AccessMixin, generic.TemplateView):
 
-    service: Api
-
     message: str
 
     title: str
@@ -245,7 +244,7 @@ class ImportView(AccessMixin, generic.TemplateView):
     def post(self, request, *args, **kwargs):
         form = self.get_form(request.POST or None, files=request.FILES or None)
         if form.is_valid():
-            self.get_service().load(BytesIO(form.files['file'].read()))
+            self.import_file(BytesIO(form.files['file'].read()))
             messages.add_message(request, messages.SUCCESS, self.get_message())
             return redirect(request.path)
 
@@ -260,8 +259,8 @@ class ImportView(AccessMixin, generic.TemplateView):
     def get_form(self, data=None, files=None, **kwargs):
         return forms.ImportForm(data, files=files, **kwargs)
 
-    def get_service(self):
-        return self.service
+    def import_file(self, fh):
+        raise NotImplementedError()
 
     def get_message(self):
         return self.message
@@ -272,26 +271,28 @@ class ImportView(AccessMixin, generic.TemplateView):
 
 class TodosImportView(ImportView):
 
-    service = ItemServiceFactory.todos()
-
     message = "Todo's imported"
 
     title = "Import todo's"
 
+    def import_file(self, fh):
+        ExportServiceFactory.todos().load(fh)
+
 
 class NotesImportView(ImportView):
-
-    service = ItemServiceFactory.notes()
 
     message = "Notes imported"
 
     title = "Import notes"
 
+    def import_file(self, fh):
+        return ItemServiceFactory.notes().load(fh)
+
 
 class FileImportView(FileViewMixin, ImportView):
 
-    def get_service(self):
-        return FilesServiceFactory.create(self.file_type)
+    def import_file(self, fh):
+        return FilesServiceFactory.create(self.file_type).load(fh)
 
     def get_message(self):
         return "Files imported" if self.file_type == 'file' else "Images imported"
