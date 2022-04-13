@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'private_storage',
     'bootstrap_pagination',
+    'api.data',
     # Added.
     'haystack',
     'taggit',
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
     'colorfield',
     'constance',
     'constance.backends.database',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -202,4 +204,10 @@ CONSTANCE_CONFIG = {
     'todos_provider': ['remote', 'Todos provider', 'constance_provider'],
     'notes_provider': ['remote', 'Notes provider', 'constance_provider'],
     'gallery': [3, 'Gallery', 'constance_gallery'],
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
 }

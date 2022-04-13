@@ -79,19 +79,20 @@ class TodosWidgetRenderer(WidgetRendererService):
 
         form = forms.TodoSearchForm(self.request.GET or None)
         if form.is_valid():
-            items = ItemServiceFactory.todos().search(form.cleaned_data['description'])
-            searching = True
+            search_query = form.cleaned_data
         else:
-            items = ItemServiceFactory.todos().get_active()
-            searching = False
+            search_query = None
 
         context.update(dict(
-            searching=searching,
+            searching=search_query is not None,
             todo_vars={
-                'items': items,
-                'saveUrl': reverse('todos:todos_save.json'),
-                'activateUrl': reverse('todos:todos_activate.json'),
-                'searching': searching
+                'urls': {
+                    'list': reverse('api:todos-list'),
+                    'create': reverse('api:todos-create-many'),
+                    'update': reverse('api:todos-update-many'),
+                    'delete': reverse('api:todos-delete-many'),
+                },
+                'search_query': search_query
             }
         ))
         return context
@@ -100,8 +101,7 @@ class TodosWidgetRenderer(WidgetRendererService):
         return {
             'js': {
                 'static': (
-                    'checklist.provider.local.js', 'checklist.provider.remote.js', 'checklist.provider.factory.js',
-                    'checklist.jquery.js', 'todos.init.js'
+                    'api/todos.jquery.js', 'todos.init.js'
                 )
             }
         }

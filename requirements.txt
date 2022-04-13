@@ -27,3 +27,4 @@ django-colorfield==0.6.3
 django-constance==2.8.0
 django-picklefield==3.0.1
 python-magic==0.4.25
+djangorestframework==3.13.1

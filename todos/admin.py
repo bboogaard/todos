@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from api.data import models as data_models
 from todos import models
 
 
@@ -47,6 +48,7 @@ class HistoricalDateAdmin(admin.ModelAdmin):
 
 
 admin.site.register(models.Todo, TodoAdmin)
+admin.site.register(data_models.Todo, TodoAdmin)
 admin.site.register(models.Gallery)
 admin.site.register(models.Wallpaper)
 admin.site.register(models.PrivateFile)
