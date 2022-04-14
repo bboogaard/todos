@@ -47,7 +47,6 @@ class HistoricalDateAdmin(admin.ModelAdmin):
     list_display = ('date', 'event')
 
 
-admin.site.register(models.Todo, TodoAdmin)
 admin.site.register(data_models.Todo, TodoAdmin)
 admin.site.register(models.Gallery)
 admin.site.register(models.Wallpaper)

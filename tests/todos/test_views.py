@@ -16,7 +16,8 @@ from PIL import Image
 from pyquery import PyQuery
 from webtest import Upload
 
-from todos.models import CodeSnippet, Event, HistoricalDate, Note, PrivateFile, PrivateImage, Todo, Wallpaper, Widget
+from api.data.models import Todo
+from todos.models import CodeSnippet, Event, HistoricalDate, Note, PrivateFile, PrivateImage, Wallpaper, Widget
 from tests.services.cron.testcases import CronTestCase
 from tests.todos.factories import CodeSnippetFactory, EventFactory, HistoricalDateFactory, NoteFactory, \
     PrivateFileFactory, PrivateImageFactory, TodoFactory, UserFactory
@@ -74,38 +75,6 @@ class TestSearchView(TodosViewTest):
         response = self.app.get('/search/?q=Bar', user=self.test_user)
         self.assertEqual(response.status_code, 200)
         response.mustcontain('Bar - Todo', no=['Bar - Note'])
-
-
-class TestTodosSaveJson(TodosViewTest):
-
-    csrf_checks = False
-
-    def test_post(self):
-        data = {
-            'items': ['Pay bills', 'Take out trash', 'Call mom']
-        }
-        response = self.app.post('/todos-save.json', data, user=self.test_user)
-        self.assertEqual(response.status_code, 200)
-
-        result = list(Todo.objects.order_by('description').values_list('description', flat=True))
-        expected = ['Call mom', 'Pay bills', 'Take out trash']
-        self.assertEqual(result, expected)
-
-
-class TestTodosActivateJson(TodosViewTest):
-
-    csrf_checks = False
-
-    def test_post(self):
-        TodoFactory(description='Done', status=Todo.INACTIVE_STATUS)
-        data = {
-            'items': ['Done']
-        }
-        response = self.app.post('/todos-activate.json', data, user=self.test_user)
-        self.assertEqual(response.status_code, 200)
-
-        todo = Todo.objects.get(description='Done')
-        self.assertTrue(todo.is_active)
 
 
 class TestNotesSaveJson(TodosViewTest):
@@ -323,7 +292,7 @@ class TestTodosImportView(TodosViewTest):
 
     def test_post(self):
         data = {
-            'file': Upload('file.txt', b'Lorem\nIpsum', 'text/plain')
+            'file': Upload('file.txt', b'{"description": "Lorem"}\n{"description": "Ipsum"}', 'text/plain')
         }
 
         response = self.app.post('/todos-import', data, user=self.test_user)
@@ -348,7 +317,7 @@ class TestTodosExportView(TodosViewTest):
         TodoFactory(description='Ipsum')
         response = self.app.get('/todos-export', user=self.test_user)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, b'Lorem\nIpsum')
+        self.assertEqual(response.content, b'{"description": "Lorem"}\n{"description": "Ipsum"}')
 
 
 class TestNotesImportView(TodosViewTest):

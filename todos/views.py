@@ -16,7 +16,6 @@ from haystack.generic_views import SearchView as BaseSearchView
 from private_storage.storage import private_storage
 
 from lib.code_snippets import get_navigation_objects
-from services.api import Api
 from services.cron.exceptions import JobNotFound
 from services.cron.factory import CronServiceFactory
 from services.export.factory import ExportServiceFactory
@@ -57,24 +56,6 @@ class SearchView(BaseSearchView):
     form_name = 'search_form'
 
     form_class = forms.SearchForm
-
-
-class TodosSaveJson(AccessMixin, View):
-
-    @transaction.atomic()
-    def post(self, request, *args, **kwargs):
-        items = request.POST.getlist('items', [])
-        ItemServiceFactory.todos().save(items)
-        return JsonResponse(data={})
-
-
-class TodosActivateJson(AccessMixin, View):
-
-    @transaction.atomic()
-    def post(self, request, *args, **kwargs):
-        items = request.POST.getlist('items', [])
-        ItemServiceFactory.todos().activate(items)
-        return JsonResponse(data={})
 
 
 class TodosExportView(AccessMixin, View):

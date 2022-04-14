@@ -8,7 +8,6 @@ from django.db import models
 from django.template.defaultfilters import truncatewords
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from taggit.managers import TaggableManager
 from private_storage.fields import PrivateFileField, PrivateImageField
 
 from lib.datetime import date_range
@@ -77,39 +76,6 @@ class Item(ActivatorModel):
         self.deactivate_date = timezone.now()
 
         self.save()
-
-
-class Todo(SearchMixin, Item):
-
-    description = models.CharField(max_length=100)
-
-    def __str__(self):
-        return self.description
-
-    @property
-    def string_value(self):
-        return self.description
-
-    @property
-    def search_type(self):
-        return 'Todo'
-
-    @property
-    def result_params(self):
-        params = super().result_params
-        if self.is_inactive:
-            params.update({
-                'description': self.description
-            })
-        return params
-
-    @property
-    def search_field(self):
-        return self.description
-
-    @property
-    def search_result(self):
-        return self.description
 
 
 class Note(SearchMixin, Item):

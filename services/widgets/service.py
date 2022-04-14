@@ -107,11 +107,6 @@ class TodosWidgetRenderer(WidgetRendererService):
             }
         }
 
-    def global_vars(self):
-        return {
-            'provider': config.todos_provider
-        }
-
     def has_content(self):
         return True
 
