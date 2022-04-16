@@ -3,7 +3,6 @@ import os
 from datetime import date
 from typing import Dict, List
 
-from constance import config
 from django.http.request import HttpRequest
 from django.template.context import RequestContext
 from django.template.defaultfilters import date as format_date
@@ -12,7 +11,7 @@ from django.urls import reverse
 from django.utils.http import urlencode
 from dateutil.relativedelta import relativedelta
 
-from services.factory import EventsServiceFactory, ItemServiceFactory
+from services.factory import EventsServiceFactory
 from todos import forms
 from todos.models import HistoricalDate, PrivateFile, PrivateImage, Widget
 
@@ -194,8 +193,6 @@ class NotesWidgetRenderer(WidgetRendererService):
                     'create': reverse('api:notes-create-one'),
                     'update': reverse('api:notes-update-one'),
                     'delete': reverse('api:notes-delete-one'),
-                    'prev': reverse('api:notes-prev'),
-                    'next': reverse('api:notes-next')
                 },
                 'search_query': search_query
             }

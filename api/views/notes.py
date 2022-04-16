@@ -10,8 +10,8 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from api.data.models import Note
-from api.serializers.notes import CreateNoteSerializer, NoteSerializer, UpdateNoteSerializer
-from api.views.shared.mixins import CreateMixin
+from api.serializers.notes import CreateNoteSerializer, ListNoteSerializer, UpdateNoteSerializer
+from api.views.shared.mixins import ProcessSerializerMixin
 
 
 class NotesPagination(PageNumberPagination):
@@ -27,7 +27,7 @@ class NotesPagination(PageNumberPagination):
         ]))
 
 
-class NoteViewSet(ListModelMixin, CreateMixin, GenericViewSet):
+class NoteViewSet(ListModelMixin, ProcessSerializerMixin, GenericViewSet):
 
     filter_backends = [DjangoFilterBackend]
 
@@ -37,18 +37,20 @@ class NoteViewSet(ListModelMixin, CreateMixin, GenericViewSet):
 
     parser_classes = [JSONParser]
 
-    serializer_class = NoteSerializer
+    serializer_class = ListNoteSerializer
 
     def get_queryset(self):
         return Note.objects.active().order_by('-activate_date')
 
     @action(['post'], detail=False, url_path='create_one')
     def create_one(self, request, *args, **kwargs):
-        return self.create_with_response(CreateNoteSerializer, request, response_serializer_class=NoteSerializer)
+        self.process_serializer(CreateNoteSerializer, request)
+        return Response({})
 
     @action(['post'], detail=False, url_path='update_one')
     def update_one(self, request, *args, **kwargs):
-        return self.create_with_response(UpdateNoteSerializer, request, response_serializer_class=NoteSerializer)
+        self.process_serializer(UpdateNoteSerializer, request)
+        return Response({})
 
     @action(['post'], detail=False, url_path='delete_one')
     def delete_one(self, request, *args, **kwargs):

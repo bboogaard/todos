@@ -1,13 +1,5 @@
 from services.events.service import EventsService
 from services.files.service import FilesService, ImagesService
-from services.notes.service import NoteService
-
-
-class ItemServiceFactory:
-
-    @classmethod
-    def notes(cls):
-        return NoteService()
 
 
 class FilesServiceFactory:

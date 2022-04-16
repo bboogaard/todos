@@ -7,7 +7,6 @@ urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
     path('cron/<job_name>', views.CronView.as_view(), name='cron'),
     path('search/', views.SearchView.as_view(), name='search'),
-    path('notes-save.json', views.NotesSaveJson.as_view(), name='notes_save.json'),
     path('todos-export', views.TodosExportView.as_view(), name='todos_export'),
     path('todos-import', views.TodosImportView.as_view(), name='todos_import'),
     path('notes-export', views.NotesExportView.as_view(), name='notes_export'),

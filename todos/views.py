@@ -3,7 +3,6 @@ from io import BytesIO
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.db import transaction
 from django.http import Http404
 from django.http.response import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
@@ -19,7 +18,7 @@ from lib.code_snippets import get_navigation_objects
 from services.cron.exceptions import JobNotFound
 from services.cron.factory import CronServiceFactory
 from services.export.factory import ExportServiceFactory
-from services.factory import FilesServiceFactory, ItemServiceFactory
+from services.factory import FilesServiceFactory
 from services.widgets.factory import WidgetRendererFactory
 from todos import forms, models
 from todos.templatetags.url_tags import add_page_param
@@ -67,24 +66,10 @@ class TodosExportView(AccessMixin, View):
         return response
 
 
-class NotesSaveJson(AccessMixin, View):
-
-    @transaction.atomic()
-    def post(self, request, *args, **kwargs):
-        searching = request.POST.get('searching', 'false') == 'true'
-        items = request.POST.getlist('items', [])
-        try:
-            index = int(request.POST.get('index', '0'))
-        except (TypeError, ValueError):
-            index = 0
-        ItemServiceFactory.notes().save(items, is_filtered=searching, index=index)
-        return JsonResponse(data={})
-
-
 class NotesExportView(AccessMixin, View):
 
     def get(self, request, *args, **kwargs):
-        fh = ItemServiceFactory.notes().dump('notes.txt')
+        fh = ExportServiceFactory.notes().dump()
         response = HttpResponse(fh.read(), content_type='text/plain')
         response['Content-disposition'] = 'attachment'
         return response
@@ -267,7 +252,7 @@ class NotesImportView(ImportView):
     title = "Import notes"
 
     def import_file(self, fh):
-        return ItemServiceFactory.notes().load(fh)
+        ExportServiceFactory.notes().load(fh)
 
 
 class FileImportView(FileViewMixin, ImportView):

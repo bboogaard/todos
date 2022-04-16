@@ -2,11 +2,9 @@ import datetime
 import os
 
 import pytz
-from django_extensions.db.models import ActivatorModel
 from django.conf import settings
 from django.db import models
 from django.template.defaultfilters import truncatewords
-from django.utils import timezone
 from django.utils.translation import gettext as _
 from private_storage.fields import PrivateFileField, PrivateImageField
 
@@ -39,81 +37,6 @@ class SearchMixin(models.Model):
     @property
     def search_result(self):
         raise NotImplementedError()
-
-
-class Item(ActivatorModel):
-
-    item_id = models.CharField(max_length=32, unique=True)
-
-    class Meta(ActivatorModel.Meta):
-        abstract = True
-
-    @property
-    def string_value(self):
-        raise NotImplementedError()
-
-    @property
-    def is_active(self):
-        return self.status == self.ACTIVE_STATUS
-
-    @property
-    def is_inactive(self):
-        return self.status == self.INACTIVE_STATUS
-
-    def activate(self):
-        if self.status == self.ACTIVE_STATUS:
-            return
-
-        self.activate_date = None
-        self.status = self.ACTIVE_STATUS
-        self.save()
-
-    def soft_delete(self):
-        if self.status == self.INACTIVE_STATUS:
-            return
-
-        self.status = self.INACTIVE_STATUS
-        self.deactivate_date = timezone.now()
-
-        self.save()
-
-
-class Note(SearchMixin, Item):
-
-    text = models.TextField(blank=True)
-
-    position = models.PositiveIntegerField()
-
-    def __str__(self):
-        return truncatewords(self.text, 7) if self.text else '...'
-
-    @property
-    def string_value(self):
-        return self.text
-
-    @property
-    def search_type(self):
-        return 'Note'
-
-    @property
-    def result_params(self):
-        params = super().result_params
-        params.update(({
-            'note_id': self.item_id
-        }))
-        return params
-
-    @property
-    def include_in_search(self):
-        return self.is_active
-
-    @property
-    def search_field(self):
-        return self.text
-
-    @property
-    def search_result(self):
-        return self.text
 
 
 class EventMixin:

@@ -8,7 +8,6 @@ from zipfile import ZipFile
 import pytz
 from django_webtest import WebTest
 from django.conf import settings
-from django.core.cache import cache
 from django.core.files.base import ContentFile
 from django.core.files.images import ImageFile
 from django.core.management import call_command
@@ -16,8 +15,8 @@ from PIL import Image
 from pyquery import PyQuery
 from webtest import Upload
 
-from api.data.models import Todo
-from todos.models import CodeSnippet, Event, HistoricalDate, Note, PrivateFile, PrivateImage, Wallpaper, Widget
+from api.data.models import Note, Todo
+from todos.models import CodeSnippet, Event, HistoricalDate, PrivateFile, PrivateImage, Wallpaper, Widget
 from tests.services.cron.testcases import CronTestCase
 from tests.todos.factories import CodeSnippetFactory, EventFactory, HistoricalDateFactory, NoteFactory, \
     PrivateFileFactory, PrivateImageFactory, TodoFactory, UserFactory
@@ -75,43 +74,6 @@ class TestSearchView(TodosViewTest):
         response = self.app.get('/search/?q=Bar', user=self.test_user)
         self.assertEqual(response.status_code, 200)
         response.mustcontain('Bar - Todo', no=['Bar - Note'])
-
-
-class TestNotesSaveJson(TodosViewTest):
-
-    csrf_checks = False
-
-    def test_post(self):
-        data = {
-            'items': ['Pay bills', 'Take out trash', 'Call mom'],
-            'index': '1'
-        }
-        response = self.app.post('/notes-save.json', data, user=self.test_user)
-        self.assertEqual(response.status_code, 200)
-
-        result = list(Note.objects.order_by('text').values_list('text', flat=True))
-        expected = ['Call mom', 'Pay bills', 'Take out trash']
-        self.assertEqual(result, expected)
-
-        result = cache.get('notes-index', 0)
-        expected = 1
-        self.assertEqual(result, expected)
-
-    def test_post_invalid_index(self):
-        data = {
-            'items': ['Pay bills', 'Take out trash', 'Call mom'],
-            'index': 'foo'
-        }
-        response = self.app.post('/notes-save.json', data, user=self.test_user)
-        self.assertEqual(response.status_code, 200)
-
-        result = list(Note.objects.order_by('text').values_list('text', flat=True))
-        expected = ['Call mom', 'Pay bills', 'Take out trash']
-        self.assertEqual(result, expected)
-
-        result = cache.get('notes-index', 0)
-        expected = 0
-        self.assertEqual(result, expected)
 
 
 class TestWallpaperListView(TodosViewTest):
@@ -330,7 +292,7 @@ class TestNotesImportView(TodosViewTest):
 
     def test_post(self):
         data = {
-            'file': Upload('file.txt', b'Lorem\n----------\nIpsum', 'text/plain')
+            'file': Upload('file.txt', b'{"text": "Lorem"}\n{"text": "Ipsum"}', 'text/plain')
         }
 
         response = self.app.post('/notes-import', data, user=self.test_user)
@@ -355,7 +317,7 @@ class TestNotesExportView(TodosViewTest):
         NoteFactory(text='Ipsum')
         response = self.app.get('/notes-export', user=self.test_user)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, b'Lorem\n----------\nIpsum')
+        self.assertEqual(response.content, b'{"text": "Lorem"}\n{"text": "Ipsum"}')
 
 
 class FilesImportTest(TodosViewTest):

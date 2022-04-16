@@ -3,8 +3,8 @@ import json
 
 from django.utils.timezone import now
 
-from api.data.models import Todo
-from tests.todos.factories import TodoFactory
+from api.data.models import Note, Todo
+from tests.todos.factories import NoteFactory, TodoFactory
 from tests.todos.test_views import TodosViewTest
 
 
@@ -95,3 +95,83 @@ class TestTodoViewSet(TodosViewTest):
         self.assertEqual(response.status_code, 200)
         todo.refresh_from_db()
         self.assertEqual(todo.status, Todo.ACTIVE_STATUS)
+
+
+class TestNoteViewSet(TodosViewTest):
+
+    csrf_checks = False
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        current_time = now()
+        cls.notes = [
+            NoteFactory(text='Pay bills', activate_date=current_time - datetime.timedelta(days=1)),
+            NoteFactory(text='Take out trash', activate_date=current_time - datetime.timedelta(days=2)),
+            NoteFactory(
+                text='Dentist',
+                status=Note.INACTIVE_STATUS,
+                activate_date=current_time - datetime.timedelta(days=3)
+            )
+        ]
+
+    def test_list(self):
+        response = self.app.get('/api/v1/notes', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        result = [item['text'] for item in data['results']]
+        expected = ['Pay bills']
+        self.assertEqual(result, expected)
+
+    def test_list_different_page(self):
+        response = self.app.get('/api/v1/notes?page=2', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        result = [item['text'] for item in data['results']]
+        expected = ['Take out trash']
+        self.assertEqual(result, expected)
+
+    def test_list_search(self):
+        response = self.app.get('/api/v1/notes?id={}'.format(self.notes[1].pk), user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        result = [item['text'] for item in data['results']]
+        expected = ['Take out trash']
+        self.assertEqual(result, expected)
+
+    def test_create_one(self):
+        data = {
+            'text': 'Do something'
+        }
+        response = self.app.post(
+            '/api/v1/notes/create_one', json.dumps(data), user=self.test_user,
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        note = Note.objects.filter(text='Do something').first()
+        self.assertIsNotNone(note)
+
+    def test_update_one(self):
+        data = {
+            'id': self.notes[0].pk,
+            'text': 'Do something'
+        }
+        response = self.app.post(
+            '/api/v1/notes/update_one', json.dumps(data), user=self.test_user,
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        note = Note.objects.get(pk=self.notes[0].pk)
+        self.assertEqual(note.text, 'Do something')
+
+    def test_delete_one(self):
+        data = {
+            'id': self.notes[0].pk
+        }
+        response = self.app.post(
+            '/api/v1/notes/delete_one', json.dumps(data), user=self.test_user,
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        note = Note.objects.get(pk=self.notes[0].pk)
+        self.assertEqual(note.status, Note.INACTIVE_STATUS)

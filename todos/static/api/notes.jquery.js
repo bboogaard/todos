@@ -109,7 +109,7 @@
             }
 
             $.when(action(data))
-            .then(function(res) {
+            .then(function() {
                 self.load_items(page ? page : self.item !== null ? self.page : 1);
             });
 
@@ -120,7 +120,7 @@
             let self = this;
 
             $.when(this.provider.create({text: ''}))
-            .then(function(res) {
+            .then(function() {
                 self.save(1);
             });
 
