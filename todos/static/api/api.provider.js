@@ -5,17 +5,12 @@ function ApiProvider(settings) {
 
 ApiProvider.prototype = {
 
-    list: function () {
-
-        let params = {};
-        if (this.search_query) {
-            params.search = this.search_query;
-        }
+    list: function (data) {
 
         return $.ajax({
             url: this.urls['list'],
             type: "GET",
-            data: params
+            data: data
         });
 
     },

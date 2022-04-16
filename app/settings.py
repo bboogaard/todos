@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'colorfield',
     'constance',
     'constance.backends.database',
-    'rest_framework'
+    'rest_framework',
+    'django_filters',
 ]
 
 MIDDLEWARE = [

@@ -68,7 +68,7 @@ class TodoSearchForm(forms.Form):
 
 class NoteSearchForm(forms.Form):
 
-    note_id = forms.CharField()
+    id = forms.IntegerField()
 
 
 class FileSearchForm(forms.Form):

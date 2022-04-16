@@ -1,5 +1,6 @@
 from django_extensions.db.models import ActivatorModel, ActivatorModelManager as BaseActivatorModelManager
 from django.db import models
+from django.template.defaultfilters import truncatewords
 from django.utils.timezone import now
 
 from todos.models import SearchMixin
@@ -53,3 +54,41 @@ class Todo(SearchMixin, ActivatorModel):
     @property
     def search_result(self):
         return self.description
+
+
+class Note(SearchMixin, ActivatorModel):
+
+    text = models.TextField(blank=True)
+
+    objects = ActivatorModelManager()
+
+    def __str__(self):
+        return truncatewords(self.text, 7) if self.text else '...'
+
+    @property
+    def string_value(self):
+        return self.text
+
+    @property
+    def search_type(self):
+        return 'Note'
+
+    @property
+    def result_params(self):
+        params = super().result_params
+        params.update(({
+            'id': self.pk
+        }))
+        return params
+
+    @property
+    def include_in_search(self):
+        return self.status == self.ACTIVE_STATUS
+
+    @property
+    def search_field(self):
+        return self.text
+
+    @property
+    def search_result(self):
+        return self.text

@@ -182,38 +182,33 @@ class NotesWidgetRenderer(WidgetRendererService):
 
         form = forms.NoteSearchForm(self.request.GET or None)
         if form.is_valid():
-            items = ItemServiceFactory.notes().search(form.cleaned_data['note_id'])
-            index = 0
-            searching = True
+            search_query = form.cleaned_data['id']
         else:
-            items = ItemServiceFactory.notes().get_active()
-            index = ItemServiceFactory.notes().get_index()
-            searching = False
+            search_query = None
 
-        context.update(
-            searching=searching,
+        context.update(dict(
+            searching=search_query is not None,
             note_vars={
-                'items': items,
-                'index': index,
-                'saveUrl': reverse('todos:notes_save.json'),
-                'searching': searching
+                'urls': {
+                    'list': reverse('api:notes-list'),
+                    'create': reverse('api:notes-create-one'),
+                    'update': reverse('api:notes-update-one'),
+                    'delete': reverse('api:notes-delete-one'),
+                    'prev': reverse('api:notes-prev'),
+                    'next': reverse('api:notes-next')
+                },
+                'search_query': search_query
             }
-        )
+        ))
         return context
 
     def media(self):
         return {
             'js': {
                 'static': (
-                    'notes.provider.local.js', 'notes.provider.remote.js', 'notes.provider.factory.js',
-                    'notes.jquery.js', 'notes.init.js'
+                    'js.cookie.min.js', 'api/notes.jquery.js', 'notes.init.js'
                 )
             }
-        }
-
-    def global_vars(self):
-        return {
-            'provider': config.notes_provider
         }
 
     def has_content(self):

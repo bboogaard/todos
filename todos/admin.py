@@ -32,9 +32,11 @@ class TodoAdmin(ItemAdmin, admin.ModelAdmin):
 
 class NoteAdmin(ItemAdmin, admin.ModelAdmin):
 
-    list_display = ('text_or_empty', 'status', 'position')
+    list_display = ('text_or_empty', 'status')
 
-    readonly_fields = ('status', 'position')
+    ordering = ('-activate_date',)
+
+    readonly_fields = ('status',)
 
     search_fields = ('text',)
 
@@ -52,7 +54,7 @@ admin.site.register(models.Gallery)
 admin.site.register(models.Wallpaper)
 admin.site.register(models.PrivateFile)
 admin.site.register(models.PrivateImage)
-admin.site.register(models.Note, NoteAdmin)
+admin.site.register(data_models.Note, NoteAdmin)
 admin.site.register(models.Widget)
 admin.site.register(models.Event)
 admin.site.register(models.HistoricalDate, HistoricalDateAdmin)
