@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.utils.http import urlencode
 from dateutil.relativedelta import relativedelta
 
+from lib.utils import with_camel_keys
 from services.factory import EventsServiceFactory
 from todos import forms
 from todos.models import HistoricalDate, PrivateFile, PrivateImage, Widget
@@ -84,7 +85,7 @@ class TodosWidgetRenderer(WidgetRendererService):
 
         context.update(dict(
             searching=search_query is not None,
-            todo_vars={
+            todo_vars=with_camel_keys({
                 'urls': {
                     'list': reverse('api:todos-list'),
                     'create': reverse('api:todos-create-many'),
@@ -93,7 +94,7 @@ class TodosWidgetRenderer(WidgetRendererService):
                     'activate': reverse('api:todos-activate-many'),
                 },
                 'search_query': search_query
-            }
+            })
         ))
         return context
 
@@ -187,7 +188,7 @@ class NotesWidgetRenderer(WidgetRendererService):
 
         context.update(dict(
             searching=search_query is not None,
-            note_vars={
+            note_vars=with_camel_keys({
                 'urls': {
                     'list': reverse('api:notes-list'),
                     'create': reverse('api:notes-create-one'),
@@ -195,7 +196,7 @@ class NotesWidgetRenderer(WidgetRendererService):
                     'delete': reverse('api:notes-delete-one'),
                 },
                 'search_query': search_query
-            }
+            })
         ))
         return context
 
@@ -303,12 +304,26 @@ class CodeSnippetWidgetRenderer(WidgetRendererService):
 
     template_name = 'snippet.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context.update(dict(
+            snippet_vars=with_camel_keys({
+                'urls': {
+                    'list': reverse('api:snippets-list'),
+                    'create': reverse('api:snippets-create-one'),
+                    'update': reverse('api:snippets-update-one'),
+                    'delete': reverse('api:snippets-delete-one'),
+                }
+            })
+        ))
+        return context
+
     def media(self):
         return {
             'js': {
                 'static': (
-                    'easymde/js/easymde.min.js',
-                    'snippet.jquery.js', 'snippet.init.js'
+                    'easymde/js/easymde.min.js', 'api/snippet.jquery.js', 'snippet.init.js'
                 )
             },
             'css': ('easymde/css/easymde.min.css',)

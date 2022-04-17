@@ -222,8 +222,3 @@ class DateSearchForm(forms.Form):
                 Submit('submit', 'Search', css_class='button white')
             )
         )
-
-
-class CodeSnippetForm(forms.Form):
-
-    text = forms.CharField(widget=forms.Textarea(), required=False)

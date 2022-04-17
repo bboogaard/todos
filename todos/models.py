@@ -4,7 +4,6 @@ import os
 import pytz
 from django.conf import settings
 from django.db import models
-from django.template.defaultfilters import truncatewords
 from django.utils.translation import gettext as _
 from private_storage.fields import PrivateFileField, PrivateImageField
 
@@ -313,22 +312,3 @@ class HistoricalDate(EventMixin, models.Model):
     @property
     def event_key(self):
         return self.date
-
-
-class CodeSnippet(models.Model):
-
-    text = models.TextField(blank=True)
-
-    position = models.PositiveIntegerField(unique=True)
-
-    class Meta:
-        ordering = ('position',)
-
-    def __str__(self):
-        return truncatewords(self.text, 7) if self.text else '...'
-
-    def save(self, *args, **kwargs):
-        if self._state.adding:
-            manager = self.__class__.objects
-            self.position = (manager.aggregate(max_pos=models.Max('position'))['max_pos'] or 0) + 1
-        super().save(*args, **kwargs)

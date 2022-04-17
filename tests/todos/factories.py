@@ -68,4 +68,4 @@ class HistoricalDateFactory(factory.django.DjangoModelFactory):
 class CodeSnippetFactory(factory.django.DjangoModelFactory):
 
     class Meta:
-        model = models.CodeSnippet
+        model = data_models.CodeSnippet

@@ -7,28 +7,26 @@
         this.activateButton = settings.activateButton;
 
         this.provider = settings.provider;
-        this.search_query = settings.provider.search_query;
-        this.searching = this.search_query !== null;
+        this.searchQuery = settings.provider.searchQuery;
+        this.searching = this.searchQuery !== null;
     }
 
     TodosApi.prototype = {
 
         init: function() {
 
-            let self = this;
-
             if (!this.searching) {
-                this.init_edit_handlers();
+                this.initEditHandlers();
             }
             else {
-                this.init_search_handlers();
+                this.initSearchHandlers();
             }
 
-            this.load_items();
+            this.loadItems();
 
         },
 
-        init_edit_handlers: function() {
+        initEditHandlers: function() {
 
             let self = this;
 
@@ -48,7 +46,7 @@
 
         },
 
-        init_search_handlers: function() {
+        initSearchHandlers: function() {
 
             let self = this;
 
@@ -58,13 +56,13 @@
 
         },
 
-        load_items: function () {
+        loadItems: function () {
 
             let self = this;
 
             let data = {};
-            if (this.search_query) {
-                data.search = this.search_query;
+            if (this.searchQuery) {
+                data.search = this.searchQuery;
             }
 
             this.provider.list(data)
@@ -106,7 +104,7 @@
                 };
             }).get();
 
-            let create_items = items.filter(function(item) {
+            let createItems = items.filter(function(item) {
                 return item.id === null;
             }).map(function(item) {
                 return {
@@ -114,13 +112,13 @@
                 }
             });
 
-            let update_items = items.filter(function(item) {
+            let updateItems = items.filter(function(item) {
                 return item.id !== null;
             });
 
-            $.when(this.provider.create(create_items), this.provider.update(update_items))
+            $.when(this.provider.create(createItems), this.provider.update(updateItems))
             .then(function() {
-                self.load_items();
+                self.loadItems();
             });
 
         },
@@ -135,7 +133,7 @@
 
             $.when(this.provider.activate({id: ids}))
             .then(function() {
-                self.load_items();
+                self.loadItems();
             });
 
         },
@@ -150,7 +148,7 @@
 
             $.when(this.provider.delete({id: ids}))
             .then(function() {
-                self.load_items();
+                self.loadItems();
             });
 
         }

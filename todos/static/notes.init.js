@@ -6,7 +6,7 @@ $(document).ready(function(){
             deleteButton: $('#deleteNotes'),
             prevButton: $('#prevNotes'),
             nextButton: $('#nextNotes'),
-            provider: apiProviderFactory.create_notes()
+            provider: apiProviderFactory.createNotes()
         });
     });
     widgets['notes'].addCallback(function() {

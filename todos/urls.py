@@ -41,8 +41,4 @@ urlpatterns = [
     path('dates/create', views.DateCreateView.as_view(), name="date_create"),
     path('dates/<int:pk>/update', views.DateUpdateView.as_view(), name="date_update"),
     path('dates/delete', views.DateDeleteView.as_view(), name="date_delete"),
-
-    # Snippets
-    path('snippet/update', views.CodeSnippetEditJson.as_view(), name="snippet_update.json"),
-    path('snippet/delete', views.CodeSnippetDeleteJson.as_view(), name="snippet_delete.json"),
 ]

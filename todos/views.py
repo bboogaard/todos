@@ -7,14 +7,11 @@ from django.http import Http404
 from django.http.response import JsonResponse, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect
 from django.template.context import RequestContext
-from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.http import urlencode
 from django.views import generic, View
 from haystack.generic_views import SearchView as BaseSearchView
 from private_storage.storage import private_storage
 
-from lib.code_snippets import get_navigation_objects
 from services.cron.exceptions import JobNotFound
 from services.cron.factory import CronServiceFactory
 from services.export.factory import ExportServiceFactory
@@ -474,87 +471,3 @@ class CronView(AccessMixin, View):
             raise Http404()
 
         return HttpResponse(cron_service.logger.get_value().encode(), content_type='text/plain')
-
-
-class CodeSnippetFormMixin:
-
-    def get_form(self, data=None, **kwargs):
-        kwargs['initial'] = {
-            'text': self.object.text
-        }
-        return forms.CodeSnippetForm(data=data, **kwargs)
-
-    def render_form(self, form):
-        navigation_objects = get_navigation_objects(self.object)
-        update_action = reverse('todos:snippet_update.json') + '?' + urlencode({
-            'object_id': self.object.pk
-        })
-        delete_action = reverse('todos:snippet_delete.json') + '?' + urlencode({
-            'object_id': self.object.pk
-        })
-        return render_to_string(
-            'snippets/snippet_update.html',
-            {
-                'update_action': update_action,
-                'delete_action': delete_action,
-                'form': form,
-                'navigation': navigation_objects
-            },
-            request=self.request
-        )
-
-
-class CodeSnippetEditJson(CodeSnippetFormMixin, AccessMixin, View):
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form = self.get_form()
-        return JsonResponse({'html': self.render_form(form)})
-
-    def post(self, request, *args, **kwargs):
-        action = request.GET.get('action', '')
-        self.object = self.get_object(action)
-        form = self.get_form(request.POST or None)
-        if not form.is_valid():
-            return JsonResponse({}, status=400)
-
-        self.object.text = form.cleaned_data['text'] if not action or action != 'new' else ''
-        self.object.save()
-        form = self.get_form()
-        return JsonResponse({'html': self.render_form(form)})
-
-    def get_object(self, action=None):
-        obj = self.get_queryset().first() if not action or action != 'new' else None
-        return obj if obj else models.CodeSnippet.objects.create()
-
-    def get_queryset(self):
-        queryset = models.CodeSnippet.objects.get_queryset()
-        pk = self.request.GET.get('object_id')
-        if pk:
-            queryset = queryset.filter(pk=pk)
-        return queryset
-
-
-class CodeSnippetDeleteJson(CodeSnippetFormMixin, AccessMixin, View):
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        if not self.object:
-            return JsonResponse({}, status=404)
-        navigation_objects = get_navigation_objects(self.object)
-
-        self.object.delete()
-        self.object = self.get_or_create_object(navigation_objects)
-
-        form = self.get_form()
-        return JsonResponse({'html': self.render_form(form)})
-
-    def get_object(self):
-        try:
-            return models.CodeSnippet.objects.get(pk=self.request.GET.get('object_id'))
-        except (models.CodeSnippet.DoesNotExist, TypeError):
-            pass
-
-    def get_or_create_object(self, navigation):
-        pk = navigation['prev'] if navigation['prev'] else navigation['next']
-        return models.CodeSnippet.objects.get(pk=pk) if pk else models.CodeSnippet.objects.create()

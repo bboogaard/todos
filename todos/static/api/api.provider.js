@@ -1,6 +1,6 @@
 function ApiProvider(settings) {
     this.urls = settings.urls;
-    this.search_query = settings.search_query;
+    this.searchQuery = settings.searchQuery;
 }
 
 ApiProvider.prototype = {

@@ -1,7 +1,7 @@
 (function( $ ) {
 
-    function NotesApi(settings) {
-        this.notes = settings.notes;
+    function SnippetApi(settings) {
+        this.snippet = settings.snippet;
         this.saveButton = settings.saveButton;
         this.newButton = settings.newButton;
         this.deleteButton = settings.deleteButton;
@@ -12,17 +12,16 @@
         this.items = {};
         this.item = null;
         this.page = 1;
-        this.searchQuery = settings.provider.searchQuery;
-        this.searching = this.searchQuery !== null;
+        this.easyMDE = null;
     }
 
-    NotesApi.prototype = {
+    SnippetApi.prototype = {
 
         init: function() {
 
             this.initEditHandlers();
 
-            let page = Cookies.get('notes-page');
+            let page = Cookies.get('snippets-page');
             this.loadItems(page !== undefined ? parseInt(page, 10) : null);
 
         },
@@ -39,11 +38,9 @@
                 self.new();
             });
 
-            if (!this.searching) {
-                this.deleteButton.click(function () {
-                    self.delete();
-                });
-            }
+            this.deleteButton.click(function () {
+                self.delete();
+            });
 
             this.prevButton.click(function () {
                 self.prev();
@@ -62,9 +59,6 @@
             let data = {};
             if (page !== null) {
                 data.page = page;
-            }
-            if (this.searchQuery !== null) {
-                data.id = this.searchQuery;
             }
 
             this.provider.list(data).done(function(items) {
@@ -86,27 +80,35 @@
             this.items = items;
             this.item = this.items.results.length > 0 ? this.items.results[0] : null;
             this.page = this.items.page;
-            if (!this.searching) {
-                Cookies.set('notes-page', this.page);
-            }
-            else {
-                Cookies.remove('notes-page', this.page);
-            }
+            Cookies.set('snippets-page', this.page);
 
-            this.notes.val(this.item !== null ? this.item.text : "");
+            this.initEditor();
             this.deleteButton.prop('disabled', this.item === null);
             this.prevButton.prop('disabled', this.items.previous === null);
             this.nextButton.prop('disabled', this.items.next === null);
-            this.notes.focus();
 
         },
 
-        saveItem: function() {
+        initEditor: function() {
+
+            if (this.easyMDE) {
+                this.easyMDE.toTextArea();
+                this.easyMDE = null;
+            }
+            this.snippet.val(this.item !== null ? this.item.text : "");
+            this.easyMDE = new EasyMDE(
+                {element: this.snippet.get(0), maxHeight: "250px", forceSync: true}
+            );
+            this.easyMDE.codemirror.focus();
+
+        },
+
+        saveItem: function () {
 
             let self = this;
 
             let data = this.item !== null ? {id: this.item.id} : {};
-            data.text = this.notes.val();
+            data.text = this.snippet.val();
             let action = function(data) {
                  if (self.item !== null) {
                      return self.provider.update(data);
@@ -172,10 +174,10 @@
 
     }
 
-    $.fn.Notes = function(settings) {
+    $.fn.Snippet = function(settings) {
 
-        let notes = new NotesApi({
-            notes: $(this),
+        let snippet = new SnippetApi({
+            snippet: $(this),
             saveButton: settings.saveButton,
             newButton: settings.newButton,
             deleteButton: settings.deleteButton,
@@ -183,7 +185,7 @@
             nextButton: settings.nextButton,
             provider: settings.provider
         });
-        notes.init();
+        snippet.init();
 
         return this;
 

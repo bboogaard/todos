@@ -3,8 +3,8 @@ import json
 
 from django.utils.timezone import now
 
-from api.data.models import Note, Todo
-from tests.todos.factories import NoteFactory, TodoFactory
+from api.data.models import CodeSnippet, Note, Todo
+from tests.todos.factories import CodeSnippetFactory, NoteFactory, TodoFactory
 from tests.todos.test_views import TodosViewTest
 
 
@@ -104,14 +104,13 @@ class TestNoteViewSet(TodosViewTest):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
-        current_time = now()
         cls.notes = [
-            NoteFactory(text='Pay bills', activate_date=current_time - datetime.timedelta(days=1)),
-            NoteFactory(text='Take out trash', activate_date=current_time - datetime.timedelta(days=2)),
+            NoteFactory(text='Pay bills', position=3),
+            NoteFactory(text='Take out trash', position=2),
             NoteFactory(
                 text='Dentist',
                 status=Note.INACTIVE_STATUS,
-                activate_date=current_time - datetime.timedelta(days=3)
+                position=1
             )
         ]
 
@@ -175,3 +174,70 @@ class TestNoteViewSet(TodosViewTest):
         self.assertEqual(response.status_code, 200)
         note = Note.objects.get(pk=self.notes[0].pk)
         self.assertEqual(note.status, Note.INACTIVE_STATUS)
+
+
+class TestCodeSnippetViewSet(TodosViewTest):
+
+    csrf_checks = False
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.snippets = [
+            CodeSnippetFactory(text='Pay bills', position=3),
+            CodeSnippetFactory(text='Take out trash', position=2),
+            CodeSnippetFactory(text='Dentist', position=1)
+        ]
+
+    def test_list(self):
+        response = self.app.get('/api/v1/snippets', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        result = [item['text'] for item in data['results']]
+        expected = ['Pay bills']
+        self.assertEqual(result, expected)
+
+    def test_list_different_page(self):
+        response = self.app.get('/api/v1/snippets?page=2', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        result = [item['text'] for item in data['results']]
+        expected = ['Take out trash']
+        self.assertEqual(result, expected)
+
+    def test_create_one(self):
+        data = {
+            'text': 'Do something'
+        }
+        response = self.app.post(
+            '/api/v1/snippets/create_one', json.dumps(data), user=self.test_user,
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        snippet = CodeSnippet.objects.filter(text='Do something').first()
+        self.assertIsNotNone(snippet)
+
+    def test_update_one(self):
+        data = {
+            'id': self.snippets[0].pk,
+            'text': 'Do something'
+        }
+        response = self.app.post(
+            '/api/v1/snippets/update_one', json.dumps(data), user=self.test_user,
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        snippet = CodeSnippet.objects.get(pk=self.snippets[0].pk)
+        self.assertEqual(snippet.text, 'Do something')
+
+    def test_delete_one(self):
+        data = {
+            'id': self.snippets[0].pk
+        }
+        response = self.app.post(
+            '/api/v1/snippets/delete_one', json.dumps(data), user=self.test_user,
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        snippet = CodeSnippet.objects.filter(pk=self.snippets[0].pk).first()
+        self.assertIsNone(snippet)

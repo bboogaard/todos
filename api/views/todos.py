@@ -23,8 +23,7 @@ class TodoViewSet(ListModelMixin, ProcessSerializerMixin, GenericViewSet):
     def get_queryset(self):
         backend = self.filter_backends[0]()
         queryset = Todo.objects.all()
-        queryset = queryset.active() if not backend.get_search_terms(self.request) else queryset.inactive()
-        return queryset.order_by('-activate_date')
+        return queryset.active() if not backend.get_search_terms(self.request) else queryset.inactive()
 
     @action(['post'], detail=False, url_path='create_many')
     def create_many(self, request, *args, **kwargs):

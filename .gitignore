@@ -2,3 +2,7 @@
 /venv/*
 /.idea/*
 /data/*
+/static/*
+.DS_Store
+/.coverage
+/whoosh_index/*

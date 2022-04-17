@@ -4,7 +4,7 @@ $(document).ready(function(){
             saveButton: $('#save'),
             deleteButton: $('#delete'),
             activateButton: $('#activate'),
-            provider: apiProviderFactory.create_todos()
+            provider: apiProviderFactory.createTodos()
         });
     });
     widgets['todos'].addCallback(function() {

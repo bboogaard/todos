@@ -4,19 +4,19 @@ function ApiProviderFactory(settings) {
 
 ApiProviderFactory.prototype = {
 
-    create_provider: function() {
+    createProvider: function() {
 
         return new ApiProvider({
             urls: this.settings.urls,
-            search_query: this.settings.search_query
+            searchQuery: this.settings.searchQuery
         });
 
     },
 
-    create_todos_provider: function () {
+    createTodosProvider: function () {
 
         let self = this;
-        let provider = this.create_provider();
+        let provider = this.createProvider();
         provider.activate = function (data) {
             return $.ajax({
                 url: self.settings.urls['activate'],
@@ -30,9 +30,15 @@ ApiProviderFactory.prototype = {
 
     },
 
-    create_notes_provider: function () {
+    createNotesProvider: function () {
 
-        return this.create_provider();
+        return this.createProvider();
+
+    },
+
+    createSnippetsProvider: function () {
+
+        return this.createProvider();
 
     }
 
@@ -40,12 +46,16 @@ ApiProviderFactory.prototype = {
 
 let apiProviderFactory = {
 
-    create_todos: function() {
-        return new ApiProviderFactory(JSON.parse(document.getElementById('todo-vars').textContent)).create_todos_provider();
+    createTodos: function() {
+        return new ApiProviderFactory(JSON.parse(document.getElementById('todo-vars').textContent)).createTodosProvider();
     },
 
-    create_notes: function() {
-        return new ApiProviderFactory(JSON.parse(document.getElementById('note-vars').textContent)).create_notes_provider();
+    createNotes: function() {
+        return new ApiProviderFactory(JSON.parse(document.getElementById('note-vars').textContent)).createNotesProvider();
+    },
+
+    createSnippets: function() {
+        return new ApiProviderFactory(JSON.parse(document.getElementById('snippet-vars').textContent)).createSnippetsProvider();
     }
 
 }

@@ -21,11 +21,29 @@ class ActivatorModelManager(BaseActivatorModelManager):
         )
 
 
+class PositionedModel(models.Model):
+
+    position = models.PositiveIntegerField(unique=True)
+
+    class Meta:
+        abstract = True
+        ordering = ('-position',)
+
+    def save(self, *args, **kwargs):
+        if self._state.adding and not self.position:
+            manager = self.__class__.objects
+            self.position = (manager.aggregate(max_pos=models.Max('position'))['max_pos'] or 0) + 1
+        super().save(*args, **kwargs)
+
+
 class Todo(SearchMixin, ActivatorModel):
 
     description = models.CharField(max_length=100)
 
     objects = ActivatorModelManager()
+
+    class Meta:
+        ordering = ('-activate_date',)
 
     def __str__(self):
         return self.description
@@ -56,7 +74,7 @@ class Todo(SearchMixin, ActivatorModel):
         return self.description
 
 
-class Note(SearchMixin, ActivatorModel):
+class Note(SearchMixin, PositionedModel, ActivatorModel):
 
     text = models.TextField(blank=True)
 
@@ -92,3 +110,13 @@ class Note(SearchMixin, ActivatorModel):
     @property
     def search_result(self):
         return self.text
+
+
+class CodeSnippet(PositionedModel):
+
+    text = models.TextField(blank=True)
+
+    def __str__(self):
+        return truncatewords(self.text, 7) if self.text else '...'
+
+
