@@ -80,6 +80,9 @@ class Note(SearchMixin, PositionedModel, ActivatorModel):
 
     objects = ActivatorModelManager()
 
+    class Meta:
+        ordering = ('-position',)
+
     def __str__(self):
         return truncatewords(self.text, 7) if self.text else '...'
 

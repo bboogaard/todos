@@ -11,6 +11,7 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.images import ImageFile
 from django.core.management import call_command
+from django.utils.timezone import make_aware, utc
 from PIL import Image
 from pyquery import PyQuery
 from webtest import Upload
@@ -253,9 +254,9 @@ class TestTodosImportView(TodosViewTest):
         self.assertEqual(response.status_code, 200)
 
     def test_post(self):
-        data = {
-            'file': Upload('file.txt', b'{"description": "Lorem"}\n{"description": "Ipsum"}', 'text/plain')
-        }
+        fh = b'{"description": "Lorem", "activate_date": "2022-01-02T12:00:00"}\n'\
+             b'{"description": "Ipsum", "activate_date": "2022-01-01T12:00:00"}'
+        data = {'file': Upload('file.txt', fh, 'text/plain')}
 
         response = self.app.post('/todos-import', data, user=self.test_user)
         self.assertEqual(response.status_code, 302, response.content)
@@ -275,11 +276,21 @@ class TestTodosImportView(TodosViewTest):
 class TestTodosExportView(TodosViewTest):
 
     def test_get(self):
-        TodoFactory(description='Lorem')
-        TodoFactory(description='Ipsum')
+        TodoFactory(description='Lorem', activate_date=make_aware(
+            datetime.datetime(2022, 1, 2, 12, 0, 0),
+            utc
+        ))
+        TodoFactory(description='Ipsum', activate_date=make_aware(
+            datetime.datetime(2022, 1, 1, 12, 0, 0),
+            utc
+        ))
         response = self.app.get('/todos-export', user=self.test_user)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, b'{"description": "Ipsum"}\n{"description": "Lorem"}')
+        self.assertEqual(
+            response.content,
+            b'{"description": "Lorem", "activate_date": "2022-01-02T12:00:00"}\n'
+            b'{"description": "Ipsum", "activate_date": "2022-01-01T12:00:00"}'
+        )
 
 
 class TestNotesImportView(TodosViewTest):
@@ -291,8 +302,9 @@ class TestNotesImportView(TodosViewTest):
         self.assertEqual(response.status_code, 200)
 
     def test_post(self):
+        fh = b'{"text": "Lorem", "position": 1}\n{"text": "Ipsum", "position": 2}'
         data = {
-            'file': Upload('file.txt', b'{"text": "Lorem"}\n{"text": "Ipsum"}', 'text/plain')
+            'file': Upload('file.txt', fh, 'text/plain')
         }
 
         response = self.app.post('/notes-import', data, user=self.test_user)
@@ -317,7 +329,8 @@ class TestNotesExportView(TodosViewTest):
         NoteFactory(text='Ipsum')
         response = self.app.get('/notes-export', user=self.test_user)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content, b'{"text": "Lorem"}\n{"text": "Ipsum"}')
+        fh = b'{"text": "Ipsum", "position": 2}\n{"text": "Lorem", "position": 1}'
+        self.assertEqual(response.content, fh)
 
 
 class FilesImportTest(TodosViewTest):

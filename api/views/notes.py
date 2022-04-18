@@ -25,7 +25,7 @@ class NoteViewSet(ListModelMixin, ProcessSerializerMixin, GenericViewSet):
     serializer_class = ListNoteSerializer
 
     def get_queryset(self):
-        return Note.objects.order_by('-position').active()
+        return Note.objects.active()
 
     @action(['post'], detail=False, url_path='create_one')
     def create_one(self, request, *args, **kwargs):
