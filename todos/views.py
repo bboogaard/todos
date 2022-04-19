@@ -72,6 +72,15 @@ class NotesExportView(AccessMixin, View):
         return response
 
 
+class CodeSnippetsExportView(AccessMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        fh = ExportServiceFactory.snippets().dump()
+        response = HttpResponse(fh.read(), content_type='text/plain')
+        response['Content-disposition'] = 'attachment'
+        return response
+
+
 class WallpaperListView(AccessMixin, generic.TemplateView):
 
     template_name = 'wallpapers/wallpaper_list.html'
@@ -250,6 +259,16 @@ class NotesImportView(ImportView):
 
     def import_file(self, fh):
         ExportServiceFactory.notes().load(fh)
+
+
+class CodeSnippetsImportView(ImportView):
+
+    message = "Code snippets imported"
+
+    title = "Import code snippets"
+
+    def import_file(self, fh):
+        ExportServiceFactory.snippets().load(fh)
 
 
 class FileImportView(FileViewMixin, ImportView):

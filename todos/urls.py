@@ -11,6 +11,8 @@ urlpatterns = [
     path('todos-import', views.TodosImportView.as_view(), name='todos_import'),
     path('notes-export', views.NotesExportView.as_view(), name='notes_export'),
     path('notes-import', views.NotesImportView.as_view(), name='notes_import'),
+    path('snippets-export', views.CodeSnippetsExportView.as_view(), name='snippets_export'),
+    path('snippets-import', views.CodeSnippetsImportView.as_view(), name='snippets_import'),
 
     # Wallpapers
     path('wallpapers/list', views.WallpaperListView.as_view(), name="wallpaper_list"),

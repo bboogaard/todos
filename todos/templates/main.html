@@ -39,6 +39,12 @@
             <a class="dropdown-item" href="{% url 'todos:notes_export' %}">
                 Export notes
             </a>
+            <a class="dropdown-item" href="#" data-action="import-snippets">
+                Import code snippets
+            </a>
+            <a class="dropdown-item" href="{% url 'todos:snippets_export' %}">
+                Export code snippets
+            </a>
             <a class="dropdown-item" href="#" data-action="import-files">
                 Import files
             </a>
@@ -152,6 +158,18 @@
              onClose: function() {
                if (widgets['notes']) {
                  widgets['notes'].load();
+               }
+             }
+         });
+      });
+      $('[data-action="import-snippets"]').click(function (event) {
+         event.preventDefault();
+         tModal.FullModal({
+             title: "Import code snippets",
+             url: '{% url "todos:snippets_import" %}',
+             onClose: function() {
+               if (widgets['snippet']) {
+                 widgets['snippet'].load();
                }
              }
          });

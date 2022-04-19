@@ -39,3 +39,16 @@ class Note:
 
     def to_db(self) -> data_models.Note:
         return data_models.Note(text=self.text, position=self.position)
+
+
+@dataclass
+class CodeSnippet:
+    text: str
+    position: int
+
+    @classmethod
+    def from_db(cls, instance: data_models.CodeSnippet) -> 'CodeSnippet':
+        return cls(text=instance.text, position=instance.position)
+
+    def to_db(self) -> data_models.CodeSnippet:
+        return data_models.CodeSnippet(text=self.text, position=self.position)

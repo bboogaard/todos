@@ -1,7 +1,7 @@
 from services.export.api import ExportApi
 
 from api.data import models as data_models
-from services.export.models import Note, Todo
+from services.export.models import CodeSnippet, Note, Todo
 
 
 class TodoExportService(ExportApi):
@@ -22,3 +22,13 @@ class NoteExportService(ExportApi):
 
     def get_queryset(self):
         return self.model_class.objects.active()
+
+
+class CodeSnippetExportService(ExportApi):
+
+    item_class = CodeSnippet
+
+    model_class = data_models.CodeSnippet
+
+    def get_queryset(self):
+        return self.model_class.objects.all()

@@ -16,10 +16,10 @@ from PIL import Image
 from pyquery import PyQuery
 from webtest import Upload
 
-from api.data.models import Note, Todo
+from api.data.models import CodeSnippet, Note, Todo
 from todos.models import Event, HistoricalDate, PrivateFile, PrivateImage, Wallpaper, Widget
 from tests.services.cron.testcases import CronTestCase
-from tests.todos.factories import EventFactory, HistoricalDateFactory, NoteFactory, \
+from tests.todos.factories import CodeSnippetFactory, EventFactory, HistoricalDateFactory, NoteFactory, \
     PrivateFileFactory, PrivateImageFactory, TodoFactory, UserFactory
 from tests.todos.utils import generate_image
 
@@ -328,6 +328,46 @@ class TestNotesExportView(TodosViewTest):
         NoteFactory(text='Lorem')
         NoteFactory(text='Ipsum')
         response = self.app.get('/notes-export', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        fh = b'{"text": "Ipsum", "position": 2}\n{"text": "Lorem", "position": 1}'
+        self.assertEqual(response.content, fh)
+
+
+class TestCodeSnippetImportsView(TodosViewTest):
+
+    csrf_checks = False
+
+    def test_get(self):
+        response = self.app.get('/snippets-import', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+    def test_post(self):
+        fh = b'{"text": "Lorem", "position": 1}\n{"text": "Ipsum", "position": 2}'
+        data = {
+            'file': Upload('file.txt', fh, 'text/plain')
+        }
+
+        response = self.app.post('/snippets-import', data, user=self.test_user)
+        self.assertEqual(response.status_code, 302, response.content)
+        result = list(CodeSnippet.objects.order_by('text').values_list('text', flat=True))
+        expected = ['Ipsum', 'Lorem']
+        self.assertEqual(result, expected)
+
+    def test_post_with_error(self):
+        data = {
+            'file': ''
+        }
+
+        response = self.app.post('/snippets-import', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200, response.content)
+
+
+class TestCodeSnippetsExportView(TodosViewTest):
+
+    def test_get(self):
+        CodeSnippetFactory(text='Lorem')
+        CodeSnippetFactory(text='Ipsum')
+        response = self.app.get('/snippets-export', user=self.test_user)
         self.assertEqual(response.status_code, 200)
         fh = b'{"text": "Ipsum", "position": 2}\n{"text": "Lorem", "position": 1}'
         self.assertEqual(response.content, fh)

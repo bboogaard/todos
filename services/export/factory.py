@@ -1,4 +1,4 @@
-from services.export.service import NoteExportService, TodoExportService
+from services.export.service import CodeSnippetExportService, NoteExportService, TodoExportService
 
 
 class ExportServiceFactory:
@@ -10,3 +10,7 @@ class ExportServiceFactory:
     @classmethod
     def notes(cls):
         return NoteExportService()
+
+    @classmethod
+    def snippets(cls):
+        return CodeSnippetExportService()
