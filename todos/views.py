@@ -14,8 +14,8 @@ from private_storage.storage import private_storage
 
 from services.cron.exceptions import JobNotFound
 from services.cron.factory import CronServiceFactory
-from services.export.factory import ExportServiceFactory
 from services.factory import FilesServiceFactory
+from services.export.factory import ExportServiceFactory, FileExportServiceFactory
 from services.widgets.factory import WidgetRendererFactory
 from todos import forms, models
 from todos.templatetags.url_tags import add_page_param
@@ -194,7 +194,7 @@ class FileDeleteJson(FileViewMixin, AccessMixin, View):
 class FileExportView(FileViewMixin, AccessMixin, View):
 
     def get(self, request, *args, **kwargs):
-        fh = FilesServiceFactory.create(self.file_type).dump()
+        fh = FileExportServiceFactory.create(self.file_type).dump()
         response = HttpResponse(fh.read(), content_type='application/zip')
         response['Content-disposition'] = 'attachment'
         return response
@@ -274,7 +274,7 @@ class CodeSnippetsImportView(ImportView):
 class FileImportView(FileViewMixin, ImportView):
 
     def import_file(self, fh):
-        return FilesServiceFactory.create(self.file_type).load(fh)
+        return FileExportServiceFactory.create(self.file_type).load(fh)
 
     def get_message(self):
         return "Files imported" if self.file_type == 'file' else "Images imported"

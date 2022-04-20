@@ -1,4 +1,5 @@
-from services.export.service import CodeSnippetExportService, NoteExportService, TodoExportService
+from services.export.service import CodeSnippetExportService, FileExportService, ImageExportService, NoteExportService,\
+    TodoExportService
 
 
 class ExportServiceFactory:
@@ -14,3 +15,10 @@ class ExportServiceFactory:
     @classmethod
     def snippets(cls):
         return CodeSnippetExportService()
+
+
+class FileExportServiceFactory:
+
+    @classmethod
+    def create(cls, file_type: str):
+        return FileExportService() if file_type == 'file' else ImageExportService()

@@ -1,4 +1,4 @@
-from services.export.api import ExportApi
+from services.export.api import ExportApi, FileExportApi
 
 from api.data import models as data_models
 from services.export.models import CodeSnippet, Note, Todo
@@ -32,3 +32,13 @@ class CodeSnippetExportService(ExportApi):
 
     def get_queryset(self):
         return self.model_class.objects.all()
+
+
+class FileExportService(FileExportApi):
+
+    model_class = data_models.PrivateFile
+
+
+class ImageExportService(FileExportApi):
+
+    model_class = data_models.PrivateImage

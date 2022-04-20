@@ -156,9 +156,9 @@ class BasePrivateFile(SearchMixin, models.Model):
         file_field = self.get_file_field()
         return file_field.name
 
-    def save_file(self, file):
+    def save_file(self, file, filename: str = ''):
         file_field = self.get_file_field()
-        file_field.save(file.name, file)
+        file_field.save(filename or file.name, file)
 
     def get_file_field(self):
         raise NotImplementedError()
