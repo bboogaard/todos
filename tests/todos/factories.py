@@ -56,7 +56,7 @@ class PrivateImageFactory(factory.django.DjangoModelFactory):
     image = ImageFile(generate_image(), name='foo.png')
 
     class Meta:
-        model = models.PrivateImage
+        model = data_models.PrivateImage
 
 
 class HistoricalDateFactory(factory.django.DjangoModelFactory):

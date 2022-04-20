@@ -3,8 +3,9 @@ import json
 
 from django.core.files.base import ContentFile
 from django.utils.timezone import now
+from webtest import Upload
 
-from api.data.models import CodeSnippet, Note, Todo
+from api.data.models import CodeSnippet, Note, PrivateFile, Todo
 from tests.todos.factories import CodeSnippetFactory, PrivateFileFactory, NoteFactory, TodoFactory
 from tests.todos.test_views import TodosViewTest
 
@@ -263,3 +264,34 @@ class TestFileViewSet(TodosViewTest):
         result = [item['id'] for item in data]
         expected = [self.files[1].pk, self.files[0].pk]
         self.assertEqual(result, expected)
+
+    def test_delete_one(self):
+        data = {
+            'id': self.files[0].pk
+        }
+        response = self.app.post(
+            '/api/v1/files/delete_one', json.dumps(data), user=self.test_user,
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        file = PrivateFile.objects.filter(pk=self.files[0].pk).first()
+        self.assertIsNone(file)
+
+
+class TestUploadViewSet(TodosViewTest):
+
+    csrf_checks = False
+
+    def test_upload_one(self):
+        upload_file = b'Foo'
+        data = {
+            'file': Upload('file.txt', upload_file, 'text/plain')
+        }
+
+        response = self.app.post(
+            '/api/v1/upload/upload_one', data, user=self.test_user,
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        pfile = PrivateFile.objects.first()
+        self.assertEqual(pfile.file.read(), upload_file)

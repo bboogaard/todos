@@ -16,8 +16,8 @@ from PIL import Image
 from pyquery import PyQuery
 from webtest import Upload
 
-from api.data.models import CodeSnippet, Note, Todo
-from todos.models import Event, HistoricalDate, PrivateFile, PrivateImage, Wallpaper, Widget
+from api.data.models import CodeSnippet, Note, PrivateFile, PrivateImage, Todo
+from todos.models import Event, HistoricalDate, Wallpaper, Widget
 from tests.services.cron.testcases import CronTestCase
 from tests.todos.factories import CodeSnippetFactory, EventFactory, HistoricalDateFactory, NoteFactory, \
     PrivateFileFactory, PrivateImageFactory, TodoFactory, UserFactory
@@ -176,73 +176,6 @@ class TestWallpaperDeleteView(TodosViewTest):
         response = self.app.post('/wallpapers/delete', data, user=self.test_user)
         self.assertEqual(response.status_code, 302, response.content)
         self.assertEqual(Wallpaper.objects.count(), 2)
-
-
-class FileDeleteTest(TodosViewTest):
-
-    file_type = None
-
-    model = None
-
-    csrf_checks = False
-
-    def _post(self, path, pk, status_code=200):
-        response = self.app.post('/files/{}/{}/{}.json'.format(self.file_type, pk, path), user=self.test_user)
-        self.assertEqual(response.status_code, status_code)
-        self.assertEqual(self.model.objects.filter(pk=pk).count(), 0)
-
-
-class TestFileDeleteView(FileDeleteTest):
-
-    file_type = 'file'
-
-    model = PrivateFile
-
-    def test_post(self):
-        pfile = PrivateFileFactory()
-        self._post('delete', pfile.pk)
-
-
-class TestImageDeleteView(FileDeleteTest):
-
-    file_type = 'image'
-
-    model = PrivateImage
-
-    def test_post(self):
-        pfile = PrivateImageFactory()
-        self._post('delete', pfile.pk)
-
-
-class TestFileUploadView(TodosViewTest):
-
-    csrf_checks = False
-
-    def test_post_file(self):
-        upload_file = b'Foo'
-        data = {
-            'file': Upload('file.txt', upload_file, 'text/plain')
-        }
-
-        response = self.app.post('/files/upload', data, user=self.test_user)
-        self.assertEqual(response.status_code, 200)
-        pfile = PrivateFile.objects.first()
-        self.assertEqual(pfile.file.read(), upload_file)
-
-    def test_post_image(self):
-        upload_file = generate_image().getvalue()
-        data = {
-            'file': Upload('foo.png', upload_file, 'image/png')
-        }
-
-        response = self.app.post('/files/upload', data, user=self.test_user)
-        self.assertEqual(response.status_code, 200)
-        pfile = PrivateImage.objects.first()
-        self.assertEqual(pfile.image.read(), upload_file)
-
-    def test_post_with_error(self):
-        response = self.app.post('/files/upload', {}, user=self.test_user, expect_errors=True)
-        self.assertEqual(response.status_code, 400)
 
 
 class TestTodosImportView(TodosViewTest):

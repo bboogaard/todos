@@ -10,11 +10,10 @@ from django.template.context import RequestContext
 from django.urls import reverse
 from django.views import generic, View
 from haystack.generic_views import SearchView as BaseSearchView
-from private_storage.storage import private_storage
 
+from api.data.models import PrivateImage
 from services.cron.exceptions import JobNotFound
 from services.cron.factory import CronServiceFactory
-from services.factory import FilesServiceFactory
 from services.export.factory import ExportServiceFactory, FileExportServiceFactory
 from services.widgets.factory import WidgetRendererFactory
 from todos import forms, models
@@ -144,22 +143,6 @@ class WallpaperDeleteView(AccessMixin, View):
         return redirect(reverse('todos:wallpaper_list'))
 
 
-class FileUploadJson(AccessMixin, View):
-
-    form_class = forms.UploadFileForm
-
-    def post(self, request, *args, **kwargs):
-        form = self.get_form(request.POST or None, files=request.FILES or None)
-        if form.is_valid():
-            form.save()
-            return JsonResponse({})
-
-        return JsonResponse({}, status=400)
-
-    def get_form(self, data=None, files=None, **kwargs):
-        return self.form_class(data, files=files, **kwargs)
-
-
 class FileViewMixin:
 
     file_type = None
@@ -167,28 +150,6 @@ class FileViewMixin:
     def dispatch(self, request, *args, **kwargs):
         self.file_type = kwargs['file_type']
         return super().dispatch(request, *args, **kwargs)
-
-
-class FileDeleteJson(FileViewMixin, AccessMixin, View):
-
-    def post(self, request, *args, **kwargs):
-        obj = self.get_object()
-        if not obj:
-            return JsonResponse({}, status=404)
-        filename = obj.filename
-        obj.delete()
-        private_storage.delete(filename)
-        return JsonResponse({})
-
-    def get_object(self):
-        model = {
-            'file': models.PrivateFile,
-            'image': models.PrivateImage
-        }.get(self.file_type)
-        try:
-            return model.objects.get(pk=self.kwargs['pk'])
-        except model.DoesNotExist:
-            return None
 
 
 class FileExportView(FileViewMixin, AccessMixin, View):
@@ -376,7 +337,7 @@ class CarouselView(AccessMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        images = list(models.PrivateImage.objects.all())
+        images = list(PrivateImage.objects.all())
         try:
             image_id = int(self.request.GET.get('image_id', ''))
         except ValueError:

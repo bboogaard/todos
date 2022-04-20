@@ -21,10 +21,8 @@ urlpatterns = [
     path('wallpapers/delete', views.WallpaperDeleteView.as_view(), name="wallpaper_delete"),
 
     # Files
-    path('files/<file_type>/<int:pk>/delete.json', views.FileDeleteJson.as_view(), name="file_delete.json"),
     path('files/<file_type>/export', views.FileExportView.as_view(), name="file_export"),
     path('files/<file_type>/import', views.FileImportView.as_view(), name="file_import"),
-    path('files/upload', views.FileUploadJson.as_view(), name="file_upload.json"),
 
     # Images
     path('carousel', views.CarouselView.as_view(), name="carousel"),
