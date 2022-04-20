@@ -1,10 +1,11 @@
 import datetime
 import json
 
+from django.core.files.base import ContentFile
 from django.utils.timezone import now
 
 from api.data.models import CodeSnippet, Note, Todo
-from tests.todos.factories import CodeSnippetFactory, NoteFactory, TodoFactory
+from tests.todos.factories import CodeSnippetFactory, PrivateFileFactory, NoteFactory, TodoFactory
 from tests.todos.test_views import TodosViewTest
 
 
@@ -241,3 +242,24 @@ class TestCodeSnippetViewSet(TodosViewTest):
         self.assertEqual(response.status_code, 200)
         snippet = CodeSnippet.objects.filter(pk=self.snippets[0].pk).first()
         self.assertIsNone(snippet)
+
+
+class TestFileViewSet(TodosViewTest):
+
+    csrf_checks = False
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.files = [
+            PrivateFileFactory(file=ContentFile(b'Foo', name='foo.txt')),
+            PrivateFileFactory(file=ContentFile(b'Bar', name='bar.txt')),
+        ]
+
+    def test_list(self):
+        response = self.app.get('/api/v1/files', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        result = [item['id'] for item in data]
+        expected = [self.files[1].pk, self.files[0].pk]
+        self.assertEqual(result, expected)

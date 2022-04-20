@@ -113,8 +113,6 @@ class TodosWidgetRenderer(WidgetRendererService):
 
 class FilesWidgetRenderer(WidgetRendererService):
 
-    files: List[PrivateFile] = []
-
     template_name = 'files.html'
 
     def get_context_data(self, **kwargs):
@@ -122,19 +120,28 @@ class FilesWidgetRenderer(WidgetRendererService):
 
         form = forms.FileSearchForm(self.request.GET or None)
         if form.is_valid():
-            self.files = PrivateFile.objects.filter(pk=form.cleaned_data['file_id'])
+            search_query = form.cleaned_data['id']
         else:
-            self.files = PrivateFile.objects.all()
+            search_query = None
 
         context.update(dict(
-            files=self.files
+            searching=search_query is not None,
+            file_vars=with_camel_keys({
+                'urls': {
+                    'list': reverse('api:files-list'),
+                    'delete': reverse('api:files-delete-one'),
+                },
+                'search_query': search_query
+            })
         ))
         return context
 
     def media(self):
         return {
             'js': {
-                'static': ('files.init.js',)
+                'static': (
+                    'api/files.jquery.js', 'files.init.js'
+                )
             }
         }
 

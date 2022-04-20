@@ -73,7 +73,7 @@ class NoteSearchForm(forms.Form):
 
 class FileSearchForm(forms.Form):
 
-    file_id = forms.IntegerField()
+    id = forms.IntegerField()
 
 
 class ImageSearchForm(forms.Form):

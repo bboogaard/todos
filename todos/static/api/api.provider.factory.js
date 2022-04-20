@@ -40,6 +40,12 @@ ApiProviderFactory.prototype = {
 
         return this.createProvider();
 
+    },
+
+    createFilesProvider: function () {
+
+        return this.createProvider();
+
     }
 
 }
@@ -56,6 +62,10 @@ let apiProviderFactory = {
 
     createSnippets: function() {
         return new ApiProviderFactory(JSON.parse(document.getElementById('snippet-vars').textContent)).createSnippetsProvider();
+    },
+
+    createFiles: function() {
+        return new ApiProviderFactory(JSON.parse(document.getElementById('file-vars').textContent)).createFilesProvider();
     }
 
 }

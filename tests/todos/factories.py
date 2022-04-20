@@ -48,7 +48,7 @@ class PrivateFileFactory(factory.django.DjangoModelFactory):
     file = ContentFile(b'Foo', name='foo.txt')
 
     class Meta:
-        model = models.PrivateFile
+        model = data_models.PrivateFile
 
 
 class PrivateImageFactory(factory.django.DjangoModelFactory):

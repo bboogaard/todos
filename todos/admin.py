@@ -52,7 +52,7 @@ class HistoricalDateAdmin(admin.ModelAdmin):
 admin.site.register(data_models.Todo, TodoAdmin)
 admin.site.register(models.Gallery)
 admin.site.register(models.Wallpaper)
-admin.site.register(models.PrivateFile)
+admin.site.register(data_models.PrivateFile)
 admin.site.register(models.PrivateImage)
 admin.site.register(data_models.Note, NoteAdmin)
 admin.site.register(models.Widget)
