@@ -12,9 +12,11 @@ class ListImageSerializer(serializers.ModelSerializer):
 
     thumbnail = serializers.SerializerMethodField()
 
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = PrivateImage
-        fields = ['id', 'name', 'url', 'thumbnail']
+        fields = ['id', 'name', 'url', 'thumbnail', 'image']
 
     @staticmethod
     def get_name(obj):
@@ -27,3 +29,7 @@ class ListImageSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_thumbnail(obj):
         return get_thumbnailer(obj.image).get_thumbnail({'size': (50, 50), 'crop': True}).url
+
+    @staticmethod
+    def get_image(obj):
+        return get_thumbnailer(obj.image).get_thumbnail({'size': (400, 400), 'crop': True}).url
