@@ -56,7 +56,7 @@ class SearchForm(HaystackSearchForm):
 
     def search(self):
         sqs = super().search()
-        sqs = sqs.filter(include_in_search=True) | sqs.autocomplete(text_auto=self.cleaned_data["q"])
+        sqs = sqs.filter(include_in_search=True)
         return sqs
 
 

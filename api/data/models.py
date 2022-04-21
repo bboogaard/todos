@@ -83,10 +83,6 @@ class Todo(SearchMixin, ActivatorModel):
     def search_field(self):
         return self.description
 
-    @classmethod
-    def get_autocomplete_field(cls):
-        return 'description'
-
     @property
     def search_result(self):
         return self.description
@@ -128,10 +124,6 @@ class Note(SearchMixin, PositionedModel, ActivatorModel):
     def search_field(self):
         return self.text
 
-    @classmethod
-    def get_autocomplete_field(cls):
-        return 'text'
-
     @property
     def search_result(self):
         return self.text
@@ -158,10 +150,6 @@ class BasePrivateFile(SearchMixin, models.Model):
     @property
     def search_field(self):
         return self.filename
-
-    @classmethod
-    def get_autocomplete_field(cls):
-        return 'filename'
 
     @property
     def filename(self):

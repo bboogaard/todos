@@ -5,7 +5,6 @@ import pytz
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext as _
-from private_storage.fields import PrivateFileField, PrivateImageField
 
 from lib.datetime import date_range
 
@@ -31,10 +30,6 @@ class SearchMixin(models.Model):
 
     @property
     def search_field(self):
-        raise NotImplementedError()
-
-    @classmethod
-    def get_autocomplete_field(cls):
         raise NotImplementedError()
 
     @property
@@ -97,10 +92,6 @@ class Event(EventMixin, SearchMixin, models.Model):
     def search_field(self):
         return self.description
 
-    @classmethod
-    def get_autocomplete_field(cls):
-        return 'description'
-
     @property
     def search_result(self):
         return self.description
@@ -150,97 +141,6 @@ class Wallpaper(models.Model):
 
     def get_image_url(self):
         return settings.MEDIA_URL + 'wallpapers/' + os.path.basename(self.image.file.name)
-
-
-class BasePrivateFile(SearchMixin, models.Model):
-
-    created = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        abstract = True
-        ordering = ('-created',)
-
-    @property
-    def search_field(self):
-        return self.filename
-
-    @property
-    def filename(self):
-        file_field = self.get_file_field()
-        return file_field.name
-
-    def save_file(self, file):
-        file_field = self.get_file_field()
-        file_field.save(file.name, file)
-
-    def get_file_field(self):
-        raise NotImplementedError()
-
-    def search_type(self):
-        raise NotImplementedError()
-
-    def search_result(self):
-        raise NotImplementedError()
-
-
-class PrivateFile(BasePrivateFile):
-
-    file = PrivateFileField()
-
-    def __str__(self):
-        return self.file.name
-
-    def get_absolute_url(self):
-        return settings.MEDIA_URL + self.file.name
-
-    @property
-    def search_type(self):
-        return 'File'
-
-    @property
-    def result_params(self):
-        params = super().result_params
-        params.update({
-            'file_id': self.pk
-        })
-        return params
-
-    @property
-    def search_result(self):
-        return self.file.name
-
-    def get_file_field(self):
-        return self.file
-
-
-class PrivateImage(BasePrivateFile):
-
-    image = PrivateImageField()
-
-    def __str__(self):
-        return self.image.name
-
-    def get_absolute_url(self):
-        return settings.MEDIA_URL + self.image.name
-
-    @property
-    def search_type(self):
-        return 'Image'
-
-    @property
-    def result_params(self):
-        params = super().result_params
-        params.update({
-            'image_id': self.pk
-        })
-        return params
-
-    @property
-    def search_result(self):
-        return self.image.name
-
-    def get_file_field(self):
-        return self.image
 
 
 class Widget(models.Model):

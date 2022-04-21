@@ -21,7 +21,6 @@ def search_index_factory(model, updated_field=None, auto_complete_field=None):
         '_updated_field': updated_field or 'update_datetime',
         'text': indexes.CharField(document=True, use_template=True),
         'include_in_search': indexes.BooleanField(model_attr='include_in_search'),
-        'text_auto': indexes.EdgeNgramField(model_attr=model.get_autocomplete_field())
     }
     return type(
         'SearchIndex{}'.format(model.__name__), (SearchMixin, indexes.SearchIndex, indexes.Indexable), attrs
