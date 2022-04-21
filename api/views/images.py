@@ -6,25 +6,25 @@ from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from api.data.models import PrivateFile
-from api.serializers.files import ListFileSerializer
+from api.data.models import PrivateImage
+from api.serializers.images import ListImageSerializer
 from api.views.shared.mixins import ProcessSerializerMixin
 
 
-class FileViewSet(ListModelMixin, ProcessSerializerMixin, GenericViewSet):
+class ImageViewSet(ListModelMixin, ProcessSerializerMixin, GenericViewSet):
 
     filter_backends = [DjangoFilterBackend]
 
-    filterset_class = filterset_factory(PrivateFile, fields=['id'])
+    filterset_class = filterset_factory(PrivateImage, fields=['id'])
 
     parser_classes = [JSONParser]
 
-    serializer_class = ListFileSerializer
+    serializer_class = ListImageSerializer
 
     def get_queryset(self):
-        return PrivateFile.objects.all()
+        return PrivateImage.objects.all()
 
     @action(['post'], detail=False, url_path='delete_one')
     def delete_one(self, request, *args, **kwargs):
-        PrivateFile.objects.delete_with_file([request.data.get('id')])
+        PrivateImage.objects.delete_with_file([request.data.get('id')])
         return Response({})

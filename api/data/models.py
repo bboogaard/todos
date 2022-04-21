@@ -112,7 +112,7 @@ class Note(SearchMixin, PositionedModel, ActivatorModel):
     def result_params(self):
         params = super().result_params
         params.update(({
-            'id': self.pk
+            'note_id': self.pk
         }))
         return params
 
@@ -188,7 +188,7 @@ class PrivateFile(BasePrivateFile):
     def result_params(self):
         params = super().result_params
         params.update({
-            'id': self.pk
+            'file_id': self.pk
         })
         return params
 

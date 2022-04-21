@@ -1,14 +1,2 @@
-{% load thumbnail %}
-
-
-{% if not images %}
-No images uploaded yet
-{% endif %}
-{% for image in images %}
-<div class="thumbnail" style="display: inline-grid">
-  <a href="{{ image.image.url }}" data-carousel-url="{% url 'todos:carousel' %}?image_id={{ image.id }}" target="_blank">
-    <img src="{% thumbnail image.image 50x50 crop %}" alt="Lights" style="width:50px">
-  </a>
-  <small><a href="{% url 'todos:file_delete.json' file_type='image' pk=image.pk %}">delete</a></small>
-</div>
-{% endfor %}
+<div class="images-container"></div>
+{{ image_vars|json_script:"image-vars" }}

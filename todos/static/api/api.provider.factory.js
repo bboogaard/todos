@@ -46,6 +46,14 @@ ApiProviderFactory.prototype = {
 
         return this.createProvider();
 
+    },
+
+    createImagesProvider: function () {
+
+        let provider = this.createProvider();
+        provider.carouselUrl = this.settings.carouselUrl;
+        return provider;
+
     }
 
 }
@@ -66,6 +74,10 @@ let apiProviderFactory = {
 
     createFiles: function() {
         return new ApiProviderFactory(JSON.parse(document.getElementById('file-vars').textContent)).createFilesProvider();
+    },
+
+    createImages: function() {
+        return new ApiProviderFactory(JSON.parse(document.getElementById('image-vars').textContent)).createImagesProvider();
     }
 
 }

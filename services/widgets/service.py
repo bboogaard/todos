@@ -14,7 +14,7 @@ from dateutil.relativedelta import relativedelta
 from lib.utils import with_camel_keys
 from services.factory import EventsServiceFactory
 from todos import forms
-from todos.models import HistoricalDate, PrivateFile, PrivateImage, Widget
+from todos.models import HistoricalDate, Widget
 
 
 class WidgetRendererService:
@@ -120,7 +120,7 @@ class FilesWidgetRenderer(WidgetRendererService):
 
         form = forms.FileSearchForm(self.request.GET or None)
         if form.is_valid():
-            search_query = form.cleaned_data['id']
+            search_query = form.cleaned_data['file_id']
         else:
             search_query = None
 
@@ -151,8 +151,6 @@ class FilesWidgetRenderer(WidgetRendererService):
 
 class ImagesWidgetRenderer(WidgetRendererService):
 
-    images: List[PrivateImage] = []
-
     template_name = 'images.html'
 
     def get_context_data(self, **kwargs):
@@ -160,19 +158,27 @@ class ImagesWidgetRenderer(WidgetRendererService):
 
         form = forms.ImageSearchForm(self.request.GET or None)
         if form.is_valid():
-            self.images = PrivateImage.objects.filter(pk=form.cleaned_data['image_id'])
+            search_query = form.cleaned_data['image_id']
         else:
-            self.images = PrivateImage.objects.all()
+            search_query = None
 
         context.update(dict(
-            images=self.images
+            searching=search_query is not None,
+            image_vars=with_camel_keys({
+                'urls': {
+                    'list': reverse('api:images-list'),
+                    'delete': reverse('api:images-delete-one'),
+                },
+                'carousel_url': reverse('todos:carousel'),
+                'search_query': search_query
+            })
         ))
         return context
 
     def media(self):
         return {
             'js': {
-                'static': ('images.init.js',)
+                'static': ('api/images.jquery.js', 'images.init.js',)
             }
         }
 
@@ -189,7 +195,7 @@ class NotesWidgetRenderer(WidgetRendererService):
 
         form = forms.NoteSearchForm(self.request.GET or None)
         if form.is_valid():
-            search_query = form.cleaned_data['id']
+            search_query = form.cleaned_data['note_id']
         else:
             search_query = None
 

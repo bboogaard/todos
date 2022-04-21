@@ -67,12 +67,12 @@ class TodoSearchForm(forms.Form):
 
 class NoteSearchForm(forms.Form):
 
-    id = forms.IntegerField()
+    note_id = forms.IntegerField()
 
 
 class FileSearchForm(forms.Form):
 
-    id = forms.IntegerField()
+    file_id = forms.IntegerField()
 
 
 class ImageSearchForm(forms.Form):

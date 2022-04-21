@@ -265,6 +265,14 @@ class TestFileViewSet(TodosViewTest):
         expected = [self.files[1].pk, self.files[0].pk]
         self.assertEqual(result, expected)
 
+    def test_list_search(self):
+        response = self.app.get('/api/v1/files?id={}'.format(self.files[0].pk), user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        result = [item['id'] for item in data]
+        expected = [self.files[0].pk]
+        self.assertEqual(result, expected)
+
     def test_delete_one(self):
         data = {
             'id': self.files[0].pk
