@@ -66,7 +66,9 @@
             let data = {id: id};
 
             $.when(this.provider.delete(data))
-            .then(self.loadItems());
+            .then(function() {
+                self.loadItems()
+            });
         }
 
     }

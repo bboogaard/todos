@@ -2,12 +2,14 @@ import datetime
 import json
 
 from django.core.files.base import ContentFile
+from django.core.files.images import ImageFile
 from django.utils.timezone import now
 from webtest import Upload
 
-from api.data.models import CodeSnippet, Note, PrivateFile, Todo
-from tests.todos.factories import CodeSnippetFactory, PrivateFileFactory, NoteFactory, TodoFactory
+from api.data.models import CodeSnippet, Note, PrivateFile, PrivateImage, Todo
+from tests.todos.factories import CodeSnippetFactory, PrivateFileFactory, PrivateImageFactory, NoteFactory, TodoFactory
 from tests.todos.test_views import TodosViewTest
+from tests.todos.utils import generate_image
 
 
 class TestTodoViewSet(TodosViewTest):
@@ -284,6 +286,46 @@ class TestFileViewSet(TodosViewTest):
         self.assertEqual(response.status_code, 200)
         file = PrivateFile.objects.filter(pk=self.files[0].pk).first()
         self.assertIsNone(file)
+
+
+class TestImageViewSet(TodosViewTest):
+
+    csrf_checks = False
+
+    def setUp(self):
+        super().setUp()
+        self.images = [
+            PrivateImageFactory(image=ImageFile(generate_image(), name='foo.png')),
+            PrivateImageFactory(image=ImageFile(generate_image(), name='bar.png')),
+        ]
+
+    def test_list(self):
+        response = self.app.get('/api/v1/images', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        result = [item['id'] for item in data]
+        expected = [self.images[1].pk, self.images[0].pk]
+        self.assertEqual(result, expected)
+
+    def test_list_search(self):
+        response = self.app.get('/api/v1/images?id={}'.format(self.images[0].pk), user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        result = [item['id'] for item in data]
+        expected = [self.images[0].pk]
+        self.assertEqual(result, expected)
+
+    def test_delete_one(self):
+        data = {
+            'id': self.images[0].pk
+        }
+        response = self.app.post(
+            '/api/v1/images/delete_one', json.dumps(data), user=self.test_user,
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        image = PrivateImage.objects.filter(pk=self.images[0].pk).first()
+        self.assertIsNone(image)
 
 
 class TestUploadViewSet(TodosViewTest):

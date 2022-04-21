@@ -60,11 +60,11 @@
             let self = this;
 
             let data = {};
-            if (page !== null) {
-                data.page = page;
-            }
             if (this.searchQuery !== null) {
                 data.id = this.searchQuery;
+            }
+            else if (page !== null) {
+                data.page = page;
             }
 
             this.provider.list(data).done(function(items) {

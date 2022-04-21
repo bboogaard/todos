@@ -33,6 +33,10 @@ class SearchMixin(models.Model):
     def search_field(self):
         raise NotImplementedError()
 
+    @classmethod
+    def get_autocomplete_field(cls):
+        raise NotImplementedError()
+
     @property
     def search_result(self):
         raise NotImplementedError()
@@ -92,6 +96,10 @@ class Event(EventMixin, SearchMixin, models.Model):
     @property
     def search_field(self):
         return self.description
+
+    @classmethod
+    def get_autocomplete_field(cls):
+        return 'description'
 
     @property
     def search_result(self):

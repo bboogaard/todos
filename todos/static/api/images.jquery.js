@@ -64,10 +64,9 @@
                 '<a href="' + item.url + '" data-carousel-id="' + item.id + '" target="_blank">' +
                 '<img src="' + item.thumbnail + '" alt="' + item.name + '" style="width:50px"></a>' +
                 '<small><a href="" data-id="' + item.id + '">delete</a></small>' +
-                '</div>';
+                '</div>&nbsp;&nbsp;';
             });
             let html = lines.length ? lines.join('') : 'No images uploaded yet';
-            console.log(html);
             this.container.html(html);
 
         },
@@ -79,7 +78,9 @@
             let data = {id: id};
 
             $.when(this.provider.delete(data))
-            .done(self.loadItems());
+            .then(function() {
+                self.loadItems();
+            });
         }
 
     }
