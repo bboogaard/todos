@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.views import generic, View
 from haystack.generic_views import SearchView as BaseSearchView
 
-from api.data.models import PrivateImage
+from api.views.factory import ViewSetFactory
 from services.cron.exceptions import JobNotFound
 from services.cron.factory import CronServiceFactory
 from services.export.factory import ExportServiceFactory, FileExportServiceFactory
@@ -337,11 +337,11 @@ class CarouselView(AccessMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        images = list(PrivateImage.objects.all())
+        images = ViewSetFactory(self.request.user).image_list()
         try:
             image_id = int(self.request.GET.get('image_id', ''))
         except ValueError:
-            image_id = images[0].pk if images else 0
+            image_id = images[0].id if images else 0
         context.update({
             'images': images,
             'image_id': image_id

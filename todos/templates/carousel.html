@@ -9,7 +9,7 @@
   <div class="carousel-inner" style="text-align: center">
     {% for image in images %}
     <div class="carousel-item{% if image.id == image_id %} active{% endif %}">
-      <img class="img-fluid" src="{% thumbnail image.image 400x400 crop %}" alt="" style="">
+      <img class="img-fluid" src="{{ image.image }}" alt="" style="">
     </div>
     {% endfor %}
   </div>
