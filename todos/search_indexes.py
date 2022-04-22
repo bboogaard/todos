@@ -15,7 +15,7 @@ class SearchMixin:
         return self._updated_field
 
 
-def search_index_factory(model, updated_field=None, auto_complete_field=None):
+def search_index_factory(model, updated_field=None):
     attrs = {
         '_model': model,
         '_updated_field': updated_field or 'update_datetime',
