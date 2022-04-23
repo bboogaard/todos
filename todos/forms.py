@@ -87,18 +87,18 @@ class MonthForm(forms.Form):
     year = forms.IntegerField()
 
 
-class EventForm(forms.ModelForm):
+class EventForm(forms.Form):
+
+    description = forms.CharField()
 
     time = forms.TimeField(widget=TimePicker(format='%H:%M'), input_formats=['%H:%M'])
 
-    class Meta:
-        model = models.Event
-        fields = ('description',)
-
     def __init__(self, *args, **kwargs):
         self.date = kwargs.pop('date')
+        self.event = kwargs.pop('event', None)
         super().__init__(*args, **kwargs)
-        self.initial['time'] = self.instance.datetime_localized.time() if self.instance.datetime else None
+        self.initial['description'] = self.event.description if self.event else None
+        self.initial['time'] = self.event.datetime_localized.time() if self.event else None
         self.helper = FormHelper()
         self.helper.layout = Layout(
             'description',
@@ -108,13 +108,17 @@ class EventForm(forms.ModelForm):
             )
         )
 
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        instance.datetime = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.combine(
-            self.date, self.cleaned_data['time']
-        ))
-        instance.save()
-        return instance
+    def clean(self):
+        data = self.cleaned_data
+
+        if data:
+            data['datetime'] = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.combine(
+                self.date, self.cleaned_data['time']
+            ))
+            if self.event:
+                data['id'] = self.event.id
+
+        return data
 
 
 class WallpaperForm(forms.ModelForm):

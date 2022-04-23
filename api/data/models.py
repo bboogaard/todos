@@ -1,3 +1,4 @@
+import pytz
 from django_extensions.db.models import ActivatorModel, ActivatorModelManager as BaseActivatorModelManager
 from django.conf import settings
 from django.db import models
@@ -228,3 +229,50 @@ class PrivateImage(BasePrivateFile):
 
     def get_file_field(self):
         return self.image
+
+
+class Event(SearchMixin, models.Model):
+
+    description = models.CharField(max_length=100)
+
+    datetime = models.DateTimeField()
+
+    class Meta:
+        ordering = ('datetime',)
+
+    def __str__(self):
+        return self.description
+
+    @property
+    def datetime_localized(self):
+        return self.datetime.astimezone(pytz.timezone(settings.TIME_ZONE))
+
+    @property
+    def event_date(self):
+        dt = self.datetime_localized.date()
+        return dt.day, dt.month
+
+    @property
+    def event_key(self):
+        return self.datetime
+
+    @property
+    def search_type(self):
+        return 'Event'
+
+    @property
+    def result_params(self):
+        params = super().result_params
+        params.update({
+            'year': self.datetime.year,
+            'month': self.datetime.month
+        })
+        return params
+
+    @property
+    def search_field(self):
+        return self.description
+
+    @property
+    def search_result(self):
+        return self.description

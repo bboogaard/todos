@@ -1,5 +1,6 @@
 from rest_framework import routers
 
+from api.views.events import EventViewSet
 from api.views.files import FileViewSet
 from api.views.images import ImageViewSet
 from api.views.notes import NoteViewSet
@@ -12,6 +13,7 @@ app_name = 'api'
 
 
 router = routers.SimpleRouter(trailing_slash=False)
+router.register(r'events', EventViewSet, 'events')
 router.register(r'files', FileViewSet, 'files')
 router.register(r'images', ImageViewSet, 'images')
 router.register(r'notes', NoteViewSet, 'notes')

@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.views import generic, View
 from haystack.generic_views import SearchView as BaseSearchView
 
-from api.views.factory import ViewSetFactory
+from api.views.internal.factory import ViewSetFactory
 from services.cron.exceptions import JobNotFound
 from services.cron.factory import CronServiceFactory
 from services.export.factory import ExportServiceFactory, FileExportServiceFactory
@@ -279,11 +279,14 @@ class EventCreateMixin(View):
     def post(self, request, *args, **kwargs):
         form = self.get_form(request.POST or None)
         if form.is_valid():
-            instance = form.save()
-            return redirect(reverse('todos:event_update', kwargs={'pk': instance.pk}))
+            instance = self.save(form.cleaned_data)
+            return redirect(reverse('todos:event_update', kwargs={'pk': instance.id}))
 
         context = self.get_context_data(form=form)
         return self.render_to_response(context)
+
+    def save(self, data):
+        raise NotImplementedError()
 
 
 class EventCreateView(AccessMixin, EventCreateMixin, generic.TemplateView):
@@ -305,22 +308,28 @@ class EventCreateView(AccessMixin, EventCreateMixin, generic.TemplateView):
     def get_form(self, data=None, **kwargs):
         return forms.EventForm(data, date=self.event_date, **kwargs)
 
+    def save(self, data):
+        return ViewSetFactory(self.request.user).event_create(data)
+
 
 class EventUpdateView(AccessMixin, EventCreateMixin, generic.TemplateView):
 
     def dispatch(self, request, pk, *args, **kwargs):
-        self.object = get_object_or_404(models.Event, pk=pk)
+        self.event = ViewSetFactory(request.user).event_detail(pk)
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
-            'event_date': self.object.datetime.date()
+            'event_date': self.event.datetime.date()
         })
         return context
 
     def get_form(self, data=None, **kwargs):
-        return forms.EventForm(data, date=self.object.datetime.date(), instance=self.object, **kwargs)
+        return forms.EventForm(data, date=self.event.datetime.date(), event=self.event, **kwargs)
+
+    def save(self, data):
+        return ViewSetFactory(self.request.user).event_update(data)
 
 
 class EventDeleteView(AccessMixin, generic.TemplateView):

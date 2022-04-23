@@ -11,6 +11,7 @@ from django.urls import reverse
 from django.utils.http import urlencode
 from dateutil.relativedelta import relativedelta
 
+from api.views.internal.factory import ViewSetFactory
 from lib.utils import with_camel_keys
 from services.factory import EventsServiceFactory
 from todos import forms
@@ -251,7 +252,10 @@ class EventsWidgetRenderer(WidgetRendererService):
             'year': next_dt.year,
             'month': next_dt.month
         })
-        events = EventsServiceFactory.create().get_events(dt.year, dt.month, prev_dt, next_dt)
+        instances = ViewSetFactory(self.request.user).event_list(
+            {'date_range': ','.join([prev_dt.strftime('%Y-%m-%d'), next_dt.strftime('%Y-%m-%d')])}
+        )
+        events = EventsServiceFactory.create().get_events(instances, dt.year, dt.month)
         context.update(events=events, dt=dt, prev_url=prev_url, next_url=next_url, today=today)
 
         return context

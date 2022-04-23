@@ -5,10 +5,11 @@ from collections import defaultdict
 from constance import config
 from typing import List
 
+from api.views.internal.models import Event
 from todos import models
 from services.api import EventsApi
 from services.events.message_factory import EventMessageFactory
-from services.events.models import Event, EventDate, WeekEvents
+from services.events.models import EventDate, WeekEvents
 from services.messages.factory import MessageServiceFactory
 
 
@@ -25,13 +26,11 @@ class EventsService(EventsApi):
         self.even_weeks_current_date_color = config.even_weeks_current_date_color if \
             config.even_weeks_current_date_color_active else ''
 
-    def get_events(self, year: int, month: int, start: datetime.date, end: datetime.date) -> \
+    def get_events(self, instances: List[Event], year: int, month: int) -> \
             List[WeekEvents]:
-        instances = list(models.Event.objects.filter(datetime__date__range=(start, end)))
-        # + list(models.HistoricalDate.objects.for_date_range(start, end))
         events_in_db = defaultdict(list)
         for instance in instances:
-            events_in_db[instance.event_date].append(Event.from_instance(instance))
+            events_in_db[instance.event_date].append(instance)
         events = []
         for week in self.calendar.monthdatescalendar(year, month):
             dates = []
@@ -43,7 +42,7 @@ class EventsService(EventsApi):
                         date=day,
                         current_date_color=(
                             self.odd_weeks_current_date_color if odd else self.even_weeks_current_date_color),
-                        events=list(sorted(events_in_db[(day.day, day.month)], key=operator.attrgetter('key')))
+                        events=list(sorted(events_in_db[(day.day, day.month)], key=operator.attrgetter('datetime')))
                     )
                 )
             events.append(
