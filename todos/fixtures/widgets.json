@@ -40,7 +40,7 @@
       "title": "Events",
       "is_enabled": true,
       "position": 3,
-      "refresh_interval": 60
+      "refresh_interval": null
     }
   },
   {
@@ -52,17 +52,6 @@
       "is_enabled": true,
       "position": 5,
       "refresh_interval": null
-    }
-  },
-  {
-    "model": "todos.widget",
-    "pk": 6,
-    "fields": {
-      "type": "dates",
-      "title": "Today in history",
-      "is_enabled": true,
-      "position": 5,
-      "refresh_interval": 60
     }
   },
   {

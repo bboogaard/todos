@@ -1,7 +1,6 @@
 from haystack import indexes
 
-from api.data.models import Note, PrivateFile, PrivateImage, Todo
-from todos.models import Event
+from api.data.models import Event, Note, PrivateFile, PrivateImage, Todo
 
 
 class SearchMixin:

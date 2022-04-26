@@ -1,10 +1,9 @@
-import datetime
 from io import BytesIO
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
-from django.http.response import JsonResponse, HttpResponse, HttpResponseBadRequest
+from django.http.response import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.context import RequestContext
 from django.urls import reverse
@@ -17,7 +16,6 @@ from services.cron.factory import CronServiceFactory
 from services.export.factory import ExportServiceFactory, FileExportServiceFactory
 from services.widgets.factory import WidgetRendererFactory
 from todos import forms, models
-from todos.templatetags.url_tags import add_page_param
 
 
 class AccessMixin(View):
@@ -267,79 +265,6 @@ class WidgetListView(AccessMixin, generic.TemplateView):
         return forms.WidgetFormSet(data, files, **kwargs)
 
 
-class EventCreateMixin(View):
-
-    template_name = 'events/event_create.html'
-
-    def get(self, request, *args, **kwargs):
-        form = self.get_form()
-        context = self.get_context_data(form=form)
-        return self.render_to_response(context)
-
-    def post(self, request, *args, **kwargs):
-        form = self.get_form(request.POST or None)
-        if form.is_valid():
-            instance = self.save(form.cleaned_data)
-            return redirect(reverse('todos:event_update', kwargs={'pk': instance.id}))
-
-        context = self.get_context_data(form=form)
-        return self.render_to_response(context)
-
-    def save(self, data):
-        raise NotImplementedError()
-
-
-class EventCreateView(AccessMixin, EventCreateMixin, generic.TemplateView):
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.event_date = datetime.datetime.strptime(request.GET.get('event_date', ''), '%Y-%m-%d').date()
-        except ValueError:
-            return HttpResponseBadRequest()
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'event_date': self.event_date
-        })
-        return context
-
-    def get_form(self, data=None, **kwargs):
-        return forms.EventForm(data, date=self.event_date, **kwargs)
-
-    def save(self, data):
-        return ViewSetFactory(self.request.user).event_create(data)
-
-
-class EventUpdateView(AccessMixin, EventCreateMixin, generic.TemplateView):
-
-    def dispatch(self, request, pk, *args, **kwargs):
-        self.event = ViewSetFactory(request.user).event_detail(pk)
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'event_date': self.event.datetime.date()
-        })
-        return context
-
-    def get_form(self, data=None, **kwargs):
-        return forms.EventForm(data, date=self.event.datetime.date(), event=self.event, **kwargs)
-
-    def save(self, data):
-        return ViewSetFactory(self.request.user).event_update(data)
-
-
-class EventDeleteView(AccessMixin, generic.TemplateView):
-
-    def post(self, request, pk, *args, **kwargs):
-        self.object = get_object_or_404(models.Event, pk=pk)
-        self.object.delete()
-        return redirect(reverse('todos:index'))
-
-
 class CarouselView(AccessMixin, generic.TemplateView):
 
     template_name = 'carousel.html'
@@ -369,85 +294,6 @@ class WidgetJson(AccessMixin, View):
         renderer = WidgetRendererFactory.get_renderer(widget)
         html = renderer.render_content(RequestContext(request, {'request': request}))
         return JsonResponse({'html': html})
-
-
-class DateListView(AccessMixin, generic.ListView):
-
-    model = models.HistoricalDate
-
-    paginate_by = 5
-
-    template_name = 'dates/date_list.html'
-
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(object_list=object_list, **kwargs)
-        context['search_form'] = forms.DateSearchForm(self.request.GET or None)
-        return context
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        form = forms.DateSearchForm(self.request.GET or None)
-        if form.is_valid():
-            data = form.cleaned_data
-            month = data.get('month')
-            if month:
-                queryset = queryset.filter(date__month=month)
-            event = data.get('event')
-            if event:
-                queryset = queryset.filter(event__icontains=event)
-        return queryset
-
-
-class DateEditMixin(generic.TemplateView):
-
-    def get(self, request, *args, **kwargs):
-        form = self.get_form()
-        context = self.get_context_data(form=form)
-        return self.render_to_response(context)
-
-    def post(self, request, *args, **kwargs):
-        form = self.get_form(request.POST or None)
-        if form.is_valid():
-            form.save()
-            redirect_url = reverse('todos:date_list')
-            return redirect(add_page_param({'request': request}, redirect_url))
-
-        context = self.get_context_data(form=form)
-        return self.render_to_response(context)
-
-    def get_form(self, data=None, **kwargs):
-        return forms.DateForm(data, **kwargs)
-
-
-class DateCreateView(AccessMixin, DateEditMixin):
-
-    template_name = 'dates/date_create.html'
-
-
-class DateUpdateView(AccessMixin, DateEditMixin):
-
-    template_name = 'dates/date_update.html'
-
-    def dispatch(self, request, pk, *args, **kwargs):
-        self.object = get_object_or_404(models.HistoricalDate, pk=pk)
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_form(self, data=None, **kwargs):
-        kwargs['instance'] = self.object
-        return super().get_form(data, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['date'] = self.object
-        return context
-
-
-class DateDeleteView(AccessMixin, View):
-
-    def post(self, request, *args, **kwargs):
-        date_ids = request.POST.getlist('date', [])
-        models.HistoricalDate.objects.filter(pk__in=date_ids).delete()
-        return redirect(reverse('todos:date_list'))
 
 
 class CronView(AccessMixin, View):

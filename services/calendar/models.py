@@ -1,18 +1,15 @@
 import datetime
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import date
 from typing import List, Optional
 
 from django.utils.html import mark_safe
 
-from api.views.internal.models import Event
-
 
 @dataclass
-class EventDate:
+class Date:
     date: date
     current_date_color: Optional[str] = ''
-    events: Optional[List[Event]] = field(default_factory=lambda: [])
 
     def date_style(self):
         if self.date != datetime.date.today():
@@ -21,11 +18,11 @@ class EventDate:
 
 
 @dataclass
-class WeekEvents:
+class Week:
     background: str
     color: str
     week_number: int
-    dates: List[EventDate]
+    dates: List[Date]
 
     def week_style(self):
         parts = []

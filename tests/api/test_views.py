@@ -3,11 +3,12 @@ import json
 
 from django.core.files.base import ContentFile
 from django.core.files.images import ImageFile
-from django.utils.timezone import now
+from django.utils.timezone import make_aware, now, utc
 from webtest import Upload
 
-from api.data.models import CodeSnippet, Note, PrivateFile, PrivateImage, Todo
-from tests.todos.factories import CodeSnippetFactory, PrivateFileFactory, PrivateImageFactory, NoteFactory, TodoFactory
+from api.data.models import CodeSnippet, Event, Note, PrivateFile, PrivateImage, Todo
+from tests.todos.factories import CodeSnippetFactory, EventFactory, PrivateFileFactory, PrivateImageFactory, \
+    NoteFactory, TodoFactory
 from tests.todos.test_views import TodosViewTest
 from tests.todos.utils import generate_image
 
@@ -345,3 +346,85 @@ class TestUploadViewSet(TodosViewTest):
         self.assertEqual(response.status_code, 200)
         pfile = PrivateFile.objects.first()
         self.assertEqual(pfile.file.read(), upload_file)
+
+
+class TestEventViewSet(TodosViewTest):
+
+    csrf_checks = False
+
+    def setUp(self):
+        super().setUp()
+        self.events = [
+            EventFactory(description='Lorem', datetime=make_aware(
+                datetime.datetime(2022, 2, 1, 12, 0, 0),
+                utc
+            )),
+            EventFactory(description='Ipsum', datetime=make_aware(
+                datetime.datetime(2022, 1, 1, 12, 0, 0),
+                utc
+            ))
+        ]
+
+    def test_list(self):
+        response = self.app.get('/api/v1/events', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        result = [item['id'] for item in data]
+        expected = [self.events[1].pk, self.events[0].pk]
+        self.assertEqual(result, expected)
+
+    def test_list_search(self):
+        response = self.app.get('/api/v1/events?date_range=2022-01-01,2022-01-31', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        result = [item['id'] for item in data]
+        expected = [self.events[1].pk]
+        self.assertEqual(result, expected)
+
+    def test_create_one(self):
+        data = {
+            'description': 'Dolor',
+            'date': '2022-03-01',
+            'time': '12:00:00'
+        }
+        response = self.app.post(
+            '/api/v1/events/create_one', json.dumps(data), user=self.test_user,
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        event = Event.objects.get(pk=data['id'])
+        self.assertEqual(event.event_date, (1, 3))
+
+    def test_update_one(self):
+        data = {
+            'id': self.events[1].pk,
+            'description': 'Ipsum Dolor',
+            'date': '2022-01-01',
+            'time': '12:00:00'
+        }
+        response = self.app.post(
+            '/api/v1/events/update_one', json.dumps(data), user=self.test_user,
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        self.events[1].refresh_from_db()
+        self.assertEqual(self.events[1].description, 'Ipsum Dolor')
+
+    def test_delete_one(self):
+        data = {
+            'id': self.events[0].pk
+        }
+        response = self.app.post(
+            '/api/v1/events/delete_one', json.dumps(data), user=self.test_user,
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        event = Event.objects.filter(pk=self.events[0].pk).first()
+        self.assertIsNone(event)
+
+    def test_weeks(self):
+        response = self.app.get(
+            '/api/v1/events/weeks?year=2022&month=11', user=self.test_user
+        )
+        self.assertEqual(response.status_code, 200)

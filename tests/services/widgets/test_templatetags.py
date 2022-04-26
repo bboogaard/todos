@@ -32,7 +32,6 @@ class TestEventService(TestCase):
             Widget.WIDGET_TYPE_NOTES: ['notes.init.js'],
             Widget.WIDGET_TYPE_EVENTS: ['events.init.js'],
             Widget.WIDGET_TYPE_IMAGES: ['images.init.js'],
-            Widget.WIDGET_TYPE_DATES: ['dates.init.js'],
             Widget.WIDGET_TYPE_SNIPPET: ['snippet.init.js'],
             Widget.WIDGET_TYPE_UPLOAD: ['upload.init.js']
         })

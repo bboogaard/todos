@@ -1,11 +1,9 @@
 import calendar
 import os
 from datetime import date
-from typing import Dict, List
 
 from django.http.request import HttpRequest
 from django.template.context import RequestContext
-from django.template.defaultfilters import date as format_date
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.http import urlencode
@@ -13,9 +11,8 @@ from dateutil.relativedelta import relativedelta
 
 from api.views.internal.factory import ViewSetFactory
 from lib.utils import with_camel_keys
-from services.factory import EventsServiceFactory
 from todos import forms
-from todos.models import HistoricalDate, Widget
+from todos.models import Widget
 
 
 class WidgetRendererService:
@@ -234,30 +231,44 @@ class EventsWidgetRenderer(WidgetRendererService):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        today = date.today()
-        form = forms.MonthForm(self.request.GET or None)
-        if form.is_valid():
-            dt = date(year=form.cleaned_data['year'], month=form.cleaned_data['month'], day=1)
-        else:
-            dt = today
-        prev_dt = dt - relativedelta(months=1)
-        prev_dt = date(prev_dt.year, prev_dt.month, 1)
-        next_dt = dt + relativedelta(months=1)
-        next_dt = date(next_dt.year, next_dt.month, calendar.monthrange(next_dt.year, next_dt.month)[1])
-        prev_url = reverse('todos:index') + '?' + urlencode({
-            'year': prev_dt.year,
-            'month': prev_dt.month
-        })
-        next_url = reverse('todos:index') + '?' + urlencode({
-            'year': next_dt.year,
-            'month': next_dt.month
-        })
-        instances = ViewSetFactory(self.request.user).event_list(
-            {'date_range': ','.join([prev_dt.strftime('%Y-%m-%d'), next_dt.strftime('%Y-%m-%d')])}
-        )
-        events = EventsServiceFactory.create().get_events(instances, dt.year, dt.month)
-        context.update(events=events, dt=dt, prev_url=prev_url, next_url=next_url, today=today)
+        # today = date.today()
+        # form = forms.MonthForm(self.request.GET or None)
+        # if form.is_valid():
+        #     dt = date(year=form.cleaned_data['year'], month=form.cleaned_data['month'], day=1)
+        # else:
+        #     dt = today
+        # prev_dt = dt - relativedelta(months=1)
+        # prev_dt = date(prev_dt.year, prev_dt.month, 1)
+        # next_dt = dt + relativedelta(months=1)
+        # next_dt = date(next_dt.year, next_dt.month, calendar.monthrange(next_dt.year, next_dt.month)[1])
+        # prev_url = reverse('todos:index') + '?' + urlencode({
+        #     'year': prev_dt.year,
+        #     'month': prev_dt.month
+        # })
+        # next_url = reverse('todos:index') + '?' + urlencode({
+        #     'year': next_dt.year,
+        #     'month': next_dt.month
+        # })
+        # instances = ViewSetFactory(self.request.user).event_list(
+        #     {'date_range': ','.join([prev_dt.strftime('%Y-%m-%d'), next_dt.strftime('%Y-%m-%d')])}
+        # )
+        # events = EventsServiceFactory.create().get_events(instances, dt.year, dt.month)
+        # context.update(events=events, dt=dt, prev_url=prev_url, next_url=next_url, today=today)
 
+        today = date.today()
+        context.update(dict(
+            event_vars=with_camel_keys({
+                'urls': {
+                    'list': reverse('api:events-list'),
+                    'weeks': reverse('api:events-weeks'),
+                    'create': reverse('api:events-create-one'),
+                    'update': reverse('api:events-update-one'),
+                    'delete': reverse('api:events-delete-one'),
+                },
+                'year': today.year,
+                'month': today.month
+            })
+        ))
         return context
 
     def media(self):
@@ -267,7 +278,7 @@ class EventsWidgetRenderer(WidgetRendererService):
                 'tempus-dominus/css/font-awesome.css'
             ),
             'js': {
-                'static': ('events.init.js',)
+                'static': ('ejs.min.js', 'api/events.jquery.js', 'events.init.js',)
             }
         }
 
@@ -276,45 +287,6 @@ class EventsWidgetRenderer(WidgetRendererService):
 
     def has_content(self):
         return True
-
-
-class DatesWidgetRenderer(WidgetRendererService):
-
-    dates: List[Dict[str, str]] = []
-
-    template_name = 'dates.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        current_date = date.today()
-        self.dates = [
-            {
-                'date': format_date(dt.date, 'j F Y'),
-                'event': dt.event
-            }
-            for dt in HistoricalDate.objects.filter(
-                date__month=current_date.month, date__day=current_date.day
-            )
-        ]
-        context.update({
-            'date': current_date,
-            'date_vars': {
-                'dates': self.dates
-            }
-        })
-        return context
-
-    def media(self):
-        return {
-            'js': {
-                'static': (
-                    'dates.jquery.js', 'dates.init.js'
-                )
-            }
-        }
-
-    def has_content(self):
-        return bool(len(self.dates))
 
 
 class CodeSnippetWidgetRenderer(WidgetRendererService):

@@ -1,13 +1,8 @@
-import datetime
-
-import pytz
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import ButtonHolder, Layout, Submit
 from django import forms
-from django.conf import settings
 from haystack.forms import ModelSearchForm as HaystackSearchForm
 
-from lib.datetime import MONTH_NAMES
 from todos import models
 
 
@@ -80,47 +75,6 @@ class ImageSearchForm(forms.Form):
     image_id = forms.IntegerField()
 
 
-class MonthForm(forms.Form):
-
-    month = forms.IntegerField()
-
-    year = forms.IntegerField()
-
-
-class EventForm(forms.Form):
-
-    description = forms.CharField()
-
-    time = forms.TimeField(widget=TimePicker(format='%H:%M'), input_formats=['%H:%M'])
-
-    def __init__(self, *args, **kwargs):
-        self.date = kwargs.pop('date')
-        self.event = kwargs.pop('event', None)
-        super().__init__(*args, **kwargs)
-        self.initial['description'] = self.event.description if self.event else None
-        self.initial['time'] = self.event.datetime_localized.time() if self.event else None
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            'description',
-            'time',
-            ButtonHolder(
-                Submit('submit', 'Save', css_class='button white')
-            )
-        )
-
-    def clean(self):
-        data = self.cleaned_data
-
-        if data:
-            data['datetime'] = pytz.timezone(settings.TIME_ZONE).localize(datetime.datetime.combine(
-                self.date, self.cleaned_data['time']
-            ))
-            if self.event:
-                data['id'] = self.event.id
-
-        return data
-
-
 class WallpaperForm(forms.ModelForm):
 
     class Meta:
@@ -163,47 +117,3 @@ class WidgetForm(forms.ModelForm):
 
 
 WidgetFormSet = forms.modelformset_factory(models.Widget, WidgetForm, extra=0)
-
-
-class DateForm(forms.ModelForm):
-
-    class Meta:
-        fields = ('date', 'event')
-        model = models.HistoricalDate
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['date'].widget = DatePicker(format='%d-%m-%Y')
-        self.fields['date'].input_formats = ['%d-%m-%Y']
-        self.helper = FormHelper()
-        self.helper.form_tag = False
-        self.helper.layout = Layout(
-            'date',
-            'event',
-            ButtonHolder(
-                Submit('submit', 'Save', css_class='button white')
-            )
-        )
-
-
-class DateSearchForm(forms.Form):
-
-    month = forms.TypedChoiceField(choices=[('', '----------')] + [
-        (num, month_name)
-        for num, month_name in enumerate(MONTH_NAMES, start=1)
-    ], coerce=int, required=False)
-
-    event = forms.CharField(required=False)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.helper = FormHelper()
-        self.helper.form_method = 'GET'
-        self.helper.form_class = 'form-inline'
-        self.helper.layout = Layout(
-            'month',
-            'event',
-            ButtonHolder(
-                Submit('submit', 'Search', css_class='button white')
-            )
-        )

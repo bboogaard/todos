@@ -30,15 +30,4 @@ urlpatterns = [
     # Widgets
     path('widgets/list', views.WidgetListView.as_view(), name="widget_list"),
     path('widgets/<int:widget_id>', views.WidgetJson.as_view(), name="widget.json"),
-
-    # Events
-    path('events/create', views.EventCreateView.as_view(), name="event_create"),
-    path('events/<int:pk>/update', views.EventUpdateView.as_view(), name="event_update"),
-    path('events/<int:pk>/delete', views.EventDeleteView.as_view(), name="event_delete"),
-
-    # Dates
-    path('dates/list', views.DateListView.as_view(), name="date_list"),
-    path('dates/create', views.DateCreateView.as_view(), name="date_create"),
-    path('dates/<int:pk>/update', views.DateUpdateView.as_view(), name="date_update"),
-    path('dates/delete', views.DateDeleteView.as_view(), name="date_delete"),
 ]

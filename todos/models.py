@@ -1,100 +1,8 @@
-import datetime
 import os
 
-import pytz
 from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext as _
-
-from lib.datetime import date_range
-
-
-class SearchMixin(models.Model):
-
-    update_datetime = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        abstract = True
-
-    @property
-    def search_type(self):
-        raise NotImplementedError()
-
-    @property
-    def result_params(self):
-        return {}
-
-    @property
-    def include_in_search(self):
-        return True
-
-    @property
-    def search_field(self):
-        raise NotImplementedError()
-
-    @property
-    def search_result(self):
-        raise NotImplementedError()
-
-
-class EventMixin:
-
-    @property
-    def event_date(self):
-        raise NotImplementedError()
-
-    @property
-    def event_key(self):
-        raise NotImplementedError()
-
-
-class Event(EventMixin, SearchMixin, models.Model):
-
-    description = models.CharField(max_length=100)
-
-    datetime = models.DateTimeField()
-
-    message_sent = models.BooleanField(default=False)
-
-    class Meta:
-        ordering = ('datetime',)
-
-    def __str__(self):
-        return self.description
-
-    @property
-    def datetime_localized(self):
-        return self.datetime.astimezone(pytz.timezone(settings.TIME_ZONE))
-
-    @property
-    def event_date(self):
-        dt = self.datetime_localized.date()
-        return dt.day, dt.month
-
-    @property
-    def event_key(self):
-        return self.datetime
-
-    @property
-    def search_type(self):
-        return 'Event'
-
-    @property
-    def result_params(self):
-        params = super().result_params
-        params.update({
-            'year': self.datetime.year,
-            'month': self.datetime.month
-        })
-        return params
-
-    @property
-    def search_field(self):
-        return self.description
-
-    @property
-    def search_result(self):
-        return self.description
 
 
 class GalleryQuerySet(models.QuerySet):
@@ -150,7 +58,6 @@ class Widget(models.Model):
     WIDGET_TYPE_NOTES = 'notes'
     WIDGET_TYPE_EVENTS = 'events'
     WIDGET_TYPE_IMAGES = 'images'
-    WIDGET_TYPE_DATES = 'dates'
     WIDGET_TYPE_SNIPPET = 'snippet'
     WIDGET_TYPE_UPLOAD = 'upload'
 
@@ -160,7 +67,6 @@ class Widget(models.Model):
         (WIDGET_TYPE_NOTES, _("Notes")),
         (WIDGET_TYPE_EVENTS, _("Events")),
         (WIDGET_TYPE_IMAGES, _("Images")),
-        (WIDGET_TYPE_DATES, _("Historical dates")),
         (WIDGET_TYPE_SNIPPET, _("Code snippets")),
         (WIDGET_TYPE_UPLOAD, _("Upload")),
     )
@@ -188,35 +94,3 @@ class Widget(models.Model):
     @property
     def refresh_interval_msecs(self):
         return 1000 * self.refresh_interval if self.refresh_interval else None
-
-
-class HistoricalDateManager(models.Manager):
-
-    def for_date_range(self, start: datetime.date, end: datetime.date):
-        date_filter = models.Q()
-        for date in date_range(start, end):
-            date_filter |= models.Q(date__month=date.month, date__day=date.day)
-        return self.filter(date_filter)
-
-
-class HistoricalDate(EventMixin, models.Model):
-
-    date = models.DateField()
-
-    event = models.CharField(max_length=255)
-
-    objects = HistoricalDateManager()
-
-    class Meta:
-        ordering = ('date__month', 'date__day', 'date__year')
-
-    def __str__(self):
-        return self.event
-
-    @property
-    def event_date(self):
-        return self.date.day, self.date.month
-
-    @property
-    def event_key(self):
-        return self.date

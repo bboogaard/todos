@@ -1,19 +1,12 @@
 import calendar
-import datetime
-import operator
-from collections import defaultdict
 from constance import config
 from typing import List
 
-from api.views.internal.models import Event
-from todos import models
-from services.api import EventsApi
-from services.events.message_factory import EventMessageFactory
-from services.events.models import EventDate, WeekEvents
-from services.messages.factory import MessageServiceFactory
+from services.api import CalendarApi
+from services.calendar.models import Date, Week
 
 
-class EventsService(EventsApi):
+class CalendarService(CalendarApi):
 
     def __init__(self):
         self.calendar = calendar.Calendar(firstweekday=6)
@@ -26,46 +19,26 @@ class EventsService(EventsApi):
         self.even_weeks_current_date_color = config.even_weeks_current_date_color if \
             config.even_weeks_current_date_color_active else ''
 
-    def get_events(self, instances: List[Event], year: int, month: int) -> \
-            List[WeekEvents]:
-        events_in_db = defaultdict(list)
-        for instance in instances:
-            events_in_db[instance.event_date].append(instance)
-        events = []
+    def get_weeks(self, year: int, month: int) -> List[Week]:
+        weeks = []
         for week in self.calendar.monthdatescalendar(year, month):
             dates = []
             week_number = week[0].isocalendar()[1]
             odd = bool(week_number % 2)
             for day in week:
                 dates.append(
-                    EventDate(
+                    Date(
                         date=day,
                         current_date_color=(
                             self.odd_weeks_current_date_color if odd else self.even_weeks_current_date_color),
-                        events=list(sorted(events_in_db[(day.day, day.month)], key=operator.attrgetter('datetime')))
                     )
                 )
-            events.append(
-                WeekEvents(
+            weeks.append(
+                Week(
                     background=self.odd_weeks_background if odd else self.even_weeks_background,
                     color=self.odd_weeks_color if odd else self.even_weeks_color,
                     week_number=week_number,
                     dates=dates
                 )
             )
-        return events
-
-    def send_upcoming_events(self):
-        start = datetime.date.today()
-        end = start + datetime.timedelta(days=7)
-        queryset = models.Event.objects.filter(datetime__date__range=(start, end)).exclude(message_sent=True)
-        events_in_db = defaultdict(list)
-        for event in queryset:
-            events_in_db[event.datetime_localized.date()].append(event)
-        events = [
-            EventDate(date=day, events=events)
-            for day, events in events_in_db.items()
-        ]
-        if events:
-            MessageServiceFactory.create().send(EventMessageFactory.create(events))
-            queryset.update(message_sent=True)
+        return weeks

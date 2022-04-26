@@ -7,7 +7,33 @@ from django.utils.timezone import now
 from private_storage.fields import PrivateFileField, PrivateImageField
 from private_storage.storage import private_storage
 
-from todos.models import SearchMixin
+
+class SearchMixin(models.Model):
+
+    update_datetime = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+    @property
+    def search_type(self):
+        raise NotImplementedError()
+
+    @property
+    def result_params(self):
+        return {}
+
+    @property
+    def include_in_search(self):
+        return True
+
+    @property
+    def search_field(self):
+        raise NotImplementedError()
+
+    @property
+    def search_result(self):
+        raise NotImplementedError()
 
 
 class ActivatorModelManager(BaseActivatorModelManager):
@@ -251,10 +277,6 @@ class Event(SearchMixin, models.Model):
     def event_date(self):
         dt = self.datetime_localized.date()
         return dt.day, dt.month
-
-    @property
-    def event_key(self):
-        return self.datetime
 
     @property
     def search_type(self):

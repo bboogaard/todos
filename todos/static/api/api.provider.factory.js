@@ -54,7 +54,24 @@ ApiProviderFactory.prototype = {
         provider.carouselUrl = this.settings.carouselUrl;
         return provider;
 
-    }
+    },
+
+    createEventsProvider: function () {
+
+        let self = this;
+        let provider = this.createProvider();
+        provider.weeks = function (data) {
+            return $.ajax({
+                url: self.settings.urls['weeks'],
+                type: "GET",
+                data: data
+            });
+        }
+        provider.year = this.settings.year;
+        provider.month = this.settings.month;
+        return provider;
+
+    },
 
 }
 
@@ -78,6 +95,10 @@ let apiProviderFactory = {
 
     createImages: function() {
         return new ApiProviderFactory(JSON.parse(document.getElementById('image-vars').textContent)).createImagesProvider();
+    },
+
+    createEvents: function() {
+        return new ApiProviderFactory(JSON.parse(document.getElementById('event-vars').textContent)).createEventsProvider();
     }
 
 }

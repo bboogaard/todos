@@ -1,8 +1,8 @@
-from services.events.service import EventsService
+from services.calendar.service import CalendarService
 
 
-class EventsServiceFactory:
+class CalendarServiceFactory:
 
     @classmethod
     def create(cls):
-        return EventsService()
+        return CalendarService()

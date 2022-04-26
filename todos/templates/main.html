@@ -126,18 +126,6 @@
              }
          });
       });
-      $('[data-action="manage-dates"]').click(function (event) {
-         event.preventDefault();
-         tModal.FullModal({
-             title: 'Manage historical dates',
-             url: '{% url "todos:date_list" %}',
-             onClose: function() {
-               if (widgets['dates']) {
-                 widgets['dates'].load();
-               }
-             }
-         });
-      });
       $('[data-action="import-todos"]').click(function (event) {
          event.preventDefault();
          tModal.FullModal({

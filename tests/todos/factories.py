@@ -40,7 +40,7 @@ class EventFactory(factory.django.DjangoModelFactory):
     datetime = factory.LazyAttribute(lambda obj: now())
 
     class Meta:
-        model = models.Event
+        model = data_models.Event
 
 
 class PrivateFileFactory(factory.django.DjangoModelFactory):
@@ -57,12 +57,6 @@ class PrivateImageFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = data_models.PrivateImage
-
-
-class HistoricalDateFactory(factory.django.DjangoModelFactory):
-
-    class Meta:
-        model = models.HistoricalDate
 
 
 class CodeSnippetFactory(factory.django.DjangoModelFactory):
