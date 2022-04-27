@@ -73,6 +73,12 @@ ApiProviderFactory.prototype = {
 
     },
 
+    createCarouselProvider: function () {
+
+        return this.createProvider();
+
+    },
+
 }
 
 let apiProviderFactory = {
@@ -99,6 +105,10 @@ let apiProviderFactory = {
 
     createEvents: function() {
         return new ApiProviderFactory(JSON.parse(document.getElementById('event-vars').textContent)).createEventsProvider();
+    },
+
+    createCarousel: function() {
+        return new ApiProviderFactory(JSON.parse(document.getElementById('carousel-vars').textContent)).createCarouselProvider();
     }
 
 }

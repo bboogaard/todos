@@ -46,6 +46,7 @@
                 $('#todos-modal').Modal({
                     title: "Create event",
                     form: form,
+                    formAction: 'event-create',
                     formSetUp: function(form) {
                         form.find('#id_date').val($(el).attr('data-event-date'));
                     },
@@ -69,6 +70,7 @@
                 $('#todos-modal').Modal({
                     title: "Update event",
                     form: form,
+                    formAction: 'event-update',
                     formSetUp: function(form) {
                         form.find('#id_description').val($(el).attr('data-event-description'));
                         form.find('#id_date').val($(el).attr('data-event-date'));
@@ -197,7 +199,7 @@
             let template = '<a class="event d-block p-1 pl-2 pr-2 mb-1 rounded text-truncate small bg-info text-white" ' +
             'data-event-id="<%= event_id %>" data-event-time="<%= event_time %>" data-event-date="<%= event_date %>" ' +
             'data-event-description="<%= event_description %>">' +
-            '<%= event_time %><br><%= event_description %><i class="fa fa-close" style="cursor: hand"></i></a>';
+            '<%= event_time %><br><%= event_description %><br><i class="fa fa-close" style="cursor: hand"></i></a>';
 
             let events = this.events.filter(function(event) {
                 return event.event_date[0] === day && event.event_date[1] === month;

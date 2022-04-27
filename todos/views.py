@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.views import generic, View
 from haystack.generic_views import SearchView as BaseSearchView
 
-from api.views.internal.factory import ViewSetFactory
+from lib.utils import with_camel_keys
 from services.cron.exceptions import JobNotFound
 from services.cron.factory import CronServiceFactory
 from services.export.factory import ExportServiceFactory, FileExportServiceFactory
@@ -271,15 +271,18 @@ class CarouselView(AccessMixin, generic.TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        images = ViewSetFactory(self.request.user).image_list()
         try:
             image_id = int(self.request.GET.get('image_id', ''))
         except ValueError:
-            image_id = images[0].id if images else 0
-        context.update({
-            'images': images,
-            'image_id': image_id
-        })
+            image_id = None
+        context.update(dict(
+            carousel_vars=with_camel_keys({
+                'urls': {
+                    'list': reverse('api:carousel-list'),
+                },
+                'image_id': image_id
+            })
+        ))
         return context
 
 

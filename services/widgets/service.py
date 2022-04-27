@@ -231,30 +231,6 @@ class EventsWidgetRenderer(WidgetRendererService):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # today = date.today()
-        # form = forms.MonthForm(self.request.GET or None)
-        # if form.is_valid():
-        #     dt = date(year=form.cleaned_data['year'], month=form.cleaned_data['month'], day=1)
-        # else:
-        #     dt = today
-        # prev_dt = dt - relativedelta(months=1)
-        # prev_dt = date(prev_dt.year, prev_dt.month, 1)
-        # next_dt = dt + relativedelta(months=1)
-        # next_dt = date(next_dt.year, next_dt.month, calendar.monthrange(next_dt.year, next_dt.month)[1])
-        # prev_url = reverse('todos:index') + '?' + urlencode({
-        #     'year': prev_dt.year,
-        #     'month': prev_dt.month
-        # })
-        # next_url = reverse('todos:index') + '?' + urlencode({
-        #     'year': next_dt.year,
-        #     'month': next_dt.month
-        # })
-        # instances = ViewSetFactory(self.request.user).event_list(
-        #     {'date_range': ','.join([prev_dt.strftime('%Y-%m-%d'), next_dt.strftime('%Y-%m-%d')])}
-        # )
-        # events = EventsServiceFactory.create().get_events(instances, dt.year, dt.month)
-        # context.update(events=events, dt=dt, prev_url=prev_url, next_url=next_url, today=today)
-
         today = date.today()
         context.update(dict(
             event_vars=with_camel_keys({

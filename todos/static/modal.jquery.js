@@ -9,6 +9,7 @@
         this.cssClasses = settings.cssClasses;
         this.bodyCssClasses = settings.bodyCssClasses;
         this.form = settings.form;
+        this.formAction = settings.formAction;
         this.formSetUp = settings.formSetUp;
         this.formHandler = settings.formHandler;
     }
@@ -37,13 +38,19 @@
                 if (this.formSetUp) {
                     this.formSetUp(this.modal.find('form'));
                 }
+                if (this.formAction) {
+                    this.modal.find('form').find('input[type="submit"]').attr('data-action', this.formAction);
+                }
                 this.modal.find('form').show();
-                this.modal.on('click', 'form input[type="submit"]', function(event) {
+                this.modal.on('click', 'form input[type="submit"][data-action="' + (this.formAction ? this.formAction : "save") + '"]', function(event) {
                     event.preventDefault();
-                    if (self.formHandler) {
-                        self.formHandler($(this).parents('form').serializeArray());
+                    let form = $(this).parents('form');
+                    if (form.get(0).reportValidity()) {
+                        if (self.formHandler) {
+                            self.formHandler(form.serializeArray());
+                        }
+                        self.modal.modal('hide');
                     }
-                    self.modal.modal('hide');
                 });
             }
             if (this.onClose) {
@@ -74,6 +81,7 @@
             cssClasses: settings.cssClasses ? baseCss + ' ' + settings.cssClasses : baseCss,
             bodyCssClasses: settings.bodyCssClasses ? bodyCss + ' ' + settings.bodyCssClasses : bodyCss,
             form: settings.form,
+            formAction: settings.formAction,
             formHandler: settings.formHandler,
             formSetUp: settings.formSetUp
         });

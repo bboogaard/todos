@@ -9,13 +9,10 @@ from rest_framework.viewsets import GenericViewSet
 from api.data.models import PrivateImage
 from api.serializers.images import ListImageSerializer
 from api.views.shared.mixins import ProcessSerializerMixin
+from api.views.shared.pagination import SinglePagePagination
 
 
-class ImageViewSet(ListModelMixin, ProcessSerializerMixin, GenericViewSet):
-
-    filter_backends = [DjangoFilterBackend]
-
-    filterset_class = filterset_factory(PrivateImage, fields=['id'])
+class BaseImageViewSet(ListModelMixin, GenericViewSet):
 
     parser_classes = [JSONParser]
 
@@ -24,7 +21,19 @@ class ImageViewSet(ListModelMixin, ProcessSerializerMixin, GenericViewSet):
     def get_queryset(self):
         return PrivateImage.objects.all()
 
+
+class ImageViewSet(ProcessSerializerMixin, BaseImageViewSet):
+
+    filter_backends = [DjangoFilterBackend]
+
+    filterset_class = filterset_factory(PrivateImage, fields=['id'])
+
     @action(['post'], detail=False, url_path='delete_one')
     def delete_one(self, request, *args, **kwargs):
         PrivateImage.objects.delete_with_file([request.data.get('id')])
         return Response({})
+
+
+class CarouselViewSet(BaseImageViewSet):
+
+    pagination_class = SinglePagePagination
