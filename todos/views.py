@@ -279,6 +279,7 @@ class CarouselView(AccessMixin, generic.TemplateView):
             carousel_vars=with_camel_keys({
                 'urls': {
                     'list': reverse('api:carousel-list'),
+                    'find_page': reverse('api:carousel-find-page')
                 },
                 'image_id': image_id
             })

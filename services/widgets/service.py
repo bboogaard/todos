@@ -1,4 +1,3 @@
-import calendar
 import os
 from datetime import date
 
@@ -6,10 +5,7 @@ from django.http.request import HttpRequest
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.http import urlencode
-from dateutil.relativedelta import relativedelta
 
-from api.views.internal.factory import ViewSetFactory
 from lib.utils import with_camel_keys
 from todos import forms
 from todos.models import Widget

@@ -75,7 +75,17 @@ ApiProviderFactory.prototype = {
 
     createCarouselProvider: function () {
 
-        return this.createProvider();
+        let self = this;
+
+        let provider = this.createProvider();
+        provider.getStartPage = function () {
+            return $.ajax({
+                url: self.settings.urls['find_page'],
+                type: "GET",
+                data: {id: self.settings.imageId}
+            });
+        }
+        return provider;
 
     },
 

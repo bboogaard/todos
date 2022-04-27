@@ -39,3 +39,9 @@ def _get_dict_val(caller: Callable, val: Any):
         return [caller(d) for d in val if all([isinstance(d, dict) for d in val])]
     else:
         return val
+
+
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]

@@ -329,6 +329,48 @@ class TestImageViewSet(TodosViewTest):
         self.assertIsNone(image)
 
 
+class TestCarouselViewSet(TodosViewTest):
+
+    def setUp(self):
+        super().setUp()
+        self.images = [
+            PrivateImageFactory(image=ImageFile(generate_image(), name='foo.png')),
+            PrivateImageFactory(image=ImageFile(generate_image(), name='bar.png')),
+        ]
+
+    def test_list(self):
+        response = self.app.get('/api/v1/carousel', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        result = [item['id'] for item in data['results']]
+        expected = [self.images[1].pk]
+        self.assertEqual(result, expected)
+
+    def test_list_different_page(self):
+        response = self.app.get('/api/v1/carousel?page=2', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        result = [item['id'] for item in data['results']]
+        expected = [self.images[0].pk]
+        self.assertEqual(result, expected)
+
+    def test_find_page(self):
+        response = self.app.get('/api/v1/carousel/find_page?id={}'.format(self.images[0].pk), user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        result = data.get('page')
+        expected = 2
+        self.assertEqual(result, expected)
+
+    def test_find_page_default_page(self):
+        response = self.app.get('/api/v1/carousel/find_page', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        result = data.get('page')
+        expected = 1
+        self.assertEqual(result, expected)
+
+
 class TestUploadViewSet(TodosViewTest):
 
     csrf_checks = False

@@ -8,7 +8,7 @@ from rest_framework.viewsets import GenericViewSet
 
 from api.data.models import PrivateImage
 from api.serializers.images import ListImageSerializer
-from api.views.shared.mixins import ProcessSerializerMixin
+from api.views.shared.mixins import FindPageMixin, ProcessSerializerMixin
 from api.views.shared.pagination import SinglePagePagination
 
 
@@ -34,6 +34,11 @@ class ImageViewSet(ProcessSerializerMixin, BaseImageViewSet):
         return Response({})
 
 
-class CarouselViewSet(BaseImageViewSet):
+class CarouselViewSet(FindPageMixin, BaseImageViewSet):
 
     pagination_class = SinglePagePagination
+
+    @action(['get'], detail=False, url_path='find_page')
+    def find_page(self, request, *args, **kwargs):
+        page = self.get_page_for_object(request.query_params.get('id'))
+        return Response({'page': page})

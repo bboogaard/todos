@@ -15,17 +15,20 @@
 
         init: function() {
 
+            let self = this;
+
             this.initHandlers();
 
-            this.loadItems();
+            $.when(this.provider.getStartPage())
+            .then(function(res) {
+                self.loadItems(parseInt(res.page, 10));
+            });
 
         },
 
         initHandlers: function() {
 
             let self = this;
-
-            console.log(this.nextButton);
 
             this.prevButton.click(function(event) {
                 event.preventDefault();
