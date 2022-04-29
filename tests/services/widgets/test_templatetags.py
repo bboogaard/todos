@@ -1,3 +1,5 @@
+from typing import Dict, List
+
 from django.core.management import call_command
 from django.template import Template
 from django.template.context import RequestContext
@@ -19,19 +21,28 @@ class TestEventService(TestCase):
         return tpl.render(context)
 
     def test_render_widget(self):
-        request = RequestFactory().get('/')
-        widget = Widget.objects.get(type=Widget.WIDGET_TYPE_TODOS)
-        output = self._render('{% render_widget widget %}', request=request, widget=widget)
-        self.assertIn('Enter item', output)
+        self._test_tag('{% render_widget widget %}', {
+            Widget.WIDGET_TYPE_TODOS: ['Enter item']
+        })
 
     def test_render_js(self):
-        request = RequestFactory().get('/')
-        widget = Widget.objects.get(type=Widget.WIDGET_TYPE_EVENTS)
-        output = self._render('{% render_js widget %}', request=request, widget=widget)
-        self.assertIn('events.init.js', output)
+        self._test_tag('{% render_js widget %}', {
+            Widget.WIDGET_TYPE_TODOS: ['todos.init.js'],
+            Widget.WIDGET_TYPE_FILES: ['files.init.js'],
+            Widget.WIDGET_TYPE_NOTES: ['notes.init.js'],
+            Widget.WIDGET_TYPE_EVENTS: ['events.init.js'],
+            Widget.WIDGET_TYPE_IMAGES: ['images.init.js'],
+            Widget.WIDGET_TYPE_SNIPPET: ['snippet.init.js'],
+            Widget.WIDGET_TYPE_UPLOAD: ['upload.init.js']
+        })
 
     def test_render_css(self):
+        self._test_tag('{% render_css widget %}', {
+            Widget.WIDGET_TYPE_EVENTS: ['calendar.css'],
+        })
+
+    def _test_tag(self, tag: str, must_contain: Dict[str, List[str]]):
         request = RequestFactory().get('/')
-        widget = Widget.objects.get(type=Widget.WIDGET_TYPE_EVENTS)
-        output = self._render('{% render_css widget %}', request=request, widget=widget)
-        self.assertIn('calendar.css', output)
+        for widget in Widget.objects.all():
+            output = self._render(tag, request=request, widget=widget)
+            self.assertTrue(all([item in output for item in must_contain.get(widget.type, [])]))

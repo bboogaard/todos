@@ -1,10 +1,10 @@
 $(document).ready(function(){
     $('[data-widget-type="todos"]').on('init', 'ul', function() {
-        $(this).checkList({
+        $(this).Todos({
             saveButton: $('#save'),
             deleteButton: $('#delete'),
             activateButton: $('#activate'),
-            provider: checkListProviderFactory.create(todos_vars.provider)
+            provider: apiProviderFactory.createTodos()
         });
     });
     widgets['todos'].addCallback(function() {

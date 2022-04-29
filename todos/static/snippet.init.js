@@ -1,11 +1,16 @@
 $(document).ready(function(){
-    $('[data-widget-type="snippet"]').on('init', '.snippet-container', function() {
+    $('[data-widget-type="snippet"]').on('init', 'textarea', function() {
         $(this).Snippet({
-            updateUrl: '/snippet/update'
+            saveButton: $('#saveSnippet'),
+            newButton: $('#newSnippet'),
+            deleteButton: $('#deleteSnippet'),
+            prevButton: $('#prevSnippet'),
+            nextButton: $('#nextSnippet'),
+            provider: apiProviderFactory.createSnippets()
         });
     });
     widgets['snippet'].addCallback(function() {
-        $('[data-widget-type="snippet"] .snippet-container').trigger('init');
+        $('[data-widget-type="snippet"] textarea').trigger('init');
     });
-    $('[data-widget-type="snippet"] .snippet-container').trigger('init');
+    $('[data-widget-type="snippet"] textarea').trigger('init');
 });

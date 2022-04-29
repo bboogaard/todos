@@ -1,6 +1,6 @@
 from typing import Optional
 
-from services.widgets.service import CodeSnippetWidgetRenderer, DatesWidgetRenderer, EventsWidgetRenderer, \
+from services.widgets.service import CodeSnippetWidgetRenderer, EventsWidgetRenderer, \
     FilesWidgetRenderer, ImagesWidgetRenderer, NotesWidgetRenderer, TodosWidgetRenderer, UploadWidgetRenderer, \
     WidgetRendererService
 from todos.models import Widget
@@ -20,8 +20,6 @@ class WidgetRendererFactory:
             return EventsWidgetRenderer(widget)
         elif widget.type == Widget.WIDGET_TYPE_IMAGES:
             return ImagesWidgetRenderer(widget)
-        elif widget.type == Widget.WIDGET_TYPE_DATES:
-            return DatesWidgetRenderer(widget)
         elif widget.type == Widget.WIDGET_TYPE_SNIPPET:
             return CodeSnippetWidgetRenderer(widget)
         elif widget.type == Widget.WIDGET_TYPE_UPLOAD:

@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'private_storage',
     'bootstrap_pagination',
+    'api.data',
     # Added.
     'haystack',
     'taggit',
@@ -43,6 +44,8 @@ INSTALLED_APPS = [
     'colorfield',
     'constance',
     'constance.backends.database',
+    'rest_framework',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -199,7 +202,11 @@ CONSTANCE_CONFIG = {
     'even_weeks_color_active': [False, 'Even weeks color active', bool],
     'even_weeks_current_date_color': ['#FF0000', 'Even weeks current date color', 'constance_color'],
     'even_weeks_current_date_color_active': [False, 'Even weeks current date color active', bool],
-    'todos_provider': ['remote', 'Todos provider', 'constance_provider'],
-    'notes_provider': ['remote', 'Notes provider', 'constance_provider'],
     'gallery': [3, 'Gallery', 'constance_gallery'],
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ]
 }

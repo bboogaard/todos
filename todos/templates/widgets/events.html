@@ -1,7 +1,30 @@
+<form id="event-form" action="" method="post" style="display: none">
+    <div id="div_id_description" class="form-group">
+      <label for="id_description" class=" requiredField">
+        Description<span class="asteriskField">*</span>
+      </label>
+      <div class="">
+        <input type="text" name="description" class="textinput textInput form-control" required="" id="id_description">
+      </div>
+    </div>
+    <div id="div_id_time" class="form-group">
+      <label for="id_time" class=" requiredField">
+        Time<span class="asteriskField">*</span>
+      </label>
+      <div class="">
+          <input type="time" name="time" class="form-control" required="" id="id_time">
+          <input type="hidden" name="date" required="" id="id_date">
+      </div>
+    </div>
+    <div class="buttonHolder">
+      <input type="submit" name="submit" value="Save" class="btn btn-primary button white" id="submit-id-submit">
+    </div>
+</form>
+
 <div class="container-fluid">
   <header>
-    <h4 class="text-center"><a class="btn" href="{{ prev_url }}">&laquo;</a>
-        {{ dt|date:'F Y' }}<a class="btn" href="{{ next_url }}">&raquo;</a></h4>
+    <h4 class="text-center"><a class="btn" id="prevButton" href="">&laquo;</a>
+        <span id="monthYear"></span><a class="btn" id="nextButton" href="">&raquo;</a></h4>
     <div class="row d-none d-sm-flex p-1 bg-dark text-white">
       <h5 class="col-sm p-1 text-center">SU</h5>
       <h5 class="col-sm p-1 text-center">MO</h5>
@@ -12,26 +35,6 @@
       <h5 class="col-sm p-1 text-center">SA</h5>
     </div>
   </header>
-  <div class="row border border-right-0 border-bottom-0">
-    {% for week_events in events %}
-      {% for event_date in week_events.dates %}
-    <div class="day col-sm p-2 border border-left-0 border-top-0 text-truncate d-none d-sm-inline-block{% if not week_events.color %} text-muted{%endif %}" data-event-url="{% url 'todos:event_create' %}?event_date={{ event_date.date|date:'Y-m-d' }}" data-event-title="Create event"{% if week_events.week_style %} style="{{ week_events.week_style }}"{% endif %}>
-      <h5 class="row align-items-center">
-        <span class="date{% if event_date.date == today %} current{% endif %} col-1"{% if event_date.date_style %}style="{{ event_date.date_style }}"{% endif %}>{{ event_date.date.day }}</span>
-        <small class="col d-sm-none text-center text-muted"></small>
-        <span class="col-1"></span>
-      </h5>
-      {% for event in event_date.events %}
-          {% if event.type == 'event' %}
-          <a class="event d-block p-1 pl-2 pr-2 mb-1 rounded text-truncate small bg-info text-white" data-event-type="event" data-event-url="{% url 'todos:event_update' pk=event.instance.pk %}" data-event-title="Update event">{{ event.instance.datetime|date:'H:i' }}<br>{{ event }} <form method="post" action="{% url 'todos:event_delete' pk=event.instance.pk %}" style="width:0;height:0"><i class="fa fa-close" style="cursor: hand"></i>{% csrf_token %}</form></a>
-{#          {% elif event.type == 'hist_date' %}#}
-{#          <a class="event d-block p-1 pl-2 pr-2 mb-1 rounded text-truncate small bg-success text-white" data-event-type="hist_date" data-event-title="{{ event.instance.date|date:'j F Y' }}" data-event-content="{{ event.instance.event|escape }}">{{ event.instance.date|date:'Y' }}</a>#}
-          {% endif %}
-      {% endfor %}
-        <small>{% if forloop.counter == 1 %}week {{ week_events.week_number }}{% endif %}</small>
-    </div>
-      {% endfor %}
-    <div class="w-100"></div>
-    {% endfor %}
-  </div>
+  <div class="row border border-right-0 border-bottom-0"></div>
 </div>
+{{ event_vars|json_script:"event-vars" }}

@@ -39,6 +39,12 @@
             <a class="dropdown-item" href="{% url 'todos:notes_export' %}">
                 Export notes
             </a>
+            <a class="dropdown-item" href="#" data-action="import-snippets">
+                Import code snippets
+            </a>
+            <a class="dropdown-item" href="{% url 'todos:snippets_export' %}">
+                Export code snippets
+            </a>
             <a class="dropdown-item" href="#" data-action="import-files">
                 Import files
             </a>
@@ -120,18 +126,6 @@
              }
          });
       });
-      $('[data-action="manage-dates"]').click(function (event) {
-         event.preventDefault();
-         tModal.FullModal({
-             title: 'Manage historical dates',
-             url: '{% url "todos:date_list" %}',
-             onClose: function() {
-               if (widgets['dates']) {
-                 widgets['dates'].load();
-               }
-             }
-         });
-      });
       $('[data-action="import-todos"]').click(function (event) {
          event.preventDefault();
          tModal.FullModal({
@@ -152,6 +146,18 @@
              onClose: function() {
                if (widgets['notes']) {
                  widgets['notes'].load();
+               }
+             }
+         });
+      });
+      $('[data-action="import-snippets"]').click(function (event) {
+         event.preventDefault();
+         tModal.FullModal({
+             title: "Import code snippets",
+             url: '{% url "todos:snippets_import" %}',
+             onClose: function() {
+               if (widgets['snippet']) {
+                 widgets['snippet'].load();
                }
              }
          });

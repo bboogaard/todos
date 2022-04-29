@@ -10,6 +10,9 @@ migrate:
 index:
 	docker-compose run web scripts/index.sh
 
+rebuild_index:
+	docker-compose run web scripts/rebuild_index.sh
+
 test:
 	docker-compose run web scripts/test.sh
 
