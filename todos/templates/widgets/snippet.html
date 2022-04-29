@@ -1,1 +1,10 @@
-<div class="snippet-container"></div>
+<textarea class="form-control" rows="10"></textarea>
+
+<br>
+<button id="saveSnippet" class="btn btn-primary">Save</button>
+<button id="newSnippet" class="btn btn-primary">New</button>
+<button id="deleteSnippet" class="btn btn-primary">Delete</button>
+<button class="btn" id="prevSnippet">&laquo;</button>
+<button class="btn" id="nextSnippet">&raquo;</button>
+
+{{ snippet_vars|json_script:"snippet-vars" }}

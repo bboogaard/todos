@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from api.data import models as data_models
 from todos import models
 
 
@@ -31,9 +32,11 @@ class TodoAdmin(ItemAdmin, admin.ModelAdmin):
 
 class NoteAdmin(ItemAdmin, admin.ModelAdmin):
 
-    list_display = ('text_or_empty', 'status', 'position')
+    list_display = ('text_or_empty', 'status')
 
-    readonly_fields = ('status', 'position')
+    ordering = ('-activate_date',)
+
+    readonly_fields = ('status',)
 
     search_fields = ('text',)
 
@@ -41,18 +44,12 @@ class NoteAdmin(ItemAdmin, admin.ModelAdmin):
         return str(obj)
 
 
-class HistoricalDateAdmin(admin.ModelAdmin):
-
-    list_display = ('date', 'event')
-
-
-admin.site.register(models.Todo, TodoAdmin)
+admin.site.register(data_models.Todo, TodoAdmin)
 admin.site.register(models.Gallery)
 admin.site.register(models.Wallpaper)
-admin.site.register(models.PrivateFile)
-admin.site.register(models.PrivateImage)
-admin.site.register(models.Note, NoteAdmin)
+admin.site.register(data_models.PrivateFile)
+admin.site.register(data_models.PrivateImage)
+admin.site.register(data_models.Note, NoteAdmin)
 admin.site.register(models.Widget)
-admin.site.register(models.Event)
-admin.site.register(models.HistoricalDate, HistoricalDateAdmin)
-admin.site.register(models.CodeSnippet)
+admin.site.register(data_models.Event)
+admin.site.register(data_models.CodeSnippet)

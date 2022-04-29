@@ -1,3 +1,3 @@
 #!/bin/bash
 
-python manage.py dumpdata todos --settings=app.settings-docker
+python manage.py dumpdata data todos --settings=app.settings-docker

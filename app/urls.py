@@ -22,6 +22,7 @@ from django.urls import include, path, re_path as url
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('todos.urls')),
+    path('api/v1/', include('api.urls', namespace='api')),
     url('^private-media/', include(private_storage.urls)),
 ]
 

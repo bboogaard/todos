@@ -1,28 +1,21 @@
-import datetime
 from io import BytesIO
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.db import transaction
 from django.http import Http404
-from django.http.response import JsonResponse, HttpResponse, HttpResponseBadRequest
+from django.http.response import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.template.context import RequestContext
-from django.template.loader import render_to_string
 from django.urls import reverse
-from django.utils.http import urlencode
 from django.views import generic, View
 from haystack.generic_views import SearchView as BaseSearchView
-from private_storage.storage import private_storage
 
-from lib.code_snippets import get_navigation_objects
-from services.api import Api
+from lib.utils import with_camel_keys
 from services.cron.exceptions import JobNotFound
 from services.cron.factory import CronServiceFactory
-from services.factory import FilesServiceFactory, ItemServiceFactory
+from services.export.factory import ExportServiceFactory, FileExportServiceFactory
 from services.widgets.factory import WidgetRendererFactory
 from todos import forms, models
-from todos.templatetags.url_tags import add_page_param
 
 
 class AccessMixin(View):
@@ -58,51 +51,28 @@ class SearchView(BaseSearchView):
     form_class = forms.SearchForm
 
 
-class TodosSaveJson(AccessMixin, View):
-
-    @transaction.atomic()
-    def post(self, request, *args, **kwargs):
-        items = request.POST.getlist('items', [])
-        ItemServiceFactory.todos().save(items)
-        return JsonResponse(data={})
-
-
-class TodosActivateJson(AccessMixin, View):
-
-    @transaction.atomic()
-    def post(self, request, *args, **kwargs):
-        items = request.POST.getlist('items', [])
-        ItemServiceFactory.todos().activate(items)
-        return JsonResponse(data={})
-
-
 class TodosExportView(AccessMixin, View):
 
     def get(self, request, *args, **kwargs):
-        fh = ItemServiceFactory.todos().dump('todos.txt')
+        fh = ExportServiceFactory.todos().dump()
         response = HttpResponse(fh.read(), content_type='text/plain')
         response['Content-disposition'] = 'attachment'
         return response
 
 
-class NotesSaveJson(AccessMixin, View):
-
-    @transaction.atomic()
-    def post(self, request, *args, **kwargs):
-        searching = request.POST.get('searching', 'false') == 'true'
-        items = request.POST.getlist('items', [])
-        try:
-            index = int(request.POST.get('index', '0'))
-        except (TypeError, ValueError):
-            index = 0
-        ItemServiceFactory.notes().save(items, is_filtered=searching, index=index)
-        return JsonResponse(data={})
-
-
 class NotesExportView(AccessMixin, View):
 
     def get(self, request, *args, **kwargs):
-        fh = ItemServiceFactory.notes().dump('notes.txt')
+        fh = ExportServiceFactory.notes().dump()
+        response = HttpResponse(fh.read(), content_type='text/plain')
+        response['Content-disposition'] = 'attachment'
+        return response
+
+
+class CodeSnippetsExportView(AccessMixin, View):
+
+    def get(self, request, *args, **kwargs):
+        fh = ExportServiceFactory.snippets().dump()
         response = HttpResponse(fh.read(), content_type='text/plain')
         response['Content-disposition'] = 'attachment'
         return response
@@ -171,22 +141,6 @@ class WallpaperDeleteView(AccessMixin, View):
         return redirect(reverse('todos:wallpaper_list'))
 
 
-class FileUploadJson(AccessMixin, View):
-
-    form_class = forms.UploadFileForm
-
-    def post(self, request, *args, **kwargs):
-        form = self.get_form(request.POST or None, files=request.FILES or None)
-        if form.is_valid():
-            form.save()
-            return JsonResponse({})
-
-        return JsonResponse({}, status=400)
-
-    def get_form(self, data=None, files=None, **kwargs):
-        return self.form_class(data, files=files, **kwargs)
-
-
 class FileViewMixin:
 
     file_type = None
@@ -196,40 +150,16 @@ class FileViewMixin:
         return super().dispatch(request, *args, **kwargs)
 
 
-class FileDeleteJson(FileViewMixin, AccessMixin, View):
-
-    def post(self, request, *args, **kwargs):
-        obj = self.get_object()
-        if not obj:
-            return JsonResponse({}, status=404)
-        filename = obj.filename
-        obj.delete()
-        private_storage.delete(filename)
-        return JsonResponse({})
-
-    def get_object(self):
-        model = {
-            'file': models.PrivateFile,
-            'image': models.PrivateImage
-        }.get(self.file_type)
-        try:
-            return model.objects.get(pk=self.kwargs['pk'])
-        except model.DoesNotExist:
-            return None
-
-
 class FileExportView(FileViewMixin, AccessMixin, View):
 
     def get(self, request, *args, **kwargs):
-        fh = FilesServiceFactory.create(self.file_type).dump()
+        fh = FileExportServiceFactory.create(self.file_type).dump()
         response = HttpResponse(fh.read(), content_type='application/zip')
         response['Content-disposition'] = 'attachment'
         return response
 
 
 class ImportView(AccessMixin, generic.TemplateView):
-
-    service: Api
 
     message: str
 
@@ -245,7 +175,7 @@ class ImportView(AccessMixin, generic.TemplateView):
     def post(self, request, *args, **kwargs):
         form = self.get_form(request.POST or None, files=request.FILES or None)
         if form.is_valid():
-            self.get_service().load(BytesIO(form.files['file'].read()))
+            self.import_file(BytesIO(form.files['file'].read()))
             messages.add_message(request, messages.SUCCESS, self.get_message())
             return redirect(request.path)
 
@@ -260,8 +190,8 @@ class ImportView(AccessMixin, generic.TemplateView):
     def get_form(self, data=None, files=None, **kwargs):
         return forms.ImportForm(data, files=files, **kwargs)
 
-    def get_service(self):
-        return self.service
+    def import_file(self, fh):
+        raise NotImplementedError()
 
     def get_message(self):
         return self.message
@@ -272,26 +202,38 @@ class ImportView(AccessMixin, generic.TemplateView):
 
 class TodosImportView(ImportView):
 
-    service = ItemServiceFactory.todos()
-
     message = "Todo's imported"
 
     title = "Import todo's"
 
+    def import_file(self, fh):
+        ExportServiceFactory.todos().load(fh)
+
 
 class NotesImportView(ImportView):
-
-    service = ItemServiceFactory.notes()
 
     message = "Notes imported"
 
     title = "Import notes"
 
+    def import_file(self, fh):
+        ExportServiceFactory.notes().load(fh)
+
+
+class CodeSnippetsImportView(ImportView):
+
+    message = "Code snippets imported"
+
+    title = "Import code snippets"
+
+    def import_file(self, fh):
+        ExportServiceFactory.snippets().load(fh)
+
 
 class FileImportView(FileViewMixin, ImportView):
 
-    def get_service(self):
-        return FilesServiceFactory.create(self.file_type)
+    def import_file(self, fh):
+        return FileExportServiceFactory.create(self.file_type).load(fh)
 
     def get_message(self):
         return "Files imported" if self.file_type == 'file' else "Images imported"
@@ -323,85 +265,25 @@ class WidgetListView(AccessMixin, generic.TemplateView):
         return forms.WidgetFormSet(data, files, **kwargs)
 
 
-class EventCreateMixin(View):
-
-    template_name = 'events/event_create.html'
-
-    def get(self, request, *args, **kwargs):
-        form = self.get_form()
-        context = self.get_context_data(form=form)
-        return self.render_to_response(context)
-
-    def post(self, request, *args, **kwargs):
-        form = self.get_form(request.POST or None)
-        if form.is_valid():
-            instance = form.save()
-            return redirect(reverse('todos:event_update', kwargs={'pk': instance.pk}))
-
-        context = self.get_context_data(form=form)
-        return self.render_to_response(context)
-
-
-class EventCreateView(AccessMixin, EventCreateMixin, generic.TemplateView):
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.event_date = datetime.datetime.strptime(request.GET.get('event_date', ''), '%Y-%m-%d').date()
-        except ValueError:
-            return HttpResponseBadRequest()
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'event_date': self.event_date
-        })
-        return context
-
-    def get_form(self, data=None, **kwargs):
-        return forms.EventForm(data, date=self.event_date, **kwargs)
-
-
-class EventUpdateView(AccessMixin, EventCreateMixin, generic.TemplateView):
-
-    def dispatch(self, request, pk, *args, **kwargs):
-        self.object = get_object_or_404(models.Event, pk=pk)
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context.update({
-            'event_date': self.object.datetime.date()
-        })
-        return context
-
-    def get_form(self, data=None, **kwargs):
-        return forms.EventForm(data, date=self.object.datetime.date(), instance=self.object, **kwargs)
-
-
-class EventDeleteView(AccessMixin, generic.TemplateView):
-
-    def post(self, request, pk, *args, **kwargs):
-        self.object = get_object_or_404(models.Event, pk=pk)
-        self.object.delete()
-        return redirect(reverse('todos:index'))
-
-
 class CarouselView(AccessMixin, generic.TemplateView):
 
     template_name = 'carousel.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        images = list(models.PrivateImage.objects.all())
         try:
             image_id = int(self.request.GET.get('image_id', ''))
         except ValueError:
-            image_id = images[0].pk if images else 0
-        context.update({
-            'images': images,
-            'image_id': image_id
-        })
+            image_id = None
+        context.update(dict(
+            carousel_vars=with_camel_keys({
+                'urls': {
+                    'list': reverse('api:carousel-list'),
+                    'find_page': reverse('api:carousel-find-page')
+                },
+                'image_id': image_id
+            })
+        ))
         return context
 
 
@@ -418,85 +300,6 @@ class WidgetJson(AccessMixin, View):
         return JsonResponse({'html': html})
 
 
-class DateListView(AccessMixin, generic.ListView):
-
-    model = models.HistoricalDate
-
-    paginate_by = 5
-
-    template_name = 'dates/date_list.html'
-
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(object_list=object_list, **kwargs)
-        context['search_form'] = forms.DateSearchForm(self.request.GET or None)
-        return context
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        form = forms.DateSearchForm(self.request.GET or None)
-        if form.is_valid():
-            data = form.cleaned_data
-            month = data.get('month')
-            if month:
-                queryset = queryset.filter(date__month=month)
-            event = data.get('event')
-            if event:
-                queryset = queryset.filter(event__icontains=event)
-        return queryset
-
-
-class DateEditMixin(generic.TemplateView):
-
-    def get(self, request, *args, **kwargs):
-        form = self.get_form()
-        context = self.get_context_data(form=form)
-        return self.render_to_response(context)
-
-    def post(self, request, *args, **kwargs):
-        form = self.get_form(request.POST or None)
-        if form.is_valid():
-            form.save()
-            redirect_url = reverse('todos:date_list')
-            return redirect(add_page_param({'request': request}, redirect_url))
-
-        context = self.get_context_data(form=form)
-        return self.render_to_response(context)
-
-    def get_form(self, data=None, **kwargs):
-        return forms.DateForm(data, **kwargs)
-
-
-class DateCreateView(AccessMixin, DateEditMixin):
-
-    template_name = 'dates/date_create.html'
-
-
-class DateUpdateView(AccessMixin, DateEditMixin):
-
-    template_name = 'dates/date_update.html'
-
-    def dispatch(self, request, pk, *args, **kwargs):
-        self.object = get_object_or_404(models.HistoricalDate, pk=pk)
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_form(self, data=None, **kwargs):
-        kwargs['instance'] = self.object
-        return super().get_form(data, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['date'] = self.object
-        return context
-
-
-class DateDeleteView(AccessMixin, View):
-
-    def post(self, request, *args, **kwargs):
-        date_ids = request.POST.getlist('date', [])
-        models.HistoricalDate.objects.filter(pk__in=date_ids).delete()
-        return redirect(reverse('todos:date_list'))
-
-
 class CronView(AccessMixin, View):
 
     def get(self, request, job_name, *args, **kwargs):
@@ -507,87 +310,3 @@ class CronView(AccessMixin, View):
             raise Http404()
 
         return HttpResponse(cron_service.logger.get_value().encode(), content_type='text/plain')
-
-
-class CodeSnippetFormMixin:
-
-    def get_form(self, data=None, **kwargs):
-        kwargs['initial'] = {
-            'text': self.object.text
-        }
-        return forms.CodeSnippetForm(data=data, **kwargs)
-
-    def render_form(self, form):
-        navigation_objects = get_navigation_objects(self.object)
-        update_action = reverse('todos:snippet_update.json') + '?' + urlencode({
-            'object_id': self.object.pk
-        })
-        delete_action = reverse('todos:snippet_delete.json') + '?' + urlencode({
-            'object_id': self.object.pk
-        })
-        return render_to_string(
-            'snippets/snippet_update.html',
-            {
-                'update_action': update_action,
-                'delete_action': delete_action,
-                'form': form,
-                'navigation': navigation_objects
-            },
-            request=self.request
-        )
-
-
-class CodeSnippetEditJson(CodeSnippetFormMixin, AccessMixin, View):
-
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form = self.get_form()
-        return JsonResponse({'html': self.render_form(form)})
-
-    def post(self, request, *args, **kwargs):
-        action = request.GET.get('action', '')
-        self.object = self.get_object(action)
-        form = self.get_form(request.POST or None)
-        if not form.is_valid():
-            return JsonResponse({}, status=400)
-
-        self.object.text = form.cleaned_data['text'] if not action or action != 'new' else ''
-        self.object.save()
-        form = self.get_form()
-        return JsonResponse({'html': self.render_form(form)})
-
-    def get_object(self, action=None):
-        obj = self.get_queryset().first() if not action or action != 'new' else None
-        return obj if obj else models.CodeSnippet.objects.create()
-
-    def get_queryset(self):
-        queryset = models.CodeSnippet.objects.get_queryset()
-        pk = self.request.GET.get('object_id')
-        if pk:
-            queryset = queryset.filter(pk=pk)
-        return queryset
-
-
-class CodeSnippetDeleteJson(CodeSnippetFormMixin, AccessMixin, View):
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        if not self.object:
-            return JsonResponse({}, status=404)
-        navigation_objects = get_navigation_objects(self.object)
-
-        self.object.delete()
-        self.object = self.get_or_create_object(navigation_objects)
-
-        form = self.get_form()
-        return JsonResponse({'html': self.render_form(form)})
-
-    def get_object(self):
-        try:
-            return models.CodeSnippet.objects.get(pk=self.request.GET.get('object_id'))
-        except (models.CodeSnippet.DoesNotExist, TypeError):
-            pass
-
-    def get_or_create_object(self, navigation):
-        pk = navigation['prev'] if navigation['prev'] else navigation['next']
-        return models.CodeSnippet.objects.get(pk=pk) if pk else models.CodeSnippet.objects.create()

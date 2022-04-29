@@ -1,4 +1,4 @@
-<form action="{% url 'todos:file_upload.json' %}" class="dropzone" id="file-dropzone">
+<form action="{% url 'api:upload-upload-one' %}" class="dropzone" id="file-dropzone">
     {% csrf_token %}
 </form>
 <button class="btn btn-primary" id="file-dropzone-clear">Clear</button>
