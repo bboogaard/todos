@@ -55,12 +55,12 @@ class FileExportMixin(ProcessSerializerMixin):
 
     @action(['post'], detail=False, url_path='export', parser_classes=[FormParser, MultiPartParser])
     def export_files(self, request, *args, **kwargs):
-        data = self.validate_serializer(ExportFileSerializer, request, data=request.data)
+        data = self.validate_serializer(ExportFileSerializer, request)
         fh = FileExportServiceFactory.create(self.file_export_type).dump()
         return FileResponse(fh, filename=data['filename'], as_attachment=True)
 
     @action(['post'], detail=False, url_path='import', parser_classes=[FormParser, MultiPartParser])
     def import_files(self, request, *args, **kwargs):
-        data = self.validate_serializer(ImportFileSerializer, request, data=request.data)
+        data = self.validate_serializer(ImportFileSerializer, request)
         FileExportServiceFactory.create(self.file_export_type).load(data['file'])
         return Response({})
