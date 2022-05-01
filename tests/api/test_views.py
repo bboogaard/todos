@@ -1,6 +1,12 @@
 import datetime
 import json
+import os.path
+import shutil
+import uuid
+from io import BytesIO
+from zipfile import ZipFile
 
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.images import ImageFile
 from django.utils.timezone import make_aware, now, utc
@@ -289,6 +295,66 @@ class TestFileViewSet(TodosViewTest):
         self.assertIsNone(file)
 
 
+class TestFileExport(TodosViewTest):
+
+    csrf_checks = False
+
+    def setUp(self):
+        super().setUp()
+        self.filenames = list(map(lambda id: str(id) + '.txt', [uuid.uuid4(), uuid.uuid4()]))
+        self.tmp_dir = os.path.join(settings.MEDIA_ROOT, 'tmp')
+        os.makedirs(self.tmp_dir, exist_ok=True)
+
+    def tearDown(self):
+        super().tearDown()
+        shutil.rmtree(self.tmp_dir)
+
+    def test_export_files(self):
+        PrivateFileFactory(file=ContentFile(b'Baz', name=self.filenames[0]))
+        PrivateFileFactory(file=ContentFile(b'Qux', name=self.filenames[1]))
+        data = {
+            'filename': 'export.zip'
+        }
+        response = self.app.post('/api/v1/files/export', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+        fh = BytesIO(response.content)
+        with ZipFile(fh, 'r') as infile:
+            infile.extractall(self.tmp_dir)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp_dir, self.filenames[0])))
+        self.assertTrue(os.path.exists(os.path.join(self.tmp_dir, self.filenames[1])))
+        with open(os.path.join(self.tmp_dir, self.filenames[0]), 'r') as fh:
+            content = fh.read()
+            self.assertEqual(content, 'Baz')
+        with open(os.path.join(self.tmp_dir, self.filenames[1]), 'r') as fh:
+            content = fh.read()
+            self.assertEqual(content, 'Qux')
+
+    def test_import_files(self):
+        with open(os.path.join(self.tmp_dir, self.filenames[0]), 'w') as fh:
+            fh.write('Baz')
+        with open(os.path.join(self.tmp_dir, self.filenames[1]), 'w') as fh:
+            fh.write('Qux')
+
+        fh = BytesIO()
+
+        with ZipFile(fh, 'w') as outfile:
+            outfile.write(os.path.join(self.tmp_dir, self.filenames[0]), self.filenames[0])
+            outfile.write(os.path.join(self.tmp_dir, self.filenames[1]), self.filenames[1])
+        fh.seek(0)
+
+        data = {
+            'file': Upload('file.zip', fh.read(), 'application/zip')
+        }
+        response = self.app.post('/api/v1/files/import', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+        files = [b'Baz', b'Qux']
+        for num, file in enumerate(self.filenames):
+            pfile = PrivateFile.objects.get(file=file)
+            self.assertEqual(pfile.file.read(), files[num])
+
+
 class TestImageViewSet(TodosViewTest):
 
     csrf_checks = False
@@ -327,6 +393,68 @@ class TestImageViewSet(TodosViewTest):
         self.assertEqual(response.status_code, 200)
         image = PrivateImage.objects.filter(pk=self.images[0].pk).first()
         self.assertIsNone(image)
+
+
+class TestImageExport(TodosViewTest):
+
+    csrf_checks = False
+
+    def setUp(self):
+        super().setUp()
+        self.filenames = list(map(lambda id: str(id) + '.png', [uuid.uuid4(), uuid.uuid4()]))
+        self.tmp_dir = os.path.join(settings.MEDIA_ROOT, 'tmp')
+        os.makedirs(self.tmp_dir, exist_ok=True)
+
+    def tearDown(self):
+        super().tearDown()
+        shutil.rmtree(self.tmp_dir)
+
+    def test_export_files(self):
+        images = [generate_image('foo'), generate_image('bar')]
+        PrivateImageFactory(image=ImageFile(images[0], name=self.filenames[0]))
+        PrivateImageFactory(image=ImageFile(images[1], name=self.filenames[1]))
+
+        data = {
+            'filename': 'export.zip'
+        }
+        response = self.app.post('/api/v1/images/export', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+        fh = BytesIO(response.content)
+        with ZipFile(fh, 'r') as infile:
+            infile.extractall(self.tmp_dir)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp_dir, self.filenames[0])))
+        self.assertTrue(os.path.exists(os.path.join(self.tmp_dir, self.filenames[1])))
+        with open(os.path.join(self.tmp_dir, self.filenames[0]), 'rb') as fh:
+            content = ImageFile(fh).read()
+            self.assertEqual(content, images[0].getvalue())
+        with open(os.path.join(self.tmp_dir, self.filenames[1]), 'rb') as fh:
+            content = ImageFile(fh).read()
+            self.assertEqual(content, images[1].getvalue())
+
+    def test_import_files(self):
+        images = [generate_image('foo').getvalue(), generate_image('bar').getvalue()]
+        with open(os.path.join(self.tmp_dir, self.filenames[0]), 'wb') as fh:
+            fh.write(images[0])
+        with open(os.path.join(self.tmp_dir, self.filenames[1]), 'wb') as fh:
+            fh.write(images[1])
+
+        fh = BytesIO()
+
+        with ZipFile(fh, 'w') as outfile:
+            outfile.write(os.path.join(self.tmp_dir, self.filenames[0]), self.filenames[0])
+            outfile.write(os.path.join(self.tmp_dir, self.filenames[1]), self.filenames[1])
+        fh.seek(0)
+
+        data = {
+            'file': Upload('file.zip', fh.read(), 'application/zip')
+        }
+        response = self.app.post('/api/v1/images/import', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+        for num, file in enumerate(self.filenames):
+            pfile = PrivateImage.objects.get(image=file)
+            self.assertEqual(pfile.image.read(), images[num])
 
 
 class TestCarouselViewSet(TodosViewTest):

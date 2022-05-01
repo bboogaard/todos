@@ -44,7 +44,10 @@ ApiProviderFactory.prototype = {
 
     createFilesProvider: function () {
 
-        return this.createProvider();
+        let self = this;
+        let provider = this.createProvider();
+        provider.importUrl = this.settings.urls['import'];
+        return provider;
 
     },
 
@@ -52,6 +55,7 @@ ApiProviderFactory.prototype = {
 
         let provider = this.createProvider();
         provider.carouselUrl = this.settings.carouselUrl;
+        provider.importUrl = this.settings.urls['import'];
         return provider;
 
     },

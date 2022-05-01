@@ -13,7 +13,7 @@ from haystack.generic_views import SearchView as BaseSearchView
 from lib.utils import with_camel_keys
 from services.cron.exceptions import JobNotFound
 from services.cron.factory import CronServiceFactory
-from services.export.factory import ExportServiceFactory, FileExportServiceFactory
+from services.export.factory import ExportServiceFactory
 from services.widgets.factory import WidgetRendererFactory
 from todos import forms, models
 
@@ -150,15 +150,6 @@ class FileViewMixin:
         return super().dispatch(request, *args, **kwargs)
 
 
-class FileExportView(FileViewMixin, AccessMixin, View):
-
-    def get(self, request, *args, **kwargs):
-        fh = FileExportServiceFactory.create(self.file_type).dump()
-        response = HttpResponse(fh.read(), content_type='application/zip')
-        response['Content-disposition'] = 'attachment'
-        return response
-
-
 class ImportView(AccessMixin, generic.TemplateView):
 
     message: str
@@ -228,18 +219,6 @@ class CodeSnippetsImportView(ImportView):
 
     def import_file(self, fh):
         ExportServiceFactory.snippets().load(fh)
-
-
-class FileImportView(FileViewMixin, ImportView):
-
-    def import_file(self, fh):
-        return FileExportServiceFactory.create(self.file_type).load(fh)
-
-    def get_message(self):
-        return "Files imported" if self.file_type == 'file' else "Images imported"
-
-    def get_title(self):
-        return "Import files" if self.file_type == 'file' else "Import images"
 
 
 class WidgetListView(AccessMixin, generic.TemplateView):

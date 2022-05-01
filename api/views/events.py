@@ -39,4 +39,4 @@ class EventViewSet(ListModelMixin, RetrieveModelMixin, CreateMixin, GenericViewS
 
     @action(['get'], detail=False, url_path='weeks')
     def weeks(self, request, *args, **kwargs):
-        return self.validate_with_response(WeeksSerializer, request)
+        return self.validate_with_response(WeeksSerializer, request, data=request.query_params)

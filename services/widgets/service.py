@@ -124,6 +124,7 @@ class FilesWidgetRenderer(WidgetRendererService):
                 'urls': {
                     'list': reverse('api:files-list'),
                     'delete': reverse('api:files-delete-one'),
+                    'import': reverse('api:files-import-files'),
                 },
                 'search_query': search_query
             })
@@ -134,7 +135,7 @@ class FilesWidgetRenderer(WidgetRendererService):
         return {
             'js': {
                 'static': (
-                    'api/files.jquery.js', 'files.init.js'
+                    'jquery.upload.js', 'api/files.jquery.js', 'files.init.js'
                 )
             }
         }
@@ -162,6 +163,7 @@ class ImagesWidgetRenderer(WidgetRendererService):
                 'urls': {
                     'list': reverse('api:images-list'),
                     'delete': reverse('api:images-delete-one'),
+                    'import': reverse('api:images-import-files'),
                 },
                 'carousel_url': reverse('todos:carousel'),
                 'search_query': search_query

@@ -8,7 +8,7 @@ from rest_framework.viewsets import GenericViewSet
 
 from api.data.models import PrivateImage
 from api.serializers.images import ListImageSerializer
-from api.views.shared.mixins import FindPageMixin, ProcessSerializerMixin
+from api.views.shared.mixins import FindPageMixin, FileExportMixin
 from api.views.shared.pagination import SinglePagePagination
 
 
@@ -22,7 +22,9 @@ class BaseImageViewSet(ListModelMixin, GenericViewSet):
         return PrivateImage.objects.all()
 
 
-class ImageViewSet(ProcessSerializerMixin, BaseImageViewSet):
+class ImageViewSet(FileExportMixin, BaseImageViewSet):
+
+    file_export_type = 'image'
 
     filter_backends = [DjangoFilterBackend]
 

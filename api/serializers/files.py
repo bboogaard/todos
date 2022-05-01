@@ -1,3 +1,5 @@
+import os.path
+
 from rest_framework import serializers
 
 from api.data.models import PrivateFile
