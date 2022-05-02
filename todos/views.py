@@ -51,24 +51,6 @@ class SearchView(BaseSearchView):
     form_class = forms.SearchForm
 
 
-class TodosExportView(AccessMixin, View):
-
-    def get(self, request, *args, **kwargs):
-        fh = ExportServiceFactory.todos().dump()
-        response = HttpResponse(fh.read(), content_type='text/plain')
-        response['Content-disposition'] = 'attachment'
-        return response
-
-
-class NotesExportView(AccessMixin, View):
-
-    def get(self, request, *args, **kwargs):
-        fh = ExportServiceFactory.notes().dump()
-        response = HttpResponse(fh.read(), content_type='text/plain')
-        response['Content-disposition'] = 'attachment'
-        return response
-
-
 class CodeSnippetsExportView(AccessMixin, View):
 
     def get(self, request, *args, **kwargs):
@@ -141,15 +123,6 @@ class WallpaperDeleteView(AccessMixin, View):
         return redirect(reverse('todos:wallpaper_list'))
 
 
-class FileViewMixin:
-
-    file_type = None
-
-    def dispatch(self, request, *args, **kwargs):
-        self.file_type = kwargs['file_type']
-        return super().dispatch(request, *args, **kwargs)
-
-
 class ImportView(AccessMixin, generic.TemplateView):
 
     message: str
@@ -189,26 +162,6 @@ class ImportView(AccessMixin, generic.TemplateView):
 
     def get_title(self):
         return self.title
-
-
-class TodosImportView(ImportView):
-
-    message = "Todo's imported"
-
-    title = "Import todo's"
-
-    def import_file(self, fh):
-        ExportServiceFactory.todos().load(fh)
-
-
-class NotesImportView(ImportView):
-
-    message = "Notes imported"
-
-    title = "Import notes"
-
-    def import_file(self, fh):
-        ExportServiceFactory.notes().load(fh)
 
 
 class CodeSnippetsImportView(ImportView):

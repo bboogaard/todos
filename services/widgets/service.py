@@ -175,7 +175,7 @@ class ImagesWidgetRenderer(WidgetRendererService):
     def media(self):
         return {
             'js': {
-                'static': ('api/images.jquery.js', 'images.init.js',)
+                'static': ('jquery.upload.js', 'api/images.jquery.js', 'images.init.js',)
             }
         }
 
@@ -204,6 +204,7 @@ class NotesWidgetRenderer(WidgetRendererService):
                     'create': reverse('api:notes-create-one'),
                     'update': reverse('api:notes-update-one'),
                     'delete': reverse('api:notes-delete-one'),
+                    'import': reverse('api:notes-import-items'),
                 },
                 'search_query': search_query
             })
@@ -214,7 +215,7 @@ class NotesWidgetRenderer(WidgetRendererService):
         return {
             'js': {
                 'static': (
-                    'js.cookie.min.js', 'api/notes.jquery.js', 'notes.init.js'
+                    'js.cookie.min.js', 'jquery.upload.js', 'api/notes.jquery.js', 'notes.init.js'
                 )
             }
         }

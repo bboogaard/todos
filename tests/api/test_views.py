@@ -223,6 +223,32 @@ class TestNoteViewSet(TodosViewTest):
         self.assertEqual(note.status, Note.INACTIVE_STATUS)
 
 
+class TestNotesExport(TodosViewTest):
+
+    csrf_checks = False
+
+    def test_export_items(self):
+        NoteFactory(text='Lorem')
+        NoteFactory(text='Ipsum')
+        data = {
+            'filename': 'export.txt'
+        }
+        response = self.app.post('/api/v1/notes/export', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        fh = b'{"text": "Ipsum", "position": 2}\n{"text": "Lorem", "position": 1}'
+        self.assertEqual(response.content, fh)
+
+    def test_import_items(self):
+        fh = b'{"text": "Lorem", "position": 1}\n{"text": "Ipsum", "position": 2}'
+        data = {'file': Upload('file.txt', fh, 'text/plain')}
+
+        response = self.app.post('/api/v1/notes/import', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200, response.content)
+        result = list(Note.objects.order_by('text').values_list('text', flat=True))
+        expected = ['Ipsum', 'Lorem']
+        self.assertEqual(result, expected)
+
+
 class TestCodeSnippetViewSet(TodosViewTest):
 
     csrf_checks = False

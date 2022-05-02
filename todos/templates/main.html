@@ -27,12 +27,6 @@
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Import/export</a>
         <div class="dropdown-menu" aria-labelledby="dropdown03">
-            <a class="dropdown-item" href="#" data-action="import-notes">
-                Import notes
-            </a>
-            <a class="dropdown-item" href="{% url 'todos:notes_export' %}">
-                Export notes
-            </a>
             <a class="dropdown-item" href="#" data-action="import-snippets">
                 Import code snippets
             </a>
@@ -105,18 +99,6 @@
              url: '{% url "todos:wallpaper_list" %}',
              onClose: function() {
                location.href = '{{ request.path }}' + window.location.search;
-             }
-         });
-      });
-      $('[data-action="import-notes"]').click(function (event) {
-         event.preventDefault();
-         tModal.FullModal({
-             title: "Import notes",
-             url: '{% url "todos:notes_import" %}',
-             onClose: function() {
-               if (widgets['notes']) {
-                 widgets['notes'].load();
-               }
              }
          });
       });

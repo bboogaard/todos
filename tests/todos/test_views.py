@@ -165,46 +165,6 @@ class TestWallpaperDeleteView(TodosViewTest):
         self.assertEqual(Wallpaper.objects.count(), 2)
 
 
-class TestNotesImportView(TodosViewTest):
-
-    csrf_checks = False
-
-    def test_get(self):
-        response = self.app.get('/notes-import', user=self.test_user)
-        self.assertEqual(response.status_code, 200)
-
-    def test_post(self):
-        fh = b'{"text": "Lorem", "position": 1}\n{"text": "Ipsum", "position": 2}'
-        data = {
-            'file': Upload('file.txt', fh, 'text/plain')
-        }
-
-        response = self.app.post('/notes-import', data, user=self.test_user)
-        self.assertEqual(response.status_code, 302, response.content)
-        result = list(Note.objects.order_by('text').values_list('text', flat=True))
-        expected = ['Ipsum', 'Lorem']
-        self.assertEqual(result, expected)
-
-    def test_post_with_error(self):
-        data = {
-            'file': ''
-        }
-
-        response = self.app.post('/notes-import', data, user=self.test_user)
-        self.assertEqual(response.status_code, 200, response.content)
-
-
-class TestNotesExportView(TodosViewTest):
-
-    def test_get(self):
-        NoteFactory(text='Lorem')
-        NoteFactory(text='Ipsum')
-        response = self.app.get('/notes-export', user=self.test_user)
-        self.assertEqual(response.status_code, 200)
-        fh = b'{"text": "Ipsum", "position": 2}\n{"text": "Lorem", "position": 1}'
-        self.assertEqual(response.content, fh)
-
-
 class TestCodeSnippetImportsView(TodosViewTest):
 
     csrf_checks = False

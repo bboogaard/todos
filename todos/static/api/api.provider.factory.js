@@ -33,7 +33,9 @@ ApiProviderFactory.prototype = {
 
     createNotesProvider: function () {
 
-        return this.createProvider();
+        let provider = this.createProvider();
+        provider.importUrl = this.settings.urls['import'];
+        return provider;
 
     },
 
@@ -45,7 +47,6 @@ ApiProviderFactory.prototype = {
 
     createFilesProvider: function () {
 
-        let self = this;
         let provider = this.createProvider();
         provider.importUrl = this.settings.urls['import'];
         return provider;

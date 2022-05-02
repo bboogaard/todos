@@ -6,6 +6,10 @@ $(document).ready(function(){
             deleteButton: $('#deleteNotes'),
             prevButton: $('#prevNotes'),
             nextButton: $('#nextNotes'),
+            exportButton: $('#exportNotes'),
+            exportForm: $('#note-export-form'),
+            importButton: $('#importNotes'),
+            fileField: $('#importNotesInput'),
             provider: apiProviderFactory.createNotes()
         });
     });
