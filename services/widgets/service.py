@@ -240,6 +240,7 @@ class EventsWidgetRenderer(WidgetRendererService):
                     'create': reverse('api:events-create-one'),
                     'update': reverse('api:events-update-one'),
                     'delete': reverse('api:events-delete-one'),
+                    'import': reverse('api:events-import-items'),
                 },
                 'year': today.year,
                 'month': today.month
@@ -254,7 +255,7 @@ class EventsWidgetRenderer(WidgetRendererService):
                 'tempus-dominus/css/font-awesome.css'
             ),
             'js': {
-                'static': ('ejs.min.js', 'api/events.jquery.js', 'events.init.js',)
+                'static': ('ejs.min.js', 'jquery.upload.js', 'api/events.jquery.js', 'events.init.js',)
             }
         }
 

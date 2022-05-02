@@ -686,3 +686,39 @@ class TestEventViewSet(TodosViewTest):
             '/api/v1/events/weeks?year=2022&month=11', user=self.test_user
         )
         self.assertEqual(response.status_code, 200)
+
+
+class TestEventsExport(TodosViewTest):
+
+    csrf_checks = False
+
+    def test_export_items(self):
+        EventFactory(description='Lorem', datetime=make_aware(
+            datetime.datetime(2022, 1, 2, 12, 0, 0),
+            utc
+        ))
+        EventFactory(description='Ipsum', datetime=make_aware(
+            datetime.datetime(2022, 1, 1, 12, 0, 0),
+            utc
+        ))
+        data = {
+            'filename': 'export.txt'
+        }
+        response = self.app.post('/api/v1/events/export', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.content,
+            b'{"description": "Ipsum", "datetime": "2022-01-01T12:00:00"}\n'
+            b'{"description": "Lorem", "datetime": "2022-01-02T12:00:00"}'
+        )
+
+    def test_import_items(self):
+        fh = b'{"description": "Lorem", "datetime": "2022-01-02T12:00:00"}\n'\
+             b'{"description": "Ipsum", "datetime": "2022-01-01T12:00:00"}'
+        data = {'file': Upload('file.txt', fh, 'text/plain')}
+
+        response = self.app.post('/api/v1/events/import', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200, response.content)
+        result = list(Event.objects.order_by('description').values_list('description', flat=True))
+        expected = ['Ipsum', 'Lorem']
+        self.assertEqual(result, expected)

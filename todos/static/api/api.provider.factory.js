@@ -77,6 +77,7 @@ ApiProviderFactory.prototype = {
         }
         provider.year = this.settings.year;
         provider.month = this.settings.month;
+        provider.importUrl = this.settings.urls['import'];
         return provider;
 
     },

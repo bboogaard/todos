@@ -52,3 +52,25 @@ class CodeSnippet:
 
     def to_db(self) -> data_models.CodeSnippet:
         return data_models.CodeSnippet(text=self.text, position=self.position)
+
+
+@dataclass
+class Event:
+    description: str
+    datetime: str
+
+    @classmethod
+    def from_db(cls, instance: data_models.Event) -> 'Event':
+        return cls(
+            description=instance.description,
+            datetime=instance.datetime.replace(microsecond=0, tzinfo=utc).strftime('%Y-%m-%dT%H:%M:%S')
+        )
+
+    def to_db(self) -> data_models.Event:
+        return data_models.Event(
+            description=self.description,
+            datetime=make_aware(
+                datetime.datetime.strptime(self.datetime, '%Y-%m-%dT%H:%M:%S'),
+                utc
+            )
+        )

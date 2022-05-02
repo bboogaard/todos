@@ -8,10 +8,11 @@ from rest_framework.viewsets import GenericViewSet
 from api.data.models import Event
 from api.serializers.events import CreateEventSerializer, EventSerializer, UpdateEventSerializer, WeeksSerializer
 from api.views.filters import EventFilterSet
-from api.views.shared.mixins import CreateMixin
+from api.views.shared.mixins import CreateMixin, ExportMixin
+from services.export.factory import ExportServiceFactory
 
 
-class EventViewSet(ListModelMixin, RetrieveModelMixin, CreateMixin, GenericViewSet):
+class EventViewSet(ListModelMixin, RetrieveModelMixin, CreateMixin, ExportMixin, GenericViewSet):
 
     filter_backends = [DjangoFilterBackend]
 
@@ -20,6 +21,10 @@ class EventViewSet(ListModelMixin, RetrieveModelMixin, CreateMixin, GenericViewS
     parser_classes = [JSONParser]
 
     serializer_class = EventSerializer
+
+    @property
+    def service(self):
+        return ExportServiceFactory.events()
 
     def get_queryset(self):
         return Event.objects.all()
