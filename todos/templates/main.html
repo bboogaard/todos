@@ -25,24 +25,10 @@
         </div>
       </li>
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Import/export</a>
-        <div class="dropdown-menu" aria-labelledby="dropdown03">
-            <a class="dropdown-item" href="#" data-action="import-snippets">
-                Import code snippets
-            </a>
-            <a class="dropdown-item" href="{% url 'todos:snippets_export' %}">
-                Export code snippets
-            </a>
-        </div>
-      </li>
-      <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Settings</a>
         <div class="dropdown-menu" aria-labelledby="dropdown04">
           <a class="dropdown-item" href="#" data-action="manage-widgets">
               Manage widgets
-          </a>
-          <a class="dropdown-item" href="#" data-action="manage-dates">
-              Manage historical dates
           </a>
           <a class="dropdown-item" id="about-link" href="#">About</a>
         </div>
@@ -99,18 +85,6 @@
              url: '{% url "todos:wallpaper_list" %}',
              onClose: function() {
                location.href = '{{ request.path }}' + window.location.search;
-             }
-         });
-      });
-      $('[data-action="import-snippets"]').click(function (event) {
-         event.preventDefault();
-         tModal.FullModal({
-             title: "Import code snippets",
-             url: '{% url "todos:snippets_import" %}',
-             onClose: function() {
-               if (widgets['snippet']) {
-                 widgets['snippet'].load();
-               }
              }
          });
       });

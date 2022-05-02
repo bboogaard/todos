@@ -41,7 +41,9 @@ ApiProviderFactory.prototype = {
 
     createSnippetsProvider: function () {
 
-        return this.createProvider();
+        let provider = this.createProvider();
+        provider.importUrl = this.settings.urls['import'];
+        return provider;
 
     },
 

@@ -5,10 +5,10 @@ from django.core.management import call_command
 from PIL import Image
 from webtest import Upload
 
-from api.data.models import CodeSnippet, Note
+from api.data.models import Note
 from todos.models import Wallpaper, Widget
 from tests.services.cron.testcases import CronTestCase
-from tests.todos.factories import CodeSnippetFactory, EventFactory, NoteFactory, TodoFactory, UserFactory
+from tests.todos.factories import EventFactory, NoteFactory, TodoFactory, UserFactory
 
 
 class TodosViewTest(WebTest):
@@ -163,46 +163,6 @@ class TestWallpaperDeleteView(TodosViewTest):
         response = self.app.post('/wallpapers/delete', data, user=self.test_user)
         self.assertEqual(response.status_code, 302, response.content)
         self.assertEqual(Wallpaper.objects.count(), 2)
-
-
-class TestCodeSnippetImportsView(TodosViewTest):
-
-    csrf_checks = False
-
-    def test_get(self):
-        response = self.app.get('/snippets-import', user=self.test_user)
-        self.assertEqual(response.status_code, 200)
-
-    def test_post(self):
-        fh = b'{"text": "Lorem", "position": 1}\n{"text": "Ipsum", "position": 2}'
-        data = {
-            'file': Upload('file.txt', fh, 'text/plain')
-        }
-
-        response = self.app.post('/snippets-import', data, user=self.test_user)
-        self.assertEqual(response.status_code, 302, response.content)
-        result = list(CodeSnippet.objects.order_by('text').values_list('text', flat=True))
-        expected = ['Ipsum', 'Lorem']
-        self.assertEqual(result, expected)
-
-    def test_post_with_error(self):
-        data = {
-            'file': ''
-        }
-
-        response = self.app.post('/snippets-import', data, user=self.test_user)
-        self.assertEqual(response.status_code, 200, response.content)
-
-
-class TestCodeSnippetsExportView(TodosViewTest):
-
-    def test_get(self):
-        CodeSnippetFactory(text='Lorem')
-        CodeSnippetFactory(text='Ipsum')
-        response = self.app.get('/snippets-export', user=self.test_user)
-        self.assertEqual(response.status_code, 200)
-        fh = b'{"text": "Ipsum", "position": 2}\n{"text": "Lorem", "position": 1}'
-        self.assertEqual(response.content, fh)
 
 
 class TestWidgetListView(TodosViewTest):

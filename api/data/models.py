@@ -205,7 +205,7 @@ class PrivateFile(BasePrivateFile):
         return self.file.name
 
     def get_absolute_url(self):
-        return settings.MEDIA_URL + self.file.name
+        return settings.PRIVATE_MEDIA_URL + self.file.name
 
     @property
     def search_type(self):
@@ -235,7 +235,7 @@ class PrivateImage(BasePrivateFile):
         return self.image.name
 
     def get_absolute_url(self):
-        return settings.MEDIA_URL + self.image.name
+        return settings.PRIVATE_MEDIA_URL + self.image.name
 
     @property
     def search_type(self):

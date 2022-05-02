@@ -7,8 +7,6 @@ urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
     path('cron/<job_name>', views.CronView.as_view(), name='cron'),
     path('search/', views.SearchView.as_view(), name='search'),
-    path('snippets-export', views.CodeSnippetsExportView.as_view(), name='snippets_export'),
-    path('snippets-import', views.CodeSnippetsImportView.as_view(), name='snippets_import'),
 
     # Wallpapers
     path('wallpapers/list', views.WallpaperListView.as_view(), name="wallpaper_list"),

@@ -279,6 +279,7 @@ class CodeSnippetWidgetRenderer(WidgetRendererService):
                     'create': reverse('api:snippets-create-one'),
                     'update': reverse('api:snippets-update-one'),
                     'delete': reverse('api:snippets-delete-one'),
+                    'import': reverse('api:snippets-import-items'),
                 }
             })
         ))
@@ -288,7 +289,7 @@ class CodeSnippetWidgetRenderer(WidgetRendererService):
         return {
             'js': {
                 'static': (
-                    'easymde/js/easymde.min.js', 'api/snippet.jquery.js', 'snippet.init.js'
+                    'easymde/js/easymde.min.js', 'jquery.upload.js', 'api/snippet.jquery.js', 'snippet.init.js'
                 )
             },
             'css': ('easymde/css/easymde.min.css',)
