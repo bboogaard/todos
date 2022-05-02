@@ -4,8 +4,9 @@ from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from api.serializers.shared.serializers import ExportFileSerializer, ImportFileSerializer
+from api.serializers.shared.serializers import ExportSerializer, ImportSerializer
 from lib.utils import chunks
+from services.export.api import ExportApi
 from services.export.factory import FileExportServiceFactory
 
 
@@ -49,18 +50,47 @@ class FindPageMixin(GenericViewSet):
             return 1
 
 
+class ExportMixin(ProcessSerializerMixin):
+
+    @property
+    def service(self) -> ExportApi:
+        raise NotImplementedError()
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['export_file_extension'] = '.txt'
+        return context
+
+    @action(['post'], detail=False, url_path='export', parser_classes=[FormParser, MultiPartParser])
+    def export_items(self, request, *args, **kwargs):
+        data = self.validate_serializer(ExportSerializer, request)
+        fh = self.service.dump()
+        return FileResponse(fh, filename=data['filename'], as_attachment=True)
+
+    @action(['post'], detail=False, url_path='import', parser_classes=[FormParser, MultiPartParser])
+    def import_items(self, request, *args, **kwargs):
+        data = self.validate_serializer(ImportSerializer, request)
+        self.service.load(data['file'])
+        return Response({})
+
+
 class FileExportMixin(ProcessSerializerMixin):
 
     file_export_type: str
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['export_file_extension'] = '.zip'
+        return context
+
     @action(['post'], detail=False, url_path='export', parser_classes=[FormParser, MultiPartParser])
     def export_files(self, request, *args, **kwargs):
-        data = self.validate_serializer(ExportFileSerializer, request)
+        data = self.validate_serializer(ExportSerializer, request)
         fh = FileExportServiceFactory.create(self.file_export_type).dump()
         return FileResponse(fh, filename=data['filename'], as_attachment=True)
 
     @action(['post'], detail=False, url_path='import', parser_classes=[FormParser, MultiPartParser])
     def import_files(self, request, *args, **kwargs):
-        data = self.validate_serializer(ImportFileSerializer, request)
+        data = self.validate_serializer(ImportSerializer, request)
         FileExportServiceFactory.create(self.file_export_type).load(data['file'])
         return Response({})

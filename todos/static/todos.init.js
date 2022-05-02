@@ -4,6 +4,10 @@ $(document).ready(function(){
             saveButton: $('#save'),
             deleteButton: $('#delete'),
             activateButton: $('#activate'),
+            exportButton: $('#exportTodos'),
+            exportForm: $('#todo-export-form'),
+            importButton: $('#importTodos'),
+            fileField: $('#importTodosInput'),
             provider: apiProviderFactory.createTodos()
         });
     });

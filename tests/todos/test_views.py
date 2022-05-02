@@ -1,13 +1,11 @@
-import datetime
 from io import BytesIO
 
 from django_webtest import WebTest
 from django.core.management import call_command
-from django.utils.timezone import make_aware, utc
 from PIL import Image
 from webtest import Upload
 
-from api.data.models import CodeSnippet, Note, Todo
+from api.data.models import CodeSnippet, Note
 from todos.models import Wallpaper, Widget
 from tests.services.cron.testcases import CronTestCase
 from tests.todos.factories import CodeSnippetFactory, EventFactory, NoteFactory, TodoFactory, UserFactory
@@ -165,54 +163,6 @@ class TestWallpaperDeleteView(TodosViewTest):
         response = self.app.post('/wallpapers/delete', data, user=self.test_user)
         self.assertEqual(response.status_code, 302, response.content)
         self.assertEqual(Wallpaper.objects.count(), 2)
-
-
-class TestTodosImportView(TodosViewTest):
-
-    csrf_checks = False
-
-    def test_get(self):
-        response = self.app.get('/todos-import', user=self.test_user)
-        self.assertEqual(response.status_code, 200)
-
-    def test_post(self):
-        fh = b'{"description": "Lorem", "activate_date": "2022-01-02T12:00:00"}\n'\
-             b'{"description": "Ipsum", "activate_date": "2022-01-01T12:00:00"}'
-        data = {'file': Upload('file.txt', fh, 'text/plain')}
-
-        response = self.app.post('/todos-import', data, user=self.test_user)
-        self.assertEqual(response.status_code, 302, response.content)
-        result = list(Todo.objects.order_by('description').values_list('description', flat=True))
-        expected = ['Ipsum', 'Lorem']
-        self.assertEqual(result, expected)
-
-    def test_post_with_error(self):
-        data = {
-            'file': ''
-        }
-
-        response = self.app.post('/todos-import', data, user=self.test_user)
-        self.assertEqual(response.status_code, 200, response.content)
-
-
-class TestTodosExportView(TodosViewTest):
-
-    def test_get(self):
-        TodoFactory(description='Lorem', activate_date=make_aware(
-            datetime.datetime(2022, 1, 2, 12, 0, 0),
-            utc
-        ))
-        TodoFactory(description='Ipsum', activate_date=make_aware(
-            datetime.datetime(2022, 1, 1, 12, 0, 0),
-            utc
-        ))
-        response = self.app.get('/todos-export', user=self.test_user)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.content,
-            b'{"description": "Lorem", "activate_date": "2022-01-02T12:00:00"}\n'
-            b'{"description": "Ipsum", "activate_date": "2022-01-01T12:00:00"}'
-        )
 
 
 class TestNotesImportView(TodosViewTest):

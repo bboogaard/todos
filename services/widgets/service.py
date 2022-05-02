@@ -86,6 +86,7 @@ class TodosWidgetRenderer(WidgetRendererService):
                     'update': reverse('api:todos-update-many'),
                     'delete': reverse('api:todos-delete-many'),
                     'activate': reverse('api:todos-activate-many'),
+                    'import': reverse('api:todos-import-items'),
                 },
                 'search_query': search_query
             })
@@ -96,7 +97,7 @@ class TodosWidgetRenderer(WidgetRendererService):
         return {
             'js': {
                 'static': (
-                    'api/todos.jquery.js', 'todos.init.js'
+                    'jquery.upload.js', 'api/todos.jquery.js', 'todos.init.js'
                 )
             }
         }

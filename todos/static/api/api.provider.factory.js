@@ -26,6 +26,7 @@ ApiProviderFactory.prototype = {
                 dataType: "json"
             });
         }
+        provider.importUrl = this.settings.urls['import'];
         return provider;
 
     },

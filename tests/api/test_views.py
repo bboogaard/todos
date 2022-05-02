@@ -108,6 +108,42 @@ class TestTodoViewSet(TodosViewTest):
         self.assertEqual(todo.status, Todo.ACTIVE_STATUS)
 
 
+class TestTodosExport(TodosViewTest):
+
+    csrf_checks = False
+
+    def test_export_items(self):
+        TodoFactory(description='Lorem', activate_date=make_aware(
+            datetime.datetime(2022, 1, 2, 12, 0, 0),
+            utc
+        ))
+        TodoFactory(description='Ipsum', activate_date=make_aware(
+            datetime.datetime(2022, 1, 1, 12, 0, 0),
+            utc
+        ))
+        data = {
+            'filename': 'export.txt'
+        }
+        response = self.app.post('/api/v1/todos/export', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.content,
+            b'{"description": "Lorem", "activate_date": "2022-01-02T12:00:00"}\n'
+            b'{"description": "Ipsum", "activate_date": "2022-01-01T12:00:00"}'
+        )
+
+    def test_import_items(self):
+        fh = b'{"description": "Lorem", "activate_date": "2022-01-02T12:00:00"}\n'\
+             b'{"description": "Ipsum", "activate_date": "2022-01-01T12:00:00"}'
+        data = {'file': Upload('file.txt', fh, 'text/plain')}
+
+        response = self.app.post('/api/v1/todos/import', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200, response.content)
+        result = list(Todo.objects.order_by('description').values_list('description', flat=True))
+        expected = ['Ipsum', 'Lorem']
+        self.assertEqual(result, expected)
+
+
 class TestNoteViewSet(TodosViewTest):
 
     csrf_checks = False
