@@ -86,6 +86,7 @@ class TodosWidgetRenderer(WidgetRendererService):
                     'update': reverse('api:todos-update-many'),
                     'delete': reverse('api:todos-delete-many'),
                     'activate': reverse('api:todos-activate-many'),
+                    'import': reverse('api:todos-import-items'),
                 },
                 'search_query': search_query
             })
@@ -96,7 +97,7 @@ class TodosWidgetRenderer(WidgetRendererService):
         return {
             'js': {
                 'static': (
-                    'api/todos.jquery.js', 'todos.init.js'
+                    'jquery.upload.js', 'api/todos.jquery.js', 'todos.init.js'
                 )
             }
         }
@@ -124,6 +125,7 @@ class FilesWidgetRenderer(WidgetRendererService):
                 'urls': {
                     'list': reverse('api:files-list'),
                     'delete': reverse('api:files-delete-one'),
+                    'import': reverse('api:files-import-files'),
                 },
                 'search_query': search_query
             })
@@ -134,7 +136,7 @@ class FilesWidgetRenderer(WidgetRendererService):
         return {
             'js': {
                 'static': (
-                    'api/files.jquery.js', 'files.init.js'
+                    'jquery.upload.js', 'api/files.jquery.js', 'files.init.js'
                 )
             }
         }
@@ -162,6 +164,7 @@ class ImagesWidgetRenderer(WidgetRendererService):
                 'urls': {
                     'list': reverse('api:images-list'),
                     'delete': reverse('api:images-delete-one'),
+                    'import': reverse('api:images-import-files'),
                 },
                 'carousel_url': reverse('todos:carousel'),
                 'search_query': search_query
@@ -172,7 +175,7 @@ class ImagesWidgetRenderer(WidgetRendererService):
     def media(self):
         return {
             'js': {
-                'static': ('api/images.jquery.js', 'images.init.js',)
+                'static': ('jquery.upload.js', 'api/images.jquery.js', 'images.init.js',)
             }
         }
 
@@ -201,6 +204,7 @@ class NotesWidgetRenderer(WidgetRendererService):
                     'create': reverse('api:notes-create-one'),
                     'update': reverse('api:notes-update-one'),
                     'delete': reverse('api:notes-delete-one'),
+                    'import': reverse('api:notes-import-items'),
                 },
                 'search_query': search_query
             })
@@ -211,7 +215,7 @@ class NotesWidgetRenderer(WidgetRendererService):
         return {
             'js': {
                 'static': (
-                    'js.cookie.min.js', 'api/notes.jquery.js', 'notes.init.js'
+                    'js.cookie.min.js', 'jquery.upload.js', 'api/notes.jquery.js', 'notes.init.js'
                 )
             }
         }
@@ -236,6 +240,7 @@ class EventsWidgetRenderer(WidgetRendererService):
                     'create': reverse('api:events-create-one'),
                     'update': reverse('api:events-update-one'),
                     'delete': reverse('api:events-delete-one'),
+                    'import': reverse('api:events-import-items'),
                 },
                 'year': today.year,
                 'month': today.month
@@ -250,7 +255,7 @@ class EventsWidgetRenderer(WidgetRendererService):
                 'tempus-dominus/css/font-awesome.css'
             ),
             'js': {
-                'static': ('ejs.min.js', 'api/events.jquery.js', 'events.init.js',)
+                'static': ('ejs.min.js', 'jquery.upload.js', 'api/events.jquery.js', 'events.init.js',)
             }
         }
 
@@ -275,6 +280,7 @@ class CodeSnippetWidgetRenderer(WidgetRendererService):
                     'create': reverse('api:snippets-create-one'),
                     'update': reverse('api:snippets-update-one'),
                     'delete': reverse('api:snippets-delete-one'),
+                    'import': reverse('api:snippets-import-items'),
                 }
             })
         ))
@@ -284,7 +290,7 @@ class CodeSnippetWidgetRenderer(WidgetRendererService):
         return {
             'js': {
                 'static': (
-                    'easymde/js/easymde.min.js', 'api/snippet.jquery.js', 'snippet.init.js'
+                    'easymde/js/easymde.min.js', 'jquery.upload.js', 'api/snippet.jquery.js', 'snippet.init.js'
                 )
             },
             'css': ('easymde/css/easymde.min.css',)

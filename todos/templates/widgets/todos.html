@@ -1,3 +1,18 @@
+<form id="todo-export-form" action="{% url 'api:todos-export-items' %}" method="post" style="display: none">
+    {% csrf_token %}
+    <div id="div_id_filename" class="form-group">
+      <label for="id_filename" class=" requiredField">
+        Filename<span class="asteriskField">*</span>
+      </label>
+      <div class="">
+        <input type="text" name="filename" class="textinput textInput form-control" required="" id="id_filename">
+      </div>
+    </div>
+    <div class="buttonHolder">
+      <input type="submit" name="submit" value="Download" class="btn btn-primary button white" id="submit-id-submit">
+    </div>
+</form>
+
 <ul{% if not searching %} contenteditable{% endif %}>
     <li>Enter item</li>
 </ul>
@@ -6,6 +21,9 @@
 {% if not searching %}
 <a href="javascript:void(0);" id="save" class="btn btn-primary">Save</a>
 <a href="javascript:void(0);" id="delete" class="btn btn-primary">Delete</a>
+<button id="exportTodos" class="btn btn-primary">Export</button>
+<button id="importTodos" class="btn btn-primary">Import</button>
+<input id="importTodosInput" type="file" name="file" style="display: none" />
 {% else %}
 <a href="javascript:void(0);" id="activate" class="btn btn-primary">Activate</a>
 {% endif %}

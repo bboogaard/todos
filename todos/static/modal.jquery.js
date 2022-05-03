@@ -43,13 +43,19 @@
                 }
                 this.modal.find('form').show();
                 this.modal.on('click', 'form input[type="submit"][data-action="' + (this.formAction ? this.formAction : "save") + '"]', function(event) {
-                    event.preventDefault();
                     let form = $(this).parents('form');
-                    if (form.get(0).reportValidity()) {
-                        if (self.formHandler) {
+                    if (self.formHandler) {
+                        event.preventDefault();
+                        if (form.get(0).reportValidity()) {
                             self.formHandler(form.serializeArray());
+                            self.modal.modal('hide');
                         }
-                        self.modal.modal('hide');
+                    }
+                    else {
+                        if (form.get(0).reportValidity()) {
+                            form.submit();
+                            self.modal.modal('hide');
+                        }
                     }
                 });
             }

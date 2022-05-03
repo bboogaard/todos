@@ -3,6 +3,10 @@
     function FilesApi(settings) {
         this.container = settings.container;
         this.provider = settings.provider;
+        this.exportButton = settings.exportButton;
+        this.exportForm = settings.exportForm;
+        this.importButton = settings.importButton;
+        this.fileField = settings.fileField;
 
         this.items = {};
         this.searchQuery = settings.provider.searchQuery;
@@ -26,6 +30,29 @@
             this.container.on('click', 'a[data-id]', function(event) {
                 event.preventDefault();
                 self.delete($(this).attr('data-id'));
+            });
+
+            this.exportButton.click(function(event) {
+                event.preventDefault();
+                let form = self.exportForm;
+                $('#todos-modal').Modal({
+                    title: "Export files",
+                    form: form,
+                    formAction: 'export-files'
+                });
+            });
+
+            this.importButton.click(function(event) {
+                event.preventDefault();
+                self.fileField.trigger('click');
+            });
+
+            $(this.fileField).Upload({
+                url: this.provider.importUrl,
+                responseHandler: function() {
+                    self.fileField.val('');
+                    self.loadItems();
+                }
             });
 
         },
@@ -77,6 +104,10 @@
 
         let files = new FilesApi({
             container: $(this),
+            exportButton: settings.exportButton,
+            exportForm: settings.exportForm,
+            importButton: settings.importButton,
+            fileField: settings.fileField,
             provider: settings.provider
         });
         files.init();

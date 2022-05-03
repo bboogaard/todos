@@ -7,6 +7,10 @@
         this.deleteButton = settings.deleteButton;
         this.prevButton = settings.prevButton;
         this.nextButton = settings.nextButton;
+        this.exportButton = settings.exportButton;
+        this.exportForm = settings.exportForm;
+        this.importButton = settings.importButton;
+        this.fileField = settings.fileField;
         this.provider = settings.provider;
 
         this.items = {};
@@ -51,6 +55,29 @@
 
             this.nextButton.click(function () {
                 self.next();
+            });
+
+            this.exportButton.click(function(event) {
+                event.preventDefault();
+                let form = self.exportForm;
+                $('#todos-modal').Modal({
+                    title: "Export notes",
+                    form: form,
+                    formAction: 'export-notes'
+                });
+            });
+
+            this.importButton.click(function(event) {
+                event.preventDefault();
+                self.fileField.trigger('click');
+            });
+
+            $(this.fileField).Upload({
+                url: this.provider.importUrl,
+                responseHandler: function() {
+                    self.fileField.val('');
+                    self.loadItems();
+                }
             });
 
         },
@@ -181,6 +208,10 @@
             deleteButton: settings.deleteButton,
             prevButton: settings.prevButton,
             nextButton: settings.nextButton,
+            exportButton: settings.exportButton,
+            exportForm: settings.exportForm,
+            importButton: settings.importButton,
+            fileField: settings.fileField,
             provider: settings.provider
         });
         notes.init();

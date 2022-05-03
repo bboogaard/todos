@@ -3,6 +3,10 @@
     function ImagesApi(settings) {
         this.container = settings.container;
         this.provider = settings.provider;
+        this.exportButton = settings.exportButton;
+        this.exportForm = settings.exportForm;
+        this.importButton = settings.importButton;
+        this.fileField = settings.fileField;
 
         this.items = {};
         this.carouselUrl = settings.provider.carouselUrl;
@@ -35,6 +39,29 @@
                     title: 'Images',
                     url: self.carouselUrl + '?image_id=' + $(this).attr('data-carousel-id')
                 });
+            });
+
+            this.exportButton.click(function(event) {
+                event.preventDefault();
+                let form = self.exportForm;
+                $('#todos-modal').Modal({
+                    title: "Export images",
+                    form: form,
+                    formAction: 'export-images'
+                });
+            });
+
+            this.importButton.click(function(event) {
+                event.preventDefault();
+                self.fileField.trigger('click');
+            });
+
+            $(this.fileField).Upload({
+                url: this.provider.importUrl,
+                responseHandler: function() {
+                    self.fileField.val('');
+                    self.loadItems();
+                }
             });
 
         },
@@ -89,6 +116,10 @@
 
         let images = new ImagesApi({
             container: $(this),
+            exportButton: settings.exportButton,
+            exportForm: settings.exportForm,
+            importButton: settings.importButton,
+            fileField: settings.fileField,
             provider: settings.provider
         });
         images.init();

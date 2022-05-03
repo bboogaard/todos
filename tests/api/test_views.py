@@ -1,6 +1,12 @@
 import datetime
 import json
+import os.path
+import shutil
+import uuid
+from io import BytesIO
+from zipfile import ZipFile
 
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.images import ImageFile
 from django.utils.timezone import make_aware, now, utc
@@ -102,6 +108,42 @@ class TestTodoViewSet(TodosViewTest):
         self.assertEqual(todo.status, Todo.ACTIVE_STATUS)
 
 
+class TestTodosExport(TodosViewTest):
+
+    csrf_checks = False
+
+    def test_export_items(self):
+        TodoFactory(description='Lorem', activate_date=make_aware(
+            datetime.datetime(2022, 1, 2, 12, 0, 0),
+            utc
+        ))
+        TodoFactory(description='Ipsum', activate_date=make_aware(
+            datetime.datetime(2022, 1, 1, 12, 0, 0),
+            utc
+        ))
+        data = {
+            'filename': 'export.txt'
+        }
+        response = self.app.post('/api/v1/todos/export', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.content,
+            b'{"description": "Lorem", "activate_date": "2022-01-02T12:00:00"}\n'
+            b'{"description": "Ipsum", "activate_date": "2022-01-01T12:00:00"}'
+        )
+
+    def test_import_items(self):
+        fh = b'{"description": "Lorem", "activate_date": "2022-01-02T12:00:00"}\n'\
+             b'{"description": "Ipsum", "activate_date": "2022-01-01T12:00:00"}'
+        data = {'file': Upload('file.txt', fh, 'text/plain')}
+
+        response = self.app.post('/api/v1/todos/import', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200, response.content)
+        result = list(Todo.objects.order_by('description').values_list('description', flat=True))
+        expected = ['Ipsum', 'Lorem']
+        self.assertEqual(result, expected)
+
+
 class TestNoteViewSet(TodosViewTest):
 
     csrf_checks = False
@@ -181,6 +223,32 @@ class TestNoteViewSet(TodosViewTest):
         self.assertEqual(note.status, Note.INACTIVE_STATUS)
 
 
+class TestNotesExport(TodosViewTest):
+
+    csrf_checks = False
+
+    def test_export_items(self):
+        NoteFactory(text='Lorem')
+        NoteFactory(text='Ipsum')
+        data = {
+            'filename': 'export.txt'
+        }
+        response = self.app.post('/api/v1/notes/export', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        fh = b'{"text": "Ipsum", "position": 2}\n{"text": "Lorem", "position": 1}'
+        self.assertEqual(response.content, fh)
+
+    def test_import_items(self):
+        fh = b'{"text": "Lorem", "position": 1}\n{"text": "Ipsum", "position": 2}'
+        data = {'file': Upload('file.txt', fh, 'text/plain')}
+
+        response = self.app.post('/api/v1/notes/import', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200, response.content)
+        result = list(Note.objects.order_by('text').values_list('text', flat=True))
+        expected = ['Ipsum', 'Lorem']
+        self.assertEqual(result, expected)
+
+
 class TestCodeSnippetViewSet(TodosViewTest):
 
     csrf_checks = False
@@ -248,6 +316,32 @@ class TestCodeSnippetViewSet(TodosViewTest):
         self.assertIsNone(snippet)
 
 
+class TestCodeSnippetExport(TodosViewTest):
+
+    csrf_checks = False
+
+    def test_export_items(self):
+        CodeSnippetFactory(text='Lorem')
+        CodeSnippetFactory(text='Ipsum')
+        data = {
+            'filename': 'export.txt'
+        }
+        response = self.app.post('/api/v1/snippets/export', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        fh = b'{"text": "Ipsum", "position": 2}\n{"text": "Lorem", "position": 1}'
+        self.assertEqual(response.content, fh)
+
+    def test_import_items(self):
+        fh = b'{"text": "Lorem", "position": 1}\n{"text": "Ipsum", "position": 2}'
+        data = {'file': Upload('file.txt', fh, 'text/plain')}
+
+        response = self.app.post('/api/v1/snippets/import', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200, response.content)
+        result = list(CodeSnippet.objects.order_by('text').values_list('text', flat=True))
+        expected = ['Ipsum', 'Lorem']
+        self.assertEqual(result, expected)
+
+
 class TestFileViewSet(TodosViewTest):
 
     csrf_checks = False
@@ -289,6 +383,66 @@ class TestFileViewSet(TodosViewTest):
         self.assertIsNone(file)
 
 
+class TestFileExport(TodosViewTest):
+
+    csrf_checks = False
+
+    def setUp(self):
+        super().setUp()
+        self.filenames = list(map(lambda id: str(id) + '.txt', [uuid.uuid4(), uuid.uuid4()]))
+        self.tmp_dir = os.path.join(settings.MEDIA_ROOT, 'tmp')
+        os.makedirs(self.tmp_dir, exist_ok=True)
+
+    def tearDown(self):
+        super().tearDown()
+        shutil.rmtree(self.tmp_dir)
+
+    def test_export_files(self):
+        PrivateFileFactory(file=ContentFile(b'Baz', name=self.filenames[0]))
+        PrivateFileFactory(file=ContentFile(b'Qux', name=self.filenames[1]))
+        data = {
+            'filename': 'export.zip'
+        }
+        response = self.app.post('/api/v1/files/export', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+        fh = BytesIO(response.content)
+        with ZipFile(fh, 'r') as infile:
+            infile.extractall(self.tmp_dir)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp_dir, self.filenames[0])))
+        self.assertTrue(os.path.exists(os.path.join(self.tmp_dir, self.filenames[1])))
+        with open(os.path.join(self.tmp_dir, self.filenames[0]), 'r') as fh:
+            content = fh.read()
+            self.assertEqual(content, 'Baz')
+        with open(os.path.join(self.tmp_dir, self.filenames[1]), 'r') as fh:
+            content = fh.read()
+            self.assertEqual(content, 'Qux')
+
+    def test_import_files(self):
+        with open(os.path.join(self.tmp_dir, self.filenames[0]), 'w') as fh:
+            fh.write('Baz')
+        with open(os.path.join(self.tmp_dir, self.filenames[1]), 'w') as fh:
+            fh.write('Qux')
+
+        fh = BytesIO()
+
+        with ZipFile(fh, 'w') as outfile:
+            outfile.write(os.path.join(self.tmp_dir, self.filenames[0]), self.filenames[0])
+            outfile.write(os.path.join(self.tmp_dir, self.filenames[1]), self.filenames[1])
+        fh.seek(0)
+
+        data = {
+            'file': Upload('file.zip', fh.read(), 'application/zip')
+        }
+        response = self.app.post('/api/v1/files/import', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+        files = [b'Baz', b'Qux']
+        for num, file in enumerate(self.filenames):
+            pfile = PrivateFile.objects.get(file=file)
+            self.assertEqual(pfile.file.read(), files[num])
+
+
 class TestImageViewSet(TodosViewTest):
 
     csrf_checks = False
@@ -327,6 +481,68 @@ class TestImageViewSet(TodosViewTest):
         self.assertEqual(response.status_code, 200)
         image = PrivateImage.objects.filter(pk=self.images[0].pk).first()
         self.assertIsNone(image)
+
+
+class TestImageExport(TodosViewTest):
+
+    csrf_checks = False
+
+    def setUp(self):
+        super().setUp()
+        self.filenames = list(map(lambda id: str(id) + '.png', [uuid.uuid4(), uuid.uuid4()]))
+        self.tmp_dir = os.path.join(settings.MEDIA_ROOT, 'tmp')
+        os.makedirs(self.tmp_dir, exist_ok=True)
+
+    def tearDown(self):
+        super().tearDown()
+        shutil.rmtree(self.tmp_dir)
+
+    def test_export_files(self):
+        images = [generate_image('foo'), generate_image('bar')]
+        PrivateImageFactory(image=ImageFile(images[0], name=self.filenames[0]))
+        PrivateImageFactory(image=ImageFile(images[1], name=self.filenames[1]))
+
+        data = {
+            'filename': 'export.zip'
+        }
+        response = self.app.post('/api/v1/images/export', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+        fh = BytesIO(response.content)
+        with ZipFile(fh, 'r') as infile:
+            infile.extractall(self.tmp_dir)
+        self.assertTrue(os.path.exists(os.path.join(self.tmp_dir, self.filenames[0])))
+        self.assertTrue(os.path.exists(os.path.join(self.tmp_dir, self.filenames[1])))
+        with open(os.path.join(self.tmp_dir, self.filenames[0]), 'rb') as fh:
+            content = ImageFile(fh).read()
+            self.assertEqual(content, images[0].getvalue())
+        with open(os.path.join(self.tmp_dir, self.filenames[1]), 'rb') as fh:
+            content = ImageFile(fh).read()
+            self.assertEqual(content, images[1].getvalue())
+
+    def test_import_files(self):
+        images = [generate_image('foo').getvalue(), generate_image('bar').getvalue()]
+        with open(os.path.join(self.tmp_dir, self.filenames[0]), 'wb') as fh:
+            fh.write(images[0])
+        with open(os.path.join(self.tmp_dir, self.filenames[1]), 'wb') as fh:
+            fh.write(images[1])
+
+        fh = BytesIO()
+
+        with ZipFile(fh, 'w') as outfile:
+            outfile.write(os.path.join(self.tmp_dir, self.filenames[0]), self.filenames[0])
+            outfile.write(os.path.join(self.tmp_dir, self.filenames[1]), self.filenames[1])
+        fh.seek(0)
+
+        data = {
+            'file': Upload('file.zip', fh.read(), 'application/zip')
+        }
+        response = self.app.post('/api/v1/images/import', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+        for num, file in enumerate(self.filenames):
+            pfile = PrivateImage.objects.get(image=file)
+            self.assertEqual(pfile.image.read(), images[num])
 
 
 class TestCarouselViewSet(TodosViewTest):
@@ -470,3 +686,39 @@ class TestEventViewSet(TodosViewTest):
             '/api/v1/events/weeks?year=2022&month=11', user=self.test_user
         )
         self.assertEqual(response.status_code, 200)
+
+
+class TestEventsExport(TodosViewTest):
+
+    csrf_checks = False
+
+    def test_export_items(self):
+        EventFactory(description='Lorem', datetime=make_aware(
+            datetime.datetime(2022, 1, 2, 12, 0, 0),
+            utc
+        ))
+        EventFactory(description='Ipsum', datetime=make_aware(
+            datetime.datetime(2022, 1, 1, 12, 0, 0),
+            utc
+        ))
+        data = {
+            'filename': 'export.txt'
+        }
+        response = self.app.post('/api/v1/events/export', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.content,
+            b'{"description": "Ipsum", "datetime": "2022-01-01T12:00:00"}\n'
+            b'{"description": "Lorem", "datetime": "2022-01-02T12:00:00"}'
+        )
+
+    def test_import_items(self):
+        fh = b'{"description": "Lorem", "datetime": "2022-01-02T12:00:00"}\n'\
+             b'{"description": "Ipsum", "datetime": "2022-01-01T12:00:00"}'
+        data = {'file': Upload('file.txt', fh, 'text/plain')}
+
+        response = self.app.post('/api/v1/events/import', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200, response.content)
+        result = list(Event.objects.order_by('description').values_list('description', flat=True))
+        expected = ['Ipsum', 'Lorem']
+        self.assertEqual(result, expected)

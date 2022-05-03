@@ -148,6 +148,7 @@ MEDIA_URL = "/media/"
 
 PRIVATE_STORAGE_ROOT = '/private-media/'
 PRIVATE_STORAGE_AUTH_FUNCTION = 'private_storage.permissions.allow_staff'
+PRIVATE_MEDIA_URL = '/private-media/'
 
 # Messagebird settings
 MESSAGEBIRD_ACCESS_KEY = os.getenv('MESSAGEBIRD_ACCESS_KEY', 'test_7lxBEe1exwYBRwlr2eF6diV9u')

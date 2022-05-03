@@ -8,10 +8,12 @@ from rest_framework.viewsets import GenericViewSet
 
 from api.data.models import PrivateFile
 from api.serializers.files import ListFileSerializer
-from api.views.shared.mixins import ProcessSerializerMixin
+from api.views.shared.mixins import FileExportMixin
 
 
-class FileViewSet(ListModelMixin, ProcessSerializerMixin, GenericViewSet):
+class FileViewSet(ListModelMixin, FileExportMixin, GenericViewSet):
+
+    file_export_type = 'file'
 
     filter_backends = [DjangoFilterBackend]
 

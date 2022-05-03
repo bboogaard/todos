@@ -7,6 +7,10 @@
 
     function EventsApi(settings) {
         this.container = settings.container;
+        this.exportButton = settings.exportButton;
+        this.exportForm = settings.exportForm;
+        this.importButton = settings.importButton;
+        this.fileField = settings.fileField;
         this.provider = settings.provider;
 
         this.year = this.provider.year;
@@ -98,6 +102,29 @@
                 .then(function() {
                     self.loadItems(self.year, self.month);
                 });
+            });
+
+            this.exportButton.click(function(event) {
+                event.preventDefault();
+                let form = self.exportForm;
+                $('#todos-modal').Modal({
+                    title: "Export events",
+                    form: form,
+                    formAction: 'export-events'
+                });
+            });
+
+            this.importButton.click(function(event) {
+                event.preventDefault();
+                self.fileField.trigger('click');
+            });
+
+            $(this.fileField).Upload({
+                url: this.provider.importUrl,
+                responseHandler: function() {
+                    self.fileField.val('');
+                    self.loadItems(self.year, self.month);
+                }
             });
 
         },
@@ -241,6 +268,10 @@
 
         let events = new EventsApi({
             container: $(this),
+            exportButton: settings.exportButton,
+            exportForm: settings.exportForm,
+            importButton: settings.importButton,
+            fileField: settings.fileField,
             provider: settings.provider
         });
         events.init();

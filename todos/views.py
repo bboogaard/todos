@@ -1,5 +1,3 @@
-from io import BytesIO
-
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
@@ -13,7 +11,6 @@ from haystack.generic_views import SearchView as BaseSearchView
 from lib.utils import with_camel_keys
 from services.cron.exceptions import JobNotFound
 from services.cron.factory import CronServiceFactory
-from services.export.factory import ExportServiceFactory, FileExportServiceFactory
 from services.widgets.factory import WidgetRendererFactory
 from todos import forms, models
 
@@ -49,33 +46,6 @@ class SearchView(BaseSearchView):
     form_name = 'search_form'
 
     form_class = forms.SearchForm
-
-
-class TodosExportView(AccessMixin, View):
-
-    def get(self, request, *args, **kwargs):
-        fh = ExportServiceFactory.todos().dump()
-        response = HttpResponse(fh.read(), content_type='text/plain')
-        response['Content-disposition'] = 'attachment'
-        return response
-
-
-class NotesExportView(AccessMixin, View):
-
-    def get(self, request, *args, **kwargs):
-        fh = ExportServiceFactory.notes().dump()
-        response = HttpResponse(fh.read(), content_type='text/plain')
-        response['Content-disposition'] = 'attachment'
-        return response
-
-
-class CodeSnippetsExportView(AccessMixin, View):
-
-    def get(self, request, *args, **kwargs):
-        fh = ExportServiceFactory.snippets().dump()
-        response = HttpResponse(fh.read(), content_type='text/plain')
-        response['Content-disposition'] = 'attachment'
-        return response
 
 
 class WallpaperListView(AccessMixin, generic.TemplateView):
@@ -139,107 +109,6 @@ class WallpaperDeleteView(AccessMixin, View):
         wallpaper_ids = request.POST.getlist('wallpaper', [])
         models.Wallpaper.objects.filter(pk__in=wallpaper_ids).delete()
         return redirect(reverse('todos:wallpaper_list'))
-
-
-class FileViewMixin:
-
-    file_type = None
-
-    def dispatch(self, request, *args, **kwargs):
-        self.file_type = kwargs['file_type']
-        return super().dispatch(request, *args, **kwargs)
-
-
-class FileExportView(FileViewMixin, AccessMixin, View):
-
-    def get(self, request, *args, **kwargs):
-        fh = FileExportServiceFactory.create(self.file_type).dump()
-        response = HttpResponse(fh.read(), content_type='application/zip')
-        response['Content-disposition'] = 'attachment'
-        return response
-
-
-class ImportView(AccessMixin, generic.TemplateView):
-
-    message: str
-
-    title: str
-
-    template_name = 'import.html'
-
-    def get(self, request, *args, **kwargs):
-        form = self.get_form()
-        context = self.get_context_data(form=form)
-        return self.render_to_response(context)
-
-    def post(self, request, *args, **kwargs):
-        form = self.get_form(request.POST or None, files=request.FILES or None)
-        if form.is_valid():
-            self.import_file(BytesIO(form.files['file'].read()))
-            messages.add_message(request, messages.SUCCESS, self.get_message())
-            return redirect(request.path)
-
-        context = self.get_context_data(form=form)
-        return self.render_to_response(context)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = self.get_title()
-        return context
-
-    def get_form(self, data=None, files=None, **kwargs):
-        return forms.ImportForm(data, files=files, **kwargs)
-
-    def import_file(self, fh):
-        raise NotImplementedError()
-
-    def get_message(self):
-        return self.message
-
-    def get_title(self):
-        return self.title
-
-
-class TodosImportView(ImportView):
-
-    message = "Todo's imported"
-
-    title = "Import todo's"
-
-    def import_file(self, fh):
-        ExportServiceFactory.todos().load(fh)
-
-
-class NotesImportView(ImportView):
-
-    message = "Notes imported"
-
-    title = "Import notes"
-
-    def import_file(self, fh):
-        ExportServiceFactory.notes().load(fh)
-
-
-class CodeSnippetsImportView(ImportView):
-
-    message = "Code snippets imported"
-
-    title = "Import code snippets"
-
-    def import_file(self, fh):
-        ExportServiceFactory.snippets().load(fh)
-
-
-class FileImportView(FileViewMixin, ImportView):
-
-    def import_file(self, fh):
-        return FileExportServiceFactory.create(self.file_type).load(fh)
-
-    def get_message(self):
-        return "Files imported" if self.file_type == 'file' else "Images imported"
-
-    def get_title(self):
-        return "Import files" if self.file_type == 'file' else "Import images"
 
 
 class WidgetListView(AccessMixin, generic.TemplateView):

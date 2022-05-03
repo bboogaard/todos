@@ -1,7 +1,7 @@
 from services.export.api import ExportApi, FileExportApi
 
 from api.data import models as data_models
-from services.export.models import CodeSnippet, Note, Todo
+from services.export.models import CodeSnippet, Event, Note, Todo
 
 
 class TodoExportService(ExportApi):
@@ -42,3 +42,10 @@ class FileExportService(FileExportApi):
 class ImageExportService(FileExportApi):
 
     model_class = data_models.PrivateImage
+
+
+class EventExportService(ExportApi):
+
+    item_class = Event
+
+    model_class = data_models.Event

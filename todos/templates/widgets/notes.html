@@ -1,3 +1,18 @@
+<form id="note-export-form" action="{% url 'api:notes-export-items' %}" method="post" style="display: none">
+    {% csrf_token %}
+    <div id="div_id_filename" class="form-group">
+      <label for="id_filename" class=" requiredField">
+        Filename<span class="asteriskField">*</span>
+      </label>
+      <div class="">
+        <input type="text" name="filename" class="textinput textInput form-control" required="" id="id_filename">
+      </div>
+    </div>
+    <div class="buttonHolder">
+      <input type="submit" name="submit" value="Download" class="btn btn-primary button white" id="submit-id-submit">
+    </div>
+</form>
+
 <textarea class="form-control" rows="10"></textarea>
 
 <br>
@@ -5,6 +20,9 @@
 {% if not searching %}
 <button id="newNotes" class="btn btn-primary">New</button>
 <button id="deleteNotes" class="btn btn-primary">Delete</button>
+<button id="exportNotes" class="btn btn-primary">Export</button>
+<button id="importNotes" class="btn btn-primary">Import</button>
+<input id="importNotesInput" type="file" name="file" style="display: none" />
 {% endif %}
 <button class="btn" id="prevNotes">&laquo;</button>
 <button class="btn" id="nextNotes">&raquo;</button>

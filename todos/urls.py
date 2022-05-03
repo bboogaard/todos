@@ -7,22 +7,12 @@ urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
     path('cron/<job_name>', views.CronView.as_view(), name='cron'),
     path('search/', views.SearchView.as_view(), name='search'),
-    path('todos-export', views.TodosExportView.as_view(), name='todos_export'),
-    path('todos-import', views.TodosImportView.as_view(), name='todos_import'),
-    path('notes-export', views.NotesExportView.as_view(), name='notes_export'),
-    path('notes-import', views.NotesImportView.as_view(), name='notes_import'),
-    path('snippets-export', views.CodeSnippetsExportView.as_view(), name='snippets_export'),
-    path('snippets-import', views.CodeSnippetsImportView.as_view(), name='snippets_import'),
 
     # Wallpapers
     path('wallpapers/list', views.WallpaperListView.as_view(), name="wallpaper_list"),
     path('wallpapers/create', views.WallpaperCreateView.as_view(), name="wallpaper_create"),
     path('wallpapers/<int:pk>/update', views.WallpaperUpdateView.as_view(), name="wallpaper_update"),
     path('wallpapers/delete', views.WallpaperDeleteView.as_view(), name="wallpaper_delete"),
-
-    # Files
-    path('files/<file_type>/export', views.FileExportView.as_view(), name="file_export"),
-    path('files/<file_type>/import', views.FileImportView.as_view(), name="file_import"),
 
     # Images
     path('carousel', views.CarouselView.as_view(), name="carousel"),
