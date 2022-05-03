@@ -7,10 +7,11 @@ from rest_framework.viewsets import GenericViewSet
 
 from api.data.models import Todo
 from api.serializers.todos import CreateTodoSerializer, ListTodoSerializer, UpdateTodoSerializer
-from api.views.shared.mixins import ProcessSerializerMixin
+from api.views.shared.mixins import ExportMixin
+from services.export.factory import ExportServiceFactory
 
 
-class TodoViewSet(ListModelMixin, ProcessSerializerMixin, GenericViewSet):
+class TodoViewSet(ListModelMixin, ExportMixin, GenericViewSet):
 
     parser_classes = [JSONParser]
 
@@ -19,6 +20,10 @@ class TodoViewSet(ListModelMixin, ProcessSerializerMixin, GenericViewSet):
     search_fields = ['description']
 
     serializer_class = ListTodoSerializer
+
+    @property
+    def service(self):
+        return ExportServiceFactory.todos()
 
     def get_queryset(self):
         backend = self.filter_backends[0]()

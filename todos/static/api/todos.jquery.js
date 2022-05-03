@@ -5,6 +5,10 @@
         this.saveButton = settings.saveButton;
         this.deleteButton = settings.deleteButton;
         this.activateButton = settings.activateButton;
+        this.exportButton = settings.exportButton;
+        this.exportForm = settings.exportForm;
+        this.importButton = settings.importButton;
+        this.fileField = settings.fileField;
 
         this.provider = settings.provider;
         this.searchQuery = settings.provider.searchQuery;
@@ -41,6 +45,29 @@
             this.list.on('input', function () {
                 if ($(this).html() === '') {
                     $(this).html('<li>Enter item</li>');
+                }
+            });
+
+            this.exportButton.click(function(event) {
+                event.preventDefault();
+                let form = self.exportForm;
+                $('#todos-modal').Modal({
+                    title: "Export todo's",
+                    form: form,
+                    formAction: 'export-todos'
+                });
+            });
+
+            this.importButton.click(function(event) {
+                event.preventDefault();
+                self.fileField.trigger('click');
+            });
+
+            $(this.fileField).Upload({
+                url: this.provider.importUrl,
+                responseHandler: function() {
+                    self.fileField.val('');
+                    self.loadItems();
                 }
             });
 
@@ -162,6 +189,10 @@
             saveButton: settings.saveButton,
             deleteButton: settings.deleteButton,
             activateButton: settings.activateButton,
+            exportButton: settings.exportButton,
+            exportForm: settings.exportForm,
+            importButton: settings.importButton,
+            fileField: settings.fileField,
             provider: settings.provider
         });
         todos.init();

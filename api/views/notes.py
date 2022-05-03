@@ -8,11 +8,12 @@ from rest_framework.viewsets import GenericViewSet
 
 from api.data.models import Note
 from api.serializers.notes import CreateNoteSerializer, ListNoteSerializer, UpdateNoteSerializer
-from api.views.shared.mixins import ProcessSerializerMixin
+from api.views.shared.mixins import ExportMixin
 from api.views.shared.pagination import SinglePagePagination
+from services.export.factory import ExportServiceFactory
 
 
-class NoteViewSet(ListModelMixin, ProcessSerializerMixin, GenericViewSet):
+class NoteViewSet(ListModelMixin, ExportMixin, GenericViewSet):
 
     filter_backends = [DjangoFilterBackend]
 
@@ -23,6 +24,10 @@ class NoteViewSet(ListModelMixin, ProcessSerializerMixin, GenericViewSet):
     parser_classes = [JSONParser]
 
     serializer_class = ListNoteSerializer
+
+    @property
+    def service(self):
+        return ExportServiceFactory.notes()
 
     def get_queryset(self):
         return Note.objects.active()

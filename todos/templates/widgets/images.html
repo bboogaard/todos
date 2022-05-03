@@ -1,2 +1,22 @@
+<form id="image-export-form" action="{% url 'api:images-export-files' %}" method="post" style="display: none">
+    {% csrf_token %}
+    <div id="div_id_filename" class="form-group">
+      <label for="id_filename" class=" requiredField">
+        Filename<span class="asteriskField">*</span>
+      </label>
+      <div class="">
+        <input type="text" name="filename" class="textinput textInput form-control" required="" id="id_filename">
+      </div>
+    </div>
+    <div class="buttonHolder">
+      <input type="submit" name="submit" value="Download" class="btn btn-primary button white" id="submit-id-submit">
+    </div>
+</form>
+
 <div class="images-container"></div>
 {{ image_vars|json_script:"image-vars" }}
+
+<br>
+<button id="exportImages" class="btn btn-primary">Export</button>
+<button id="importImages" class="btn btn-primary">Import</button>
+<input id="importImagesInput" type="file" name="file" style="display: none" />

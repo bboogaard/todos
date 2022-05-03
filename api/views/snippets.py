@@ -6,17 +6,22 @@ from rest_framework.viewsets import GenericViewSet
 
 from api.data.models import CodeSnippet
 from api.serializers.snippets import CreateCodeSnippetSerializer, ListCodeSnippetSerializer, UpdateCodeSnippetSerializer
-from api.views.shared.mixins import ProcessSerializerMixin
+from api.views.shared.mixins import ExportMixin
 from api.views.shared.pagination import SinglePagePagination
+from services.export.factory import ExportServiceFactory
 
 
-class CodeSnippetViewSet(ListModelMixin, ProcessSerializerMixin, GenericViewSet):
+class CodeSnippetViewSet(ListModelMixin, ExportMixin, GenericViewSet):
 
     pagination_class = SinglePagePagination
 
     parser_classes = [JSONParser]
 
     serializer_class = ListCodeSnippetSerializer
+
+    @property
+    def service(self):
+        return ExportServiceFactory.snippets()
 
     def get_queryset(self):
         return CodeSnippet.objects.all()

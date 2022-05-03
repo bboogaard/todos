@@ -26,25 +26,32 @@ ApiProviderFactory.prototype = {
                 dataType: "json"
             });
         }
+        provider.importUrl = this.settings.urls['import'];
         return provider;
 
     },
 
     createNotesProvider: function () {
 
-        return this.createProvider();
+        let provider = this.createProvider();
+        provider.importUrl = this.settings.urls['import'];
+        return provider;
 
     },
 
     createSnippetsProvider: function () {
 
-        return this.createProvider();
+        let provider = this.createProvider();
+        provider.importUrl = this.settings.urls['import'];
+        return provider;
 
     },
 
     createFilesProvider: function () {
 
-        return this.createProvider();
+        let provider = this.createProvider();
+        provider.importUrl = this.settings.urls['import'];
+        return provider;
 
     },
 
@@ -52,6 +59,7 @@ ApiProviderFactory.prototype = {
 
         let provider = this.createProvider();
         provider.carouselUrl = this.settings.carouselUrl;
+        provider.importUrl = this.settings.urls['import'];
         return provider;
 
     },
@@ -69,6 +77,7 @@ ApiProviderFactory.prototype = {
         }
         provider.year = this.settings.year;
         provider.month = this.settings.month;
+        provider.importUrl = this.settings.urls['import'];
         return provider;
 
     },

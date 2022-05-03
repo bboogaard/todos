@@ -6,6 +6,10 @@ $(document).ready(function(){
             deleteButton: $('#deleteSnippet'),
             prevButton: $('#prevSnippet'),
             nextButton: $('#nextSnippet'),
+            exportButton: $('#exportSnippets'),
+            exportForm: $('#snippet-export-form'),
+            importButton: $('#importSnippets'),
+            fileField: $('#importSnippetsInput'),
             provider: apiProviderFactory.createSnippets()
         });
     });
