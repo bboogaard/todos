@@ -98,6 +98,12 @@ ApiProviderFactory.prototype = {
 
     },
 
+    createWallpaperProvider: function () {
+
+        return this.createProvider();
+
+    },
+
 }
 
 let apiProviderFactory = {
@@ -128,6 +134,10 @@ let apiProviderFactory = {
 
     createCarousel: function() {
         return new ApiProviderFactory(JSON.parse(document.getElementById('carousel-vars').textContent)).createCarouselProvider();
+    },
+
+    createWallpapers: function() {
+        return new ApiProviderFactory(JSON.parse(document.getElementById('wallpaper-vars').textContent)).createWallpaperProvider();
     }
 
 }

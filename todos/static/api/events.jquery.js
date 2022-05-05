@@ -54,7 +54,8 @@
                     formSetUp: function(form) {
                         form.find('#id_date').val($(el).attr('data-event-date'));
                     },
-                    formHandler: function(res) {
+                    formHandler: function(form) {
+                        let res = form.serializeArray();
                         let data = {};
                         for (var i = 0; i < res.length; i++) {
                             data[res[i]['name']] = res[i]['value'];
@@ -80,7 +81,8 @@
                         form.find('#id_date').val($(el).attr('data-event-date'));
                         form.find('#id_time').val($(el).attr('data-event-time'));
                     },
-                    formHandler: function(res) {
+                    formHandler: function(form) {
+                        let res = form.serializeArray();
                         let data = {id: $(el).attr('data-event-id')};
                         for (var i = 0; i < res.length; i++) {
                             data[res[i]['name']] = res[i]['value'];
@@ -119,12 +121,18 @@
                 self.fileField.trigger('click');
             });
 
-            $(this.fileField).Upload({
-                url: this.provider.importUrl,
-                responseHandler: function() {
-                    self.fileField.val('');
-                    self.loadItems(self.year, self.month);
-                }
+            $(this.fileField).change(function() {
+                let el = $(this);
+                let upload = new UploadApi({
+                    url: self.provider.importUrl,
+                    responseHandler: function() {
+                        el.val('');
+                        self.loadItems(self.year, self.month);
+                    }
+                });
+                upload.uploadFile({
+                    file: el.get(0).files[0]
+                });
             });
 
         },

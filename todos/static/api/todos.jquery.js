@@ -63,12 +63,19 @@
                 self.fileField.trigger('click');
             });
 
-            $(this.fileField).Upload({
-                url: this.provider.importUrl,
-                responseHandler: function() {
-                    self.fileField.val('');
-                    self.loadItems();
-                }
+            this.fileField.change(function(event) {
+                let el = $(this);
+                console.log(el.attr('name'));
+                let upload = new UploadApi({
+                    url: self.provider.importUrl,
+                    responseHandler: function() {
+                        el.val('');
+                        self.loadItems();
+                    }
+                });
+                upload.uploadFile({
+                    file: el.get(0).files[0]
+                });
             });
 
         },

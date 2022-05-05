@@ -45,8 +45,8 @@ class NoteAdmin(ItemAdmin, admin.ModelAdmin):
 
 
 admin.site.register(data_models.Todo, TodoAdmin)
-admin.site.register(models.Gallery)
-admin.site.register(models.Wallpaper)
+admin.site.register(data_models.Gallery)
+admin.site.register(data_models.Wallpaper)
 admin.site.register(data_models.PrivateFile)
 admin.site.register(data_models.PrivateImage)
 admin.site.register(data_models.Note, NoteAdmin)

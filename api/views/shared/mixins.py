@@ -23,7 +23,8 @@ class ProcessSerializerMixin(GenericViewSet):
     def _create_and_validate(self, serializer_class, request, data=None, **kwargs):
         self.serializer_class = serializer_class
         serializer = self.get_serializer(data=data or request.data, **kwargs)
-        serializer.is_valid(raise_exception=True)
+        serializer.is_valid(raise_exception=False)
+        print(serializer.errors)
         return serializer
 
 

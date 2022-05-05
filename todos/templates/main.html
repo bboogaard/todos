@@ -82,7 +82,7 @@
          event.preventDefault();
          tModal.FullModal({
              title: 'Manage wallpapers',
-             url: '{% url "todos:wallpaper_list" %}',
+             url: '{% url "api:wallpapers-wallpaper-list" %}',
              onClose: function() {
                location.href = '{{ request.path }}' + window.location.search;
              }

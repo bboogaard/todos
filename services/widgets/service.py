@@ -97,7 +97,7 @@ class TodosWidgetRenderer(WidgetRendererService):
         return {
             'js': {
                 'static': (
-                    'jquery.upload.js', 'api/todos.jquery.js', 'todos.init.js'
+                    'upload.js', 'api/todos.jquery.js', 'todos.init.js'
                 )
             }
         }
@@ -136,7 +136,7 @@ class FilesWidgetRenderer(WidgetRendererService):
         return {
             'js': {
                 'static': (
-                    'jquery.upload.js', 'api/files.jquery.js', 'files.init.js'
+                    'upload.js', 'api/files.jquery.js', 'files.init.js'
                 )
             }
         }
@@ -175,7 +175,7 @@ class ImagesWidgetRenderer(WidgetRendererService):
     def media(self):
         return {
             'js': {
-                'static': ('jquery.upload.js', 'api/images.jquery.js', 'images.init.js',)
+                'static': ('upload.js', 'api/images.jquery.js', 'images.init.js',)
             }
         }
 
@@ -215,7 +215,7 @@ class NotesWidgetRenderer(WidgetRendererService):
         return {
             'js': {
                 'static': (
-                    'js.cookie.min.js', 'jquery.upload.js', 'api/notes.jquery.js', 'notes.init.js'
+                    'js.cookie.min.js', 'upload.js', 'api/notes.jquery.js', 'notes.init.js'
                 )
             }
         }
@@ -255,7 +255,7 @@ class EventsWidgetRenderer(WidgetRendererService):
                 'tempus-dominus/css/font-awesome.css'
             ),
             'js': {
-                'static': ('ejs.min.js', 'jquery.upload.js', 'api/events.jquery.js', 'events.init.js',)
+                'static': ('ejs.min.js', 'upload.js', 'api/events.jquery.js', 'events.init.js',)
             }
         }
 
@@ -290,7 +290,7 @@ class CodeSnippetWidgetRenderer(WidgetRendererService):
         return {
             'js': {
                 'static': (
-                    'easymde/js/easymde.min.js', 'jquery.upload.js', 'api/snippet.jquery.js', 'snippet.init.js'
+                    'easymde/js/easymde.min.js', 'upload.js', 'api/snippet.jquery.js', 'snippet.init.js'
                 )
             },
             'css': ('easymde/css/easymde.min.css',)

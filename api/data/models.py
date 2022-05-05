@@ -1,3 +1,5 @@
+import os.path
+
 import pytz
 from django_extensions.db.models import ActivatorModel, ActivatorModelManager as BaseActivatorModelManager
 from django.conf import settings
@@ -75,6 +77,52 @@ class PositionedModel(models.Model):
             manager = self.__class__.objects
             self.position = (manager.aggregate(max_pos=models.Max('position'))['max_pos'] or 0) + 1
         super().save(*args, **kwargs)
+
+
+class GalleryQuerySet(models.QuerySet):
+
+    def with_images(self):
+        queryset = self._clone()
+        queryset = queryset.filter(
+            models.Exists(
+                Wallpaper.objects.filter(
+                    gallery=models.OuterRef('pk')
+                )
+            )
+        )
+
+        return queryset
+
+
+class Gallery(models.Model):
+
+    name = models.CharField(max_length=32, unique=True)
+
+    objects = GalleryQuerySet.as_manager()
+
+    class Meta:
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+
+class Wallpaper(models.Model):
+
+    image = models.ImageField(upload_to='wallpapers/')
+
+    gallery = models.ForeignKey(Gallery, related_name='wallpapers', on_delete=models.CASCADE)
+
+    position = models.PositiveIntegerField()
+
+    class Meta:
+        ordering = ('position',)
+
+    def __str__(self):
+        return self.image.file.name
+
+    def get_image_url(self):
+        return settings.MEDIA_URL + 'wallpapers/' + os.path.basename(self.image.file.name)
 
 
 class Todo(SearchMixin, ActivatorModel):

@@ -47,7 +47,7 @@
                     if (self.formHandler) {
                         event.preventDefault();
                         if (form.get(0).reportValidity()) {
-                            self.formHandler(form.serializeArray());
+                            self.formHandler(form);
                             self.modal.modal('hide');
                         }
                     }

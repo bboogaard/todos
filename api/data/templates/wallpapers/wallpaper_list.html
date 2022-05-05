@@ -1,0 +1,95 @@
+{% extends 'base_modal.html' %}
+
+{% load static %}
+
+{% block main %}
+<form id="wallpaper-form" action="" method="post" style="display: none" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div id="div_id_image" class="form-group">
+      <label for="id_image" class=" requiredField">
+        Image<span class="asteriskField">*</span>
+      </label>
+      <div class="">
+        <input type="file" name="image" class="textinput textInput form-control" required="" id="id_image">
+      </div>
+    </div>
+    <div id="div_id_image_current" class="form-group" style="display: none">
+      <label class="">
+        Image
+      </label>
+      <div class="">
+          <img src="" width="100">
+      </div>
+    </div>
+    <div id="div_id_gallery" class="form-group">
+      <label for="id_gallery" class=" requiredField">
+        Gallery<span class="asteriskField">*</span>
+      </label>
+      <div class="">
+        <select name="gallery" class="textinput textInput form-control" required="" id="id_gallery">
+        {% for gallery in galleries %}
+            <option value="{{ gallery.pk }}">{{ gallery.name }}</option>
+        {% endfor %}
+        </select>
+      </div>
+    </div>
+    <div id="div_id_position" class="form-group">
+      <label for="id_position" class=" requiredField">
+        Position<span class="asteriskField">*</span>
+      </label>
+      <div class="">
+        <input type="number" name="position" class="textinput textInput form-control" min="0" value="0" required="" id="id_position">
+      </div>
+    </div>
+    <div class="buttonHolder">
+      <input type="submit" name="submit" value="Save" class="btn btn-primary button white" id="submit-id-submit">
+    </div>
+</form>
+
+<h1>Wallpapers</h1>
+<div class="float-right mb-2">
+    <a class="btn btn-primary" id="createWallpaperButton" href="">Add wallpaper</a>&nbsp;
+    <a class="btn btn-primary" id="deleteWallpaperButton" href="">Delete wallpapers</a>
+</div>
+<form method="post" action="">
+    {% csrf_token %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col"><input type="checkbox" id="select-all"></th>
+          <th scope="col">Gallery</th>
+          <th scope="col">Image</th>
+        </tr>
+      </thead>
+      <tbody>
+
+      </tbody>
+    </table>
+</form>
+{% endblock %}
+
+{% block javascript %}
+{{ wallpaper_vars|json_script:"wallpaper-vars" }}
+<script type="text/javascript" src="{% static 'api/api.provider.js' %}"></script>
+<script type="text/javascript" src="{% static 'api/api.provider.factory.js' %}"></script>
+<script type="text/javascript" src="{% static 'ejs.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'upload.js' %}"></script>
+<script type="text/javascript" src="{% static 'api/wallpapers.jquery.js' %}"></script>
+<script type="text/javascript">
+$(function() {
+    $('table tbody').Wallpapers({
+        createButton: $('#createWallpaperButton'),
+        deleteButton: $('#deleteWallpaperButton'),
+        wallpaperForm: $('#wallpaper-form'),
+        provider: apiProviderFactory.createWallpapers()
+    });
+    /*$('#delete-btn').click(function(event) {
+        event.preventDefault();
+        $('form').submit();
+    });
+    $('#select-all').click(function() {
+        $('input[name="wallpaper"]').prop('checked', $(this).prop('checked'));
+    });*/
+});
+</script>
+{% endblock %}
