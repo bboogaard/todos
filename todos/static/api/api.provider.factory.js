@@ -104,6 +104,14 @@ ApiProviderFactory.prototype = {
 
     },
 
+    createBackgroundProvider: function () {
+
+        let provider = this.createProvider();
+        provider.gallery = this.settings.gallery;
+        return provider;
+
+    },
+
 }
 
 let apiProviderFactory = {
@@ -138,6 +146,10 @@ let apiProviderFactory = {
 
     createWallpapers: function() {
         return new ApiProviderFactory(JSON.parse(document.getElementById('wallpaper-vars').textContent)).createWallpaperProvider();
+    },
+
+    createBackground: function() {
+        return new ApiProviderFactory(JSON.parse(document.getElementById('background-vars').textContent)).createBackgroundProvider();
     }
 
 }

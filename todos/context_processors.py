@@ -1,18 +1,15 @@
 from constance import config
+from django.urls import reverse
 
-from api.data import models as data_models
+from lib.utils import with_camel_keys
 
 
 def wallpapers(request):
-    gallery = config.gallery
-    if gallery:
-        wallpaper_images = [
-            wallpaper.get_image_url()
-            for wallpaper in data_models.Wallpaper.objects.filter(gallery=gallery)
-        ]
-    else:
-        wallpaper_images = []
     return {
-        'galleries': list(data_models.Gallery.objects.with_images().values_list('id', 'name')),
-        'wallpapers': wallpaper_images
+        'background_vars': with_camel_keys({
+            'gallery': config.gallery,
+            'urls': {
+                'list': reverse('api:backgrounds-list')
+            }
+        })
     }

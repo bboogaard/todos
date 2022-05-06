@@ -1,3 +1,5 @@
+from django_filters.filterset import filterset_factory
+from django_filters.rest_framework import DjangoFilterBackend
 from django.urls import reverse
 from rest_framework.decorators import action
 from rest_framework.mixins import ListModelMixin
@@ -9,14 +11,18 @@ from rest_framework.viewsets import GenericViewSet
 from api.data.models import Gallery, Wallpaper
 from api.serializers.wallpapers import CreateWallpaperSerializer, ListWallpaperSerializer, UpdateWallpaperSerializer
 from api.views.shared.mixins import ProcessSerializerMixin
+from api.views.shared.pagination import SinglePagePagination
 
 
-class WallpaperViewSet(ListModelMixin, ProcessSerializerMixin, GenericViewSet):
+class BaseWallpaperViewSet(ListModelMixin, GenericViewSet):
 
     serializer_class = ListWallpaperSerializer
 
     def get_queryset(self):
         return Wallpaper.objects.order_by('gallery', 'position')
+
+
+class WallpaperViewSet(ProcessSerializerMixin, BaseWallpaperViewSet):
 
     @action(['get'], detail=False, url_path='wallpaper-list', renderer_classes=[TemplateHTMLRenderer])
     def wallpaper_list(self, request, *args, **kwargs):
@@ -47,3 +53,12 @@ class WallpaperViewSet(ListModelMixin, ProcessSerializerMixin, GenericViewSet):
         ids = request.data.get('id')
         Wallpaper.objects.filter(pk__in=ids).delete()
         return Response({})
+
+
+class BackgroundViewSet(BaseWallpaperViewSet):
+
+    filter_backends = [DjangoFilterBackend]
+
+    filterset_class = filterset_factory(Wallpaper, fields=['gallery'])
+
+    pagination_class = SinglePagePagination

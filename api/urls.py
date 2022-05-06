@@ -7,13 +7,14 @@ from api.views.notes import NoteViewSet
 from api.views.snippets import CodeSnippetViewSet
 from api.views.todos import TodoViewSet
 from api.views.upload import UploadViewSet
-from api.views.wallpapers import WallpaperViewSet
+from api.views.wallpapers import BackgroundViewSet, WallpaperViewSet
 
 
 app_name = 'api'
 
 
 router = routers.SimpleRouter(trailing_slash=False)
+router.register(r'backgrounds', BackgroundViewSet, 'backgrounds')
 router.register(r'events', EventViewSet, 'events')
 router.register(r'files', FileViewSet, 'files')
 router.register(r'images', ImageViewSet, 'images')

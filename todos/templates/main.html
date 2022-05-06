@@ -49,12 +49,12 @@
 {% endblock %}
 
 {% block javascript %}
-  {{ wallpapers|json_script:"wallpapers" }}
-<script type="text/javascript" src="{% static 'wallpaper.jquery.js' %}"></script>
+  {{ background_vars|json_script:"background-vars" }}
+<script type="text/javascript" src="{% static 'api/background.jquery.js' %}"></script>
 <script type="text/javascript">
   $(function () {
-      $('body').wallPaper({
-          items: JSON.parse(document.getElementById('wallpapers').textContent)
+      $('body').Background({
+          provider: apiProviderFactory.createBackground()
       });
       let tModal = $('#todos-modal');
 
