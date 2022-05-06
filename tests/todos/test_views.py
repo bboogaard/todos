@@ -1,12 +1,8 @@
-from io import BytesIO
-
 from django_webtest import WebTest
 from django.core.management import call_command
-from PIL import Image
-from webtest import Upload
 
 from api.data.models import Note
-from todos.models import Wallpaper, Widget
+from todos.models import Widget
 from tests.services.cron.testcases import CronTestCase
 from tests.todos.factories import EventFactory, NoteFactory, TodoFactory, UserFactory
 
@@ -62,107 +58,6 @@ class TestSearchView(TodosViewTest):
         response = self.app.get('/search/?q=Bar', user=self.test_user)
         self.assertEqual(response.status_code, 200)
         response.mustcontain('Bar - Todo', no=['Bar - Note'])
-
-
-class TestWallpaperListView(TodosViewTest):
-
-    with_fixtures = True
-
-    def test_get(self):
-        response = self.app.get('/wallpapers/list', user=self.test_user)
-        self.assertEqual(response.status_code, 200)
-
-
-class TestWallpaperCreateView(TodosViewTest):
-
-    with_fixtures = True
-
-    csrf_checks = False
-
-    def test_get(self):
-        response = self.app.get('/wallpapers/create', user=self.test_user)
-        self.assertEqual(response.status_code, 200)
-
-    def test_post(self):
-        img = Image.new(mode="RGB", size=(1, 1))
-        fh = BytesIO()
-        img.save(fh, format='PNG')
-
-        data = {
-            'gallery': '3',
-            'image': Upload('wallpaper.png', fh.getvalue()),
-            'position': '0'
-        }
-
-        response = self.app.post('/wallpapers/create', data, user=self.test_user)
-        self.assertEqual(response.status_code, 302, response.content)
-        self.assertEqual(Wallpaper.objects.count(), 4)
-
-    def test_post_with_error(self):
-        img = Image.new(mode="RGB", size=(1, 1))
-        fh = BytesIO()
-        img.save(fh, format='PNG')
-
-        data = {
-            'gallery': '3',
-            'image': Upload('wallpaper.png', fh.getvalue())
-        }
-
-        response = self.app.post('/wallpapers/create', data, user=self.test_user)
-        self.assertEqual(response.status_code, 200, response.content)
-
-
-class TestWallpaperEditView(TodosViewTest):
-
-    with_fixtures = True
-
-    csrf_checks = False
-
-    def test_get(self):
-        response = self.app.get('/wallpapers/8/update', user=self.test_user)
-        self.assertEqual(response.status_code, 200)
-
-    def test_post(self):
-        img = Image.new(mode="RGB", size=(1, 1))
-        fh = BytesIO()
-        img.save(fh, format='PNG')
-
-        data = {
-            'gallery': '3',
-            'image': Upload('wallpaper.png', fh.getvalue()),
-            'position': '0'
-        }
-
-        response = self.app.post('/wallpapers/8/update', data, user=self.test_user)
-        self.assertEqual(response.status_code, 302, response.content)
-
-    def test_post_with_error(self):
-        img = Image.new(mode="RGB", size=(1, 1))
-        fh = BytesIO()
-        img.save(fh, format='PNG')
-
-        data = {
-            'gallery': '3',
-            'image': Upload('wallpaper.png', fh.getvalue())
-        }
-
-        response = self.app.post('/wallpapers/8/update', data, user=self.test_user)
-        self.assertEqual(response.status_code, 200, response.content)
-
-
-class TestWallpaperDeleteView(TodosViewTest):
-
-    with_fixtures = True
-
-    csrf_checks = False
-
-    def test_post(self):
-        data = {
-            'wallpaper': [8]
-        }
-        response = self.app.post('/wallpapers/delete', data, user=self.test_user)
-        self.assertEqual(response.status_code, 302, response.content)
-        self.assertEqual(Wallpaper.objects.count(), 2)
 
 
 class TestWidgetListView(TodosViewTest):

@@ -8,12 +8,6 @@ urlpatterns = [
     path('cron/<job_name>', views.CronView.as_view(), name='cron'),
     path('search/', views.SearchView.as_view(), name='search'),
 
-    # Wallpapers
-    path('wallpapers/list', views.WallpaperListView.as_view(), name="wallpaper_list"),
-    path('wallpapers/create', views.WallpaperCreateView.as_view(), name="wallpaper_create"),
-    path('wallpapers/<int:pk>/update', views.WallpaperUpdateView.as_view(), name="wallpaper_update"),
-    path('wallpapers/delete', views.WallpaperDeleteView.as_view(), name="wallpaper_delete"),
-
     # Images
     path('carousel', views.CarouselView.as_view(), name="carousel"),
 

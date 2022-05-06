@@ -44,8 +44,6 @@ class WallpaperViewSet(ListModelMixin, ProcessSerializerMixin, GenericViewSet):
 
     @action(['post'], detail=False, url_path='delete_many')
     def delete_many(self, request, *args, **kwargs):
-        print(request.data)
         ids = request.data.get('id')
-        print(ids)
         Wallpaper.objects.filter(pk__in=ids).delete()
         return Response({})

@@ -10,9 +10,10 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.images import ImageFile
 from django.utils.timezone import make_aware, now, utc
+from PIL import Image
 from webtest import Upload
 
-from api.data.models import CodeSnippet, Event, Note, PrivateFile, PrivateImage, Todo
+from api.data.models import CodeSnippet, Event, Note, PrivateFile, PrivateImage, Todo, Wallpaper
 from tests.todos.factories import CodeSnippetFactory, EventFactory, PrivateFileFactory, PrivateImageFactory, \
     NoteFactory, TodoFactory
 from tests.todos.test_views import TodosViewTest
@@ -722,3 +723,58 @@ class TestEventsExport(TodosViewTest):
         result = list(Event.objects.order_by('description').values_list('description', flat=True))
         expected = ['Ipsum', 'Lorem']
         self.assertEqual(result, expected)
+
+
+class TestWallpaperViewSet(TodosViewTest):
+
+    csrf_checks = False
+
+    with_fixtures = True
+
+    def setUp(self):
+        super().setUp()
+
+    def test_wallpaper_list(self):
+        response = self.app.get('/api/v1/wallpapers/wallpaper-list', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+    def test_list(self):
+        response = self.app.get('/api/v1/wallpapers', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        result = [item['position'] for item in data]
+        expected = [1, 2, 3]
+        self.assertEqual(result, expected)
+
+    def test_create_one(self):
+        img = Image.new(mode="RGB", size=(1, 1))
+        fh = BytesIO()
+        img.save(fh, format='PNG')
+        data = {
+            'gallery': '3',
+            'image': Upload('wallpaper.png', fh.getvalue()),
+            'position': '0'
+        }
+        response = self.app.post('/api/v1/wallpapers/create_one', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Wallpaper.objects.count(), 4)
+
+    def test_update_one(self):
+        data = {
+            'gallery': '3',
+            'id': 8,
+            'position': '4'
+        }
+        response = self.app.post('/api/v1/wallpapers/update_one', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        wallpaper = Wallpaper.objects.get(pk=8)
+        self.assertEqual(wallpaper.position, 4)
+
+    def test_delete_many(self):
+        data = {
+            'id': [8]
+        }
+        response = self.app.post('/api/v1/wallpapers/delete_many', data, user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        wallpaper = Wallpaper.objects.filter(pk=8).first()
+        self.assertIsNone(wallpaper)
