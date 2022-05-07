@@ -51,8 +51,6 @@
                 data.page = page;
             }
 
-            console.log(data);
-
             this.provider.list(data).done(function(items) {
                 self.render(items);
             }).fail(function() {
@@ -89,8 +87,6 @@
         },
 
         next: function () {
-
-            console.log(this.page);
 
             this.loadItems(this.page + 1);
 

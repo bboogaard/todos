@@ -24,7 +24,6 @@ class ProcessSerializerMixin(GenericViewSet):
         self.serializer_class = serializer_class
         serializer = self.get_serializer(data=data or request.data, **kwargs)
         serializer.is_valid(raise_exception=False)
-        print(serializer.errors)
         return serializer
 
 

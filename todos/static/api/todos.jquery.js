@@ -65,7 +65,6 @@
 
             this.fileField.change(function(event) {
                 let el = $(this);
-                console.log(el.attr('name'));
                 let upload = new UploadApi({
                     url: self.provider.importUrl,
                     responseHandler: function() {

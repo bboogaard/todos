@@ -82,10 +82,7 @@
          event.preventDefault();
          tModal.FullModal({
              title: 'Manage wallpapers',
-             url: '{% url "api:wallpapers-wallpaper-list" %}',
-             onClose: function() {
-               location.href = '{{ request.path }}' + window.location.search;
-             }
+             url: '{% url "api:wallpapers-wallpaper-list" %}'
          });
       });
   });
