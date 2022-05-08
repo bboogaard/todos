@@ -731,9 +731,6 @@ class TestWallpaperViewSet(TodosViewTest):
 
     with_fixtures = True
 
-    def setUp(self):
-        super().setUp()
-
     def test_wallpaper_list(self):
         response = self.app.get('/api/v1/wallpapers/wallpaper-list', user=self.test_user)
         self.assertEqual(response.status_code, 200)
@@ -778,3 +775,24 @@ class TestWallpaperViewSet(TodosViewTest):
         self.assertEqual(response.status_code, 200)
         wallpaper = Wallpaper.objects.filter(pk=8).first()
         self.assertIsNone(wallpaper)
+
+
+class TestBackgroundViewSet(TodosViewTest):
+
+    with_fixtures = True
+
+    def test_list(self):
+        response = self.app.get('/api/v1/backgrounds', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        result = [item['position'] for item in data['results']]
+        expected = [1]
+        self.assertEqual(result, expected)
+
+    def test_list_different_page(self):
+        response = self.app.get('/api/v1/backgrounds?page=2', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        result = [item['position'] for item in data['results']]
+        expected = [2]
+        self.assertEqual(result, expected)
