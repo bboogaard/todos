@@ -6,7 +6,7 @@ from django.template.context import RequestContext
 from django.test.testcases import TestCase
 from django.test.client import RequestFactory
 
-from todos.models import Widget
+from api.data.models import Widget
 
 
 class TestEventService(TestCase):

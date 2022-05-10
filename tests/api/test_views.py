@@ -13,7 +13,7 @@ from django.utils.timezone import make_aware, now, utc
 from PIL import Image
 from webtest import Upload
 
-from api.data.models import CodeSnippet, Event, Note, PrivateFile, PrivateImage, Todo, Wallpaper
+from api.data.models import CodeSnippet, Event, Note, PrivateFile, PrivateImage, Todo, Wallpaper, Widget
 from tests.todos.factories import CodeSnippetFactory, EventFactory, PrivateFileFactory, PrivateImageFactory, \
     NoteFactory, TodoFactory
 from tests.todos.test_views import TodosViewTest
@@ -796,3 +796,84 @@ class TestBackgroundViewSet(TodosViewTest):
         result = [item['position'] for item in data['results']]
         expected = [2]
         self.assertEqual(result, expected)
+
+
+class TestWidgetViewSet(TodosViewTest):
+
+    csrf_checks = False
+
+    with_fixtures = True
+
+    def test_widget_list(self):
+        response = self.app.get('/api/v1/widgets/widget-list', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+
+    def test_list(self):
+        response = self.app.get('/api/v1/widgets', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        result = len(data)
+        expected = 7
+        self.assertEqual(result, expected)
+
+    def test_update_many(self):
+        data = [
+            {
+                "id": 1,
+                "is_enabled": True,
+                "position": 0,
+                "refresh_interval": None
+            },
+            {
+                "id": 2,
+                "is_enabled": True,
+                "position": 1,
+                "refresh_interval": None
+            },
+            {
+                "id": 8,
+                "is_enabled": True,
+                "position": 1,
+                "refresh_interval": None
+            },
+            {
+                "id": 3,
+                "is_enabled": True,
+                "position": 2,
+                "refresh_interval": None
+            },
+            {
+                "id": 4,
+                "is_enabled": True,
+                "position": 3,
+                "refresh_interval": None
+            },
+            {
+                "id": 5,
+                "is_enabled": True,
+                "position": 5,
+                "refresh_interval": None
+            },
+            {
+                "id": 7,
+                "is_enabled": False,
+                "position": 6,
+                "refresh_interval": None
+            }
+        ]
+        response = self.app.post(
+            '/api/v1/widgets/update_many', json.dumps(data), user=self.test_user,
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        widget = Widget.objects.get(pk=8)
+        self.assertEqual(widget.position, 1)
+        widget = Widget.objects.get(pk=7)
+        self.assertFalse(widget.is_enabled)
+
+    def test_render(self):
+        widget = Widget.objects.get(type=Widget.WIDGET_TYPE_TODOS)
+        response = self.app.get('/api/v1/widgets/{}/render'.format(widget.pk), user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        self.assertIn('Enter item', data['html'])

@@ -4,6 +4,7 @@
         this.container = settings.container;
         this.createButton = settings.createButton;
         this.deleteButton = settings.deleteButton;
+        this.checkAllButton = settings.checkAllButton;
         this.wallpaperForm = settings.wallpaperForm;
 
         this.provider = settings.provider;
@@ -22,6 +23,10 @@
         initEditHandlers: function() {
 
             let self = this;
+
+            this.checkAllButton.click(function(event) {
+                self.container.find('input[name="wallpaper"]').prop('checked', $(this).prop('checked'));
+            });
 
             this.createButton.click(function(event) {
                 event.preventDefault();
@@ -118,7 +123,7 @@
         renderItem: function(item) {
 
             let template = '<tr><td><input type="checkbox" name="wallpaper" value="<%= wallpaper_id %>"></td>' +
-                           '<td><%= wallpaper_gallery %></td>' +
+                           '<td><span class="modal-label"><%= wallpaper_gallery %></span></td>' +
                            '<td>' +
                            '    <a href="" data-id="<%= wallpaper_id %>" data-gallery="<%= gallery_id %>" ' +
                            '    data-position="<%= position %>" data-image="<%= image %>">' +
@@ -147,6 +152,7 @@
             container: $(this),
             createButton: settings.createButton,
             deleteButton: settings.deleteButton,
+            checkAllButton: settings.checkAllButton,
             wallpaperForm: settings.wallpaperForm,
             provider: settings.provider
         });

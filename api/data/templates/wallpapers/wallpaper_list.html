@@ -56,7 +56,7 @@
     <table class="table table-striped">
       <thead>
         <tr>
-          <th scope="col"><input type="checkbox" id="select-all"></th>
+          <th scope="col"><input type="checkbox" id="checkAllButton"></th>
           <th scope="col">Gallery</th>
           <th scope="col">Image</th>
         </tr>
@@ -80,16 +80,10 @@ $(function() {
     $('table tbody').Wallpapers({
         createButton: $('#createWallpaperButton'),
         deleteButton: $('#deleteWallpaperButton'),
+        checkAllButton: $('#checkAllButton'),
         wallpaperForm: $('#wallpaper-form'),
         provider: apiProviderFactory.createWallpapers()
     });
-    /*$('#delete-btn').click(function(event) {
-        event.preventDefault();
-        $('form').submit();
-    });
-    $('#select-all').click(function() {
-        $('input[name="wallpaper"]').prop('checked', $(this).prop('checked'));
-    });*/
 });
 </script>
 {% endblock %}

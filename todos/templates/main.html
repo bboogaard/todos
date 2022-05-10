@@ -72,7 +72,7 @@
          event.preventDefault();
          tModal.FullModal({
              title: 'Manage widgets',
-             url: '{% url "todos:widget_list" %}',
+             url: '{% url "api:widgets-widget-list" %}',
              onClose: function() {
                location.href = '{{ request.path }}' + window.location.search;
              }

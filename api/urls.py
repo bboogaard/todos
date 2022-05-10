@@ -8,6 +8,7 @@ from api.views.snippets import CodeSnippetViewSet
 from api.views.todos import TodoViewSet
 from api.views.upload import UploadViewSet
 from api.views.wallpapers import BackgroundViewSet, WallpaperViewSet
+from api.views.widgets import WidgetViewSet
 
 
 app_name = 'api'
@@ -24,4 +25,5 @@ router.register(r'snippets', CodeSnippetViewSet, 'snippets')
 router.register(r'todos', TodoViewSet, 'todos')
 router.register(r'upload', UploadViewSet, 'upload')
 router.register(r'wallpapers', WallpaperViewSet, 'wallpapers')
+router.register(r'widgets', WidgetViewSet, 'widgets')
 urlpatterns = router.urls

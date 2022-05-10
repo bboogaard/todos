@@ -1,6 +1,6 @@
 [
   {
-    "model": "todos.widget",
+    "model": "data.widget",
     "pk": 1,
     "fields": {
       "type": "todos",
@@ -11,7 +11,7 @@
     }
   },
   {
-    "model": "todos.widget",
+    "model": "data.widget",
     "pk": 2,
     "fields": {
       "type": "files",
@@ -22,7 +22,7 @@
     }
   },
   {
-    "model": "todos.widget",
+    "model": "data.widget",
     "pk": 3,
     "fields": {
       "type": "notes",
@@ -33,7 +33,7 @@
     }
   },
   {
-    "model": "todos.widget",
+    "model": "data.widget",
     "pk": 4,
     "fields": {
       "type": "events",
@@ -44,7 +44,7 @@
     }
   },
   {
-    "model": "todos.widget",
+    "model": "data.widget",
     "pk": 5,
     "fields": {
       "type": "images",
@@ -55,7 +55,7 @@
     }
   },
   {
-    "model": "todos.widget",
+    "model": "data.widget",
     "pk": 7,
     "fields": {
       "type": "snippet",
@@ -66,7 +66,7 @@
     }
   },
   {
-    "model": "todos.widget",
+    "model": "data.widget",
     "pk": 8,
     "fields": {
       "type": "upload",

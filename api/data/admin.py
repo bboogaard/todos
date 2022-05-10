@@ -1,7 +1,6 @@
 from django.contrib import admin
 
 from api.data import models as data_models
-from todos import models
 
 
 class ItemAdmin(admin.ModelAdmin):
@@ -50,6 +49,6 @@ admin.site.register(data_models.Wallpaper)
 admin.site.register(data_models.PrivateFile)
 admin.site.register(data_models.PrivateImage)
 admin.site.register(data_models.Note, NoteAdmin)
-admin.site.register(models.Widget)
+admin.site.register(data_models.Widget)
 admin.site.register(data_models.Event)
 admin.site.register(data_models.CodeSnippet)

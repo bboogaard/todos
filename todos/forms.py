@@ -1,7 +1,7 @@
 from django import forms
 from haystack.forms import ModelSearchForm as HaystackSearchForm
 
-from todos import models
+from api.data import models
 
 
 class DateTimePicker(forms.DateTimeInput):

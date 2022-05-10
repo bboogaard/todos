@@ -10,8 +10,4 @@ urlpatterns = [
 
     # Images
     path('carousel', views.CarouselView.as_view(), name="carousel"),
-
-    # Widgets
-    path('widgets/list', views.WidgetListView.as_view(), name="widget_list"),
-    path('widgets/<int:widget_id>', views.WidgetJson.as_view(), name="widget.json"),
 ]

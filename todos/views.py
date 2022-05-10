@@ -1,9 +1,7 @@
-from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
-from django.http.response import JsonResponse, HttpResponse
+from django.http.response import HttpResponse
 from django.shortcuts import redirect
-from django.template.context import RequestContext
 from django.urls import reverse
 from django.views import generic, View
 from haystack.generic_views import SearchView as BaseSearchView
@@ -11,8 +9,8 @@ from haystack.generic_views import SearchView as BaseSearchView
 from lib.utils import with_camel_keys
 from services.cron.exceptions import JobNotFound
 from services.cron.factory import CronServiceFactory
-from services.widgets.factory import WidgetRendererFactory
-from todos import forms, models
+from api.data import models
+from todos import forms
 
 
 class AccessMixin(View):
@@ -48,29 +46,6 @@ class SearchView(BaseSearchView):
     form_class = forms.SearchForm
 
 
-class WidgetListView(AccessMixin, generic.TemplateView):
-
-    template_name = 'widgets/widget_list.html'
-
-    def get(self, request, *args, **kwargs):
-        formset = self.get_formset()
-        context = self.get_context_data(formset=formset)
-        return self.render_to_response(context)
-
-    def post(self, request, *args, **kwargs):
-        formset = self.get_formset(request.POST or None)
-        if formset.is_valid():
-            formset.save()
-            messages.add_message(request, messages.SUCCESS, 'Widgets saved')
-            return redirect(reverse('todos:widget_list'))
-
-        context = self.get_context_data(formset=formset)
-        return self.render_to_response(context)
-
-    def get_formset(self, data=None, files=None, **kwargs):
-        return forms.WidgetFormSet(data, files, **kwargs)
-
-
 class CarouselView(AccessMixin, generic.TemplateView):
 
     template_name = 'carousel.html'
@@ -91,19 +66,6 @@ class CarouselView(AccessMixin, generic.TemplateView):
             })
         ))
         return context
-
-
-class WidgetJson(AccessMixin, View):
-
-    def get(self, request, widget_id, *args, **kwargs):
-        try:
-            widget = models.Widget.objects.get(pk=widget_id)
-        except models.Widget.DoesNotExist:
-            return JsonResponse({}, status=404)
-
-        renderer = WidgetRendererFactory.get_renderer(widget)
-        html = renderer.render_content(RequestContext(request, {'request': request}))
-        return JsonResponse({'html': html})
 
 
 class CronView(AccessMixin, View):

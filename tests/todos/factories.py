@@ -6,7 +6,6 @@ from django.utils.timezone import now
 
 from api.data import models as data_models
 from tests.todos.utils import generate_image
-from todos import models
 
 
 class UserFactory(factory.django.DjangoModelFactory):

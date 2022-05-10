@@ -1,9 +1,9 @@
 from typing import Optional
 
+from api.data.models import Widget
 from services.widgets.service import CodeSnippetWidgetRenderer, EventsWidgetRenderer, \
     FilesWidgetRenderer, ImagesWidgetRenderer, NotesWidgetRenderer, TodosWidgetRenderer, UploadWidgetRenderer, \
     WidgetRendererService
-from todos.models import Widget
 
 
 class WidgetRendererFactory:

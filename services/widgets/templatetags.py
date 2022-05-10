@@ -3,8 +3,8 @@ import json
 from django.template import library
 from django.utils.html import mark_safe
 
+from api.data.models import Widget
 from services.widgets.factory import WidgetRendererFactory
-from todos.models import Widget
 
 
 register = library.Library()

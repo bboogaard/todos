@@ -112,6 +112,12 @@ ApiProviderFactory.prototype = {
 
     },
 
+    createWidgetProvider: function () {
+
+        return this.createProvider();
+
+    }
+
 }
 
 let apiProviderFactory = {
@@ -150,6 +156,10 @@ let apiProviderFactory = {
 
     createBackground: function() {
         return new ApiProviderFactory(JSON.parse(document.getElementById('background-vars').textContent)).createBackgroundProvider();
+    },
+
+    createWidgets: function() {
+        return new ApiProviderFactory(JSON.parse(document.getElementById('widget-vars').textContent)).createWidgetProvider();
     }
 
 }

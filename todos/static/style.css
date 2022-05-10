@@ -35,6 +35,10 @@ li:first-child{
     margin: 0px;
 }
 
+.modal-label {
+    color: #FFF;
+}
+
 [data-widget-type="files"] small a,
 [data-widget-type="images"] small a {
     color: #FF3B0D;

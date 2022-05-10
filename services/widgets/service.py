@@ -6,9 +6,9 @@ from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.urls import reverse
 
+from api.data.models import Widget
 from lib.utils import with_camel_keys
 from todos import forms
-from todos.models import Widget
 
 
 class WidgetRendererService:
