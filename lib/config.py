@@ -1,6 +1,6 @@
 from django import forms
 
-from todos.models import Gallery
+from api.data.models import Gallery
 
 
 class GalleryChoiceField(forms.ChoiceField):

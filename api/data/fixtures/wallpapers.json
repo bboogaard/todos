@@ -1,0 +1,36 @@
+[
+  {
+    "model": "data.gallery",
+    "pk": 3,
+    "fields": {
+      "name": "Landscapes"
+    }
+  },
+  {
+    "model": "data.wallpaper",
+    "pk": 8,
+    "fields": {
+      "image": "wallpapers/Landscape-wallpapers-21.jpg",
+      "gallery": 3,
+      "position": 1
+    }
+  },
+  {
+    "model": "data.wallpaper",
+    "pk": 9,
+    "fields": {
+      "image": "wallpapers/mountains-scenery-1.jpg",
+      "gallery": 3,
+      "position": 2
+    }
+  },
+  {
+    "model": "data.wallpaper",
+    "pk": 10,
+    "fields": {
+      "image": "wallpapers/YKJtSPc-landscape-wallpaper-1080p.jpg",
+      "gallery": 3,
+      "position": 3
+    }
+  }
+]
