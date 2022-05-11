@@ -19,9 +19,17 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, re_path as url
 
+from app import views
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('todos.urls')),
+    path('', views.IndexView.as_view(), name='index'),
+    path('cron/<job_name>', views.CronView.as_view(), name='cron'),
+    path('search/', views.SearchView.as_view(), name='search'),
+
+    # Images
+    path('carousel', views.CarouselView.as_view(), name="carousel"),
     path('api/v1/', include('api.urls', namespace='api')),
     url('^private-media/', include(private_storage.urls)),
 ]

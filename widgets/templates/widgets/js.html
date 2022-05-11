@@ -1,0 +1,26 @@
+{% load static %}
+
+
+{% if var_name and values  %}
+<script type="text/javascript">
+    let {{ var_name }} = {{ values }};
+</script>
+{% endif %}
+
+<script type="text/javascript">
+    var widgets = widgets || {};
+    widgets['{{ widget.type }}'] = new Widget({
+        id: '{{ widget.widget_id }}',
+        url: '{% url 'api:widgets-render' widget.pk %}',
+        refreshInterval: {{ widget.refresh_interval_msecs|default_if_none:'null' }}
+    });
+    widgets['{{ widget.type }}'].init();
+</script>
+
+{% for file in static_files %}
+<script type="text/javascript" src="{% static file %}"></script>
+{% endfor %}
+
+{% for file in external_files %}
+<script type="text/javascript" src="{{ file }}"></script>
+{% endfor %}

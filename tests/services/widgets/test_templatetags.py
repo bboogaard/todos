@@ -6,7 +6,7 @@ from django.template.context import RequestContext
 from django.test.testcases import TestCase
 from django.test.client import RequestFactory
 
-from todos.models import Widget
+from api.data.models import Widget
 
 
 class TestEventService(TestCase):
@@ -16,7 +16,7 @@ class TestEventService(TestCase):
         call_command('loaddata', 'widgets.json')
 
     def _render(self, html: str, **kwargs):
-        tpl = Template('{% load widgets %}' + html)
+        tpl = Template('{% load widget_tags %}' + html)
         context = RequestContext(kwargs.pop('request'), kwargs)
         return tpl.render(context)
 
