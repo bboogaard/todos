@@ -8,7 +8,7 @@ from django.urls import reverse
 
 from api.data.models import Widget
 from lib.utils import with_camel_keys
-from todos import forms
+from widgets.service import forms
 
 
 class WidgetRendererService:
@@ -166,7 +166,7 @@ class ImagesWidgetRenderer(WidgetRendererService):
                     'delete': reverse('api:images-delete-one'),
                     'import': reverse('api:images-import-files'),
                 },
-                'carousel_url': reverse('todos:carousel'),
+                'carousel_url': reverse('carousel'),
                 'search_query': search_query
             })
         ))
@@ -252,7 +252,6 @@ class EventsWidgetRenderer(WidgetRendererService):
         return {
             'css': (
                 'calendar.css',
-                'tempus-dominus/css/font-awesome.css'
             ),
             'js': {
                 'static': ('ejs.min.js', 'upload.js', 'api/events.jquery.js', 'events.init.js',)

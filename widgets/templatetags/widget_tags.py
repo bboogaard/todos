@@ -4,7 +4,7 @@ from django.template import library
 from django.utils.html import mark_safe
 
 from api.data.models import Widget
-from services.widgets.factory import WidgetRendererFactory
+from widgets.service.factory import WidgetRendererFactory
 
 
 register = library.Library()

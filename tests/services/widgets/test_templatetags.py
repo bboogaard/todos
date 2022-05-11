@@ -16,7 +16,7 @@ class TestEventService(TestCase):
         call_command('loaddata', 'widgets.json')
 
     def _render(self, html: str, **kwargs):
-        tpl = Template('{% load widgets %}' + html)
+        tpl = Template('{% load widget_tags %}' + html)
         context = RequestContext(kwargs.pop('request'), kwargs)
         return tpl.render(context)
 

@@ -9,7 +9,7 @@ register = library.Library()
 @register.simple_tag(takes_context=True)
 def result_url(context, obj):
     request = context.get('request')
-    url = reverse('todos:index')
+    url = reverse('index')
     params = {
         'q': request.GET.get('q', '')
     }

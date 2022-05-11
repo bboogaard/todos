@@ -9,7 +9,7 @@ from rest_framework.viewsets import GenericViewSet
 from api.data.models import Widget
 from api.serializers.widgets import ListWidgetSerializer, UpdateWidgetSerializer
 from api.views.shared.mixins import ProcessSerializerMixin
-from services.widgets.factory import WidgetRendererFactory
+from widgets.service.factory import WidgetRendererFactory
 
 
 class WidgetViewSet(ProcessSerializerMixin, ListModelMixin, GenericViewSet):

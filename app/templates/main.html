@@ -6,7 +6,7 @@
 {% block nav %}
 <!-- Top Navigation -->
 <nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
-  <a class="navbar-brand" href="{% url 'todos:index' %}">Home</a>
+  <a class="navbar-brand" href="{% url 'index' %}">Home</a>
   <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
@@ -34,7 +34,7 @@
         </div>
       </li>
     </ul>
-    <form method="get" action="{% url 'todos:search' %}" class="form-inline my-2 my-lg-0">
+    <form method="get" action="{% url 'search' %}" class="form-inline my-2 my-lg-0">
       <input class="form-control mr-sm-2" type="text" name="q" placeholder="Search" aria-label="Search" value="{{ search_form.q.value|default_if_none:'' }}">
       <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
     </form>

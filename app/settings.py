@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     'private_storage',
     'bootstrap_pagination',
     'api.data',
+    'app',
+    'widgets',
     # Added.
     'haystack',
     'taggit',
@@ -73,11 +75,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.request',
-                'todos.context_processors.wallpapers'
-            ],
-            'libraries': {
-                'widgets': 'services.widgets.templatetags'
-            }
+                'app.context_processors.wallpapers',
+                'app.context_processors.widgets'
+            ]
         },
     },
 ]

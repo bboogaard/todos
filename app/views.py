@@ -6,11 +6,10 @@ from django.urls import reverse
 from django.views import generic, View
 from haystack.generic_views import SearchView as BaseSearchView
 
+from app import forms
 from lib.utils import with_camel_keys
 from services.cron.exceptions import JobNotFound
 from services.cron.factory import CronServiceFactory
-from api.data import models
-from todos import forms
 
 
 class AccessMixin(View):
@@ -31,9 +30,7 @@ class IndexView(AccessMixin, generic.TemplateView):
     template_name = 'index.html'
 
     def get(self, request, *args, **kwargs):
-        widgets = models.Widget.objects.filter(is_enabled=True)
         context = self.get_context_data(
-            widgets=widgets,
             search_form=forms.SearchForm(request.GET or None)
         )
         return self.render_to_response(context)
