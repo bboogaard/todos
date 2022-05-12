@@ -75,6 +75,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.request',
+                'app.context_processors.galleries',
                 'app.context_processors.wallpapers',
                 'app.context_processors.widgets'
             ]
