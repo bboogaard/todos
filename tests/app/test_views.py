@@ -1,27 +1,9 @@
-from django_webtest import WebTest
 from django.core.management import call_command
 
 from api.data.models import Note
+from tests.api.factories import EventFactory, NoteFactory, TodoFactory
+from tests.base import TodosViewTest
 from tests.services.cron.testcases import CronTestCase
-from tests.todos.factories import EventFactory, NoteFactory, TodoFactory, UserFactory
-
-
-class TodosViewTest(WebTest):
-
-    with_fixtures = False
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        if cls.with_fixtures:
-            call_command('loaddata', 'wallpapers.json')
-            call_command('loaddata', 'widgets.json')
-            call_command('collectmedia', '--noinput')
-
-    @classmethod
-    def setUpTestData(cls):
-        super().setUpTestData()
-        cls.test_user = UserFactory()
 
 
 class TestIndexView(TodosViewTest):

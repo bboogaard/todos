@@ -28,29 +28,20 @@
 
             this.galleryToggle.click(function(event) {
                 event.preventDefault();
+                let el = $(this);
                 let data = self.galleryToggle.map(function() {
                     return {
                         id: $(this).attr('data-gallery-id'),
-                        active: false
+                        active: $(this).attr('data-gallery-id') === el.attr('data-gallery-id')
                     }
                 }).get();
-                let activeGalleryItem = $(this);
-                let activeData = [
-                    {
-                        id: activeGalleryItem.attr('data-gallery-id'),
-                        active: true
-                    }
-                ];
                 $.when(self.galleryProvider.update(data))
                 .then(function() {
-                    $.when(self.galleryProvider.update(activeData))
-                    .then(function() {
-                        self.gallery = activeGalleryItem.attr('data-gallery-id');
-                        self.galleryToggle.removeClass('active');
-                        activeGalleryItem.addClass('active');
-                        self.loadItems();
-                    });
-                })
+                    self.gallery = el.attr('data-gallery-id');
+                    self.galleryToggle.removeClass('active');
+                    el.addClass('active');
+                    self.loadItems();
+                });
             });
 
         },
