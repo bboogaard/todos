@@ -2,6 +2,7 @@ from rest_framework import routers
 
 from api.views.events import EventViewSet
 from api.views.files import FileViewSet
+from api.views.galleries import GalleryViewSet
 from api.views.images import CarouselViewSet, ImageViewSet
 from api.views.notes import NoteViewSet
 from api.views.snippets import CodeSnippetViewSet
@@ -18,6 +19,7 @@ router = routers.SimpleRouter(trailing_slash=False)
 router.register(r'backgrounds', BackgroundViewSet, 'backgrounds')
 router.register(r'events', EventViewSet, 'events')
 router.register(r'files', FileViewSet, 'files')
+router.register(r'galleries', GalleryViewSet, 'galleries')
 router.register(r'images', ImageViewSet, 'images')
 router.register(r'carousel', CarouselViewSet, 'carousel')
 router.register(r'notes', NoteViewSet, 'notes')

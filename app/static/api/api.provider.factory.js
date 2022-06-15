@@ -116,6 +116,12 @@ ApiProviderFactory.prototype = {
 
         return this.createProvider();
 
+    },
+
+    createGalleryProvider: function () {
+
+        return this.createProvider();
+
     }
 
 }
@@ -160,6 +166,10 @@ let apiProviderFactory = {
 
     createWidgets: function() {
         return new ApiProviderFactory(JSON.parse(document.getElementById('widget-vars').textContent)).createWidgetProvider();
+    },
+
+    createGalleries: function() {
+        return new ApiProviderFactory(JSON.parse(document.getElementById('gallery-vars').textContent)).createGalleryProvider();
     }
 
 }

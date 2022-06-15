@@ -13,11 +13,11 @@ from django.utils.timezone import make_aware, now, utc
 from PIL import Image
 from webtest import Upload
 
-from api.data.models import CodeSnippet, Event, Note, PrivateFile, PrivateImage, Todo, Wallpaper, Widget
-from tests.todos.factories import CodeSnippetFactory, EventFactory, PrivateFileFactory, PrivateImageFactory, \
-    NoteFactory, TodoFactory
-from tests.todos.test_views import TodosViewTest
-from tests.todos.utils import generate_image
+from api.data.models import CodeSnippet, Event, Gallery, Note, PrivateFile, PrivateImage, Todo, Wallpaper, Widget
+from tests.api.factories import CodeSnippetFactory, EventFactory, GalleryFactory, PrivateFileFactory, \
+    PrivateImageFactory, NoteFactory, TodoFactory
+from tests.base import TodosViewTest
+from tests.utils import generate_image
 
 
 class TestTodoViewSet(TodosViewTest):
@@ -796,6 +796,35 @@ class TestBackgroundViewSet(TodosViewTest):
         result = [item['position'] for item in data['results']]
         expected = [2]
         self.assertEqual(result, expected)
+
+
+class TestGalleryViewSet(TodosViewTest):
+
+    csrf_checks = False
+
+    with_fixtures = True
+
+    def test_update_many(self):
+        GalleryFactory(pk=4, name='Wallpapers', active=True)
+        data = [
+            {
+                'id': 3,
+                'active': True
+            },
+            {
+                'id': 4,
+                'active': False
+            }
+        ]
+        response = self.app.post(
+            '/api/v1/galleries/update_many', json.dumps(data), user=self.test_user,
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        gallery = Gallery.objects.get(pk=3)
+        self.assertTrue(gallery.active)
+        gallery = Gallery.objects.get(pk=4)
+        self.assertFalse(gallery.active)
 
 
 class TestWidgetViewSet(TodosViewTest):

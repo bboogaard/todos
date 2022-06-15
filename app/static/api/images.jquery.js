@@ -46,8 +46,7 @@
                 let form = self.exportForm;
                 $('#todos-modal').Modal({
                     title: "Export images",
-                    form: form,
-                    formAction: 'export-images'
+                    form: form
                 });
             });
 

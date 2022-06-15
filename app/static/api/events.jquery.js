@@ -50,7 +50,6 @@
                 $('#todos-modal').Modal({
                     title: "Create event",
                     form: form,
-                    formAction: 'event-create',
                     formSetUp: function(form) {
                         form.find('#id_date').val($(el).attr('data-event-date'));
                     },
@@ -75,7 +74,6 @@
                 $('#todos-modal').Modal({
                     title: "Update event",
                     form: form,
-                    formAction: 'event-update',
                     formSetUp: function(form) {
                         form.find('#id_description').val($(el).attr('data-event-description'));
                         form.find('#id_date').val($(el).attr('data-event-date'));
@@ -111,8 +109,7 @@
                 let form = self.exportForm;
                 $('#todos-modal').Modal({
                     title: "Export events",
-                    form: form,
-                    formAction: 'export-events'
+                    form: form
                 });
             });
 

@@ -9,7 +9,6 @@
         this.cssClasses = settings.cssClasses;
         this.bodyCssClasses = settings.bodyCssClasses;
         this.form = settings.form;
-        this.formAction = settings.formAction;
         this.formSetUp = settings.formSetUp;
         this.formHandler = settings.formHandler;
     }
@@ -38,11 +37,8 @@
                 if (this.formSetUp) {
                     this.formSetUp(this.modal.find('form'));
                 }
-                if (this.formAction) {
-                    this.modal.find('form').find('input[type="submit"]').attr('data-action', this.formAction);
-                }
                 this.modal.find('form').show();
-                this.modal.on('click', 'form input[type="submit"][data-action="' + (this.formAction ? this.formAction : "save") + '"]', function(event) {
+                function formSubmit(event) {
                     let form = $(this).parents('form');
                     if (self.formHandler) {
                         event.preventDefault();
@@ -57,6 +53,10 @@
                             self.modal.modal('hide');
                         }
                     }
+                }
+                this.modal.on('click', 'form input[type="submit"]', formSubmit);
+                this.modal.on('hide.bs.modal', function() {
+                    self.modal.off('click', 'form input[type="submit"]', formSubmit);
                 });
             }
             if (this.onClose) {
@@ -87,7 +87,6 @@
             cssClasses: settings.cssClasses ? baseCss + ' ' + settings.cssClasses : baseCss,
             bodyCssClasses: settings.bodyCssClasses ? bodyCss + ' ' + settings.bodyCssClasses : bodyCss,
             form: settings.form,
-            formAction: settings.formAction,
             formHandler: settings.formHandler,
             formSetUp: settings.formSetUp
         });

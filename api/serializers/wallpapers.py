@@ -1,13 +1,7 @@
 from rest_framework import serializers
 
 from api.data.models import Gallery, Wallpaper
-
-
-class GallerySerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Gallery
-        fields = ['id', 'name']
+from api.serializers.galleries import GallerySerializer
 
 
 class ListWallpaperSerializer(serializers.ModelSerializer):
