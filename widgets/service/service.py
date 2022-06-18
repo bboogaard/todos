@@ -5,6 +5,7 @@ from django.http.request import HttpRequest
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.urls import reverse
+from isoweek import Week as IsoWeek
 
 from api.data.models import Widget
 from lib.utils import with_camel_keys
@@ -232,18 +233,24 @@ class EventsWidgetRenderer(WidgetRendererService):
         context = super().get_context_data(**kwargs)
 
         today = date.today()
+        week_obj = IsoWeek.withdate(today)
         context.update(dict(
             event_vars=with_camel_keys({
                 'urls': {
                     'list': reverse('api:events-list'),
+                    'days': reverse('api:events-days'),
+                    'slots': reverse('api:events-slots'),
                     'weeks': reverse('api:events-weeks'),
+                    'prev_week': reverse('api:events-prev-week'),
+                    'next_week': reverse('api:events-next-week'),
                     'create': reverse('api:events-create-one'),
                     'update': reverse('api:events-update-one'),
                     'delete': reverse('api:events-delete-one'),
                     'import': reverse('api:events-import-items'),
                 },
                 'year': today.year,
-                'month': today.month
+                'month': today.month,
+                'week': week_obj.week
             })
         ))
         return context

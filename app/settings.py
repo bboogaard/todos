@@ -211,3 +211,22 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ]
 }
+
+CALENDAR_SLOTS = [
+    {
+        'start_time': '09:00:00',
+        'end_time': '12:00:00'
+    },
+    {
+        'start_time': '12:00:00',
+        'end_time': '15:00:00'
+    },
+    {
+        'start_time': '15:00:00',
+        'end_time': '18:00:00'
+    },
+    {
+        'start_time': '18:00:00',
+        'end_time': '21:00:00'
+    }
+]

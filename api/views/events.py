@@ -1,3 +1,4 @@
+from django.conf import settings
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.decorators import action
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
@@ -6,7 +7,8 @@ from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from api.data.models import Event
-from api.serializers.events import CreateEventSerializer, EventSerializer, UpdateEventSerializer, WeeksSerializer
+from api.serializers.events import CreateEventSerializer, DaysSerializer, EventSerializer, NextWeekSerializer, \
+    PrevWeekSerializer, UpdateEventSerializer, WeeksSerializer
 from api.views.filters import EventFilterSet
 from api.views.shared.mixins import CreateMixin, ExportMixin
 from services.export.factory import ExportServiceFactory
@@ -42,6 +44,24 @@ class EventViewSet(ListModelMixin, RetrieveModelMixin, CreateMixin, ExportMixin,
         Event.objects.filter(pk=request.data.get('id')).delete()
         return Response({})
 
+    @action(['get'], detail=False, url_path='days')
+    def days(self, request, *args, **kwargs):
+        return self.validate_with_response(DaysSerializer, request, data=request.query_params)
+
+    @action(['get'], detail=False, url_path='slots')
+    def slots(self, request, *args, **kwargs):
+        return Response({
+            'slots': settings.CALENDAR_SLOTS
+        })
+
     @action(['get'], detail=False, url_path='weeks')
     def weeks(self, request, *args, **kwargs):
         return self.validate_with_response(WeeksSerializer, request, data=request.query_params)
+
+    @action(['get'], detail=False, url_path='weeks/prev')
+    def prev_week(self, request, *args, **kwargs):
+        return self.validate_with_response(PrevWeekSerializer, request, data=request.query_params)
+
+    @action(['get'], detail=False, url_path='weeks/next')
+    def next_week(self, request, *args, **kwargs):
+        return self.validate_with_response(NextWeekSerializer, request, data=request.query_params)

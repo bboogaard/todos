@@ -68,6 +68,20 @@ ApiProviderFactory.prototype = {
 
         let self = this;
         let provider = this.createProvider();
+        provider.days = function (data) {
+            return $.ajax({
+                url: self.settings.urls['days'],
+                type: "GET",
+                data: data
+            });
+        }
+        provider.slots = function (data) {
+            return $.ajax({
+                url: self.settings.urls['slots'],
+                type: "GET",
+                data: data
+            });
+        }
         provider.weeks = function (data) {
             return $.ajax({
                 url: self.settings.urls['weeks'],
@@ -77,6 +91,21 @@ ApiProviderFactory.prototype = {
         }
         provider.year = this.settings.year;
         provider.month = this.settings.month;
+        provider.week = this.settings.week;
+        provider.prevWeek = function (data) {
+            return $.ajax({
+                url: self.settings.urls['prev_week'],
+                type: "GET",
+                data: data
+            });
+        }
+        provider.nextWeek = function (data) {
+            return $.ajax({
+                url: self.settings.urls['next_week'],
+                type: "GET",
+                data: data
+            });
+        }
         provider.importUrl = this.settings.urls['import'];
         return provider;
 
