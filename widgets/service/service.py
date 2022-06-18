@@ -1,6 +1,7 @@
 import os
 from datetime import date
 
+from constance import config
 from django.http.request import HttpRequest
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
@@ -250,8 +251,10 @@ class EventsWidgetRenderer(WidgetRendererService):
                 },
                 'year': today.year,
                 'month': today.month,
-                'week': week_obj.week
-            })
+                'week': week_obj.week,
+                'mode': config.calendar_mode
+            }),
+            mode=config.calendar_mode
         ))
         return context
 

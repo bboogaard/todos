@@ -7,6 +7,7 @@
 
     function EventsApi(settings) {
         this.container = settings.container;
+        this.toggleMode = settings.toggleMode;
         this.exportButton = settings.exportButton;
         this.exportForm = settings.exportForm;
         this.importButton = settings.importButton;
@@ -16,7 +17,7 @@
         this.year = this.provider.year;
         this.month = this.provider.month;
         this.week = this.provider.week;
-        this.mode = 'day';
+        this.mode = this.provider.mode;
         this.weeks = [];
         this.days = [];
         this.slots = [];
@@ -137,12 +138,17 @@
                     url: self.provider.importUrl,
                     responseHandler: function() {
                         el.val('');
-                        self.loadItems(self.year, self.month);
+                        self.loadItems(self.year, self.month, self.week);
                     }
                 });
                 upload.uploadFile({
                     file: el.get(0).files[0]
                 });
+            });
+
+            this.toggleMode.click(function() {
+                self.mode = $(this).val();
+                self.loadItems(self.year, self.month, self.week);
             });
 
         },
@@ -167,6 +173,24 @@
 
             let self = this;
 
+            function currentWeek(weeks) {
+
+                let result = null;
+
+                let now = self.roundTime(new Date());
+                for (let i = 0; i < weeks.length; i++) {
+                    for (let ii = 0; ii < weeks[i].dates.length; ii++) {
+                        let dt = self.roundTime(new Date(weeks[i].dates[ii].date));
+                        if (now.getTime() === dt.getTime()) {
+                            result = weeks[i].week_number;
+                            break;
+                        }
+                    }
+                }
+                return result;
+
+            }
+
             let data = {
                 year: this.year,
                 month: this.month
@@ -175,7 +199,7 @@
             $.when(this.provider.weeks(data))
             .then(function(items) {
                 let weeks = items.weeks;
-                self.week = weeks[0].week_number;
+                self.week = currentWeek(weeks) ? currentWeek(weeks) : weeks[0].week_number;
                 let dt_start = weeks[0].dates[0].date;
                 let dt_end = weeks[weeks.length - 1].dates[weeks[weeks.length - 1].dates.length - 1].date;
                 data = {
@@ -213,7 +237,7 @@
             let date_class = week.color ? '' : 'text-muted';
             let week_style = week.week_style;
 
-            let current_class = this.roundTime(new Date(date.date)) === this.roundTime(new Date()) ? 'current' : '';
+            let current_class = this.roundTime(new Date(date.date)).getTime() === this.roundTime(new Date()).getTime() ? 'current' : '';
             let date_style = date.date_style;
             let day = date.date.split('-')[2];
             let events = this.renderWeekEvents(date);
@@ -478,6 +502,7 @@
 
         let events = new EventsApi({
             container: $(this),
+            toggleMode: settings.toggleMode,
             exportButton: settings.exportButton,
             exportForm: settings.exportForm,
             importButton: settings.importButton,

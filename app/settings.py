@@ -203,7 +203,7 @@ CONSTANCE_CONFIG = {
     'even_weeks_color_active': [False, 'Even weeks color active', bool],
     'even_weeks_current_date_color': ['#FF0000', 'Even weeks current date color', 'constance_color'],
     'even_weeks_current_date_color_active': [False, 'Even weeks current date color active', bool],
-    'gallery': [3, 'Gallery', 'constance_gallery'],
+    'calendar_mode': ['week', 'Calendar mode', str]
 }
 
 REST_FRAMEWORK = {

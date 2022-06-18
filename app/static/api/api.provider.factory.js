@@ -92,6 +92,7 @@ ApiProviderFactory.prototype = {
         provider.year = this.settings.year;
         provider.month = this.settings.month;
         provider.week = this.settings.week;
+        provider.mode = this.settings.mode;
         provider.prevWeek = function (data) {
             return $.ajax({
                 url: self.settings.urls['prev_week'],

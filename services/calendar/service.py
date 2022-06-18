@@ -48,9 +48,10 @@ class CalendarService(CalendarApi):
         weeks = []
         for week in self.calendar.monthdatescalendar(year, month):
             dates = []
-            week_number = week[0].isocalendar()[1]
+            week_obj = IsoWeek.withdate(week[1])
+            week_number = week_obj.week
             odd = bool(week_number % 2)
-            for day in week:
+            for day in week_obj.days():
                 dates.append(
                     Date(
                         date=day,
