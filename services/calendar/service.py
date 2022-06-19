@@ -35,12 +35,13 @@ class CalendarService(CalendarApi):
         return days
 
     def get_prev_week(self, year: int, week: int) -> Tuple[int, int, int]:
-        target_week, target_year = week - 1, year if week > 1 else (IsoWeek.last_week_of_year(year - 1).week, year - 1)
+        target_week, target_year = (week - 1, year) if week > 1 else (
+            IsoWeek.last_week_of_year(year - 1).week, year - 1)
         week_obj = IsoWeek(target_year, target_week)
         return week_obj.day(0).year, week_obj.day(0).month, target_week
 
     def get_next_week(self, year: int, week: int) -> Tuple[int, int, int]:
-        target_week, target_year = week + 1, year if week < IsoWeek.last_week_of_year(year).week else (1, year + 1)
+        target_week, target_year = (week + 1, year) if week < IsoWeek.last_week_of_year(year).week else (1, year + 1)
         week_obj = IsoWeek(target_year, target_week)
         return week_obj.day(0).year, week_obj.day(0).month, target_week
 
