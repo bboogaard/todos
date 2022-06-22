@@ -2,7 +2,7 @@
     .display-4 {
         font-size: 1.5rem;
     }
-    .day h5 {
+    .day h5, .slot h5 {
         background-color: #f8f9fa;
         padding: 3px 5px 5px;
         margin: -8px -8px 8px -8px;
@@ -13,7 +13,7 @@
 }
 
 @media (min-width: 576px) {
-    .day {
+    .day, .slot {
         height: 7vw;
     }
     .date.current {

@@ -682,6 +682,35 @@ class TestEventViewSet(TodosViewTest):
         event = Event.objects.filter(pk=self.events[0].pk).first()
         self.assertIsNone(event)
 
+    def test_days(self):
+        response = self.app.get('/api/v1/events/days?year=2022&week=23', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        days = [day['date'] for day in data['days']]
+        self.assertEqual(days, [
+            '2022-06-06', '2022-06-07', '2022-06-08', '2022-06-09', '2022-06-10', '2022-06-11', '2022-06-12'
+        ])
+
+    def test_prev_week(self):
+        response = self.app.get('/api/v1/events/weeks/prev?year=2021&week=1', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        self.assertEqual(data, {
+            'year': 2020,
+            'month': 12,
+            'week': 53
+        })
+
+    def test_next_week(self):
+        response = self.app.get('/api/v1/events/weeks/next?year=2021&week=1', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        self.assertEqual(data, {
+            'year': 2021,
+            'month': 1,
+            'week': 2
+        })
+
     def test_weeks(self):
         response = self.app.get(
             '/api/v1/events/weeks?year=2022&month=11', user=self.test_user

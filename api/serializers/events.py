@@ -50,6 +50,25 @@ class UpdateEventSerializer(CreateEventSerializer):
         return event
 
 
+class DaysSerializer(serializers.Serializer):
+
+    year = serializers.IntegerField(write_only=True)
+
+    week = serializers.IntegerField(write_only=True)
+
+    def validate(self, attrs):
+        return attrs
+
+    def to_internal_value(self, data):
+        return super().to_internal_value(data)
+
+    def to_representation(self, validated_data):
+        days = CalendarServiceFactory.create().get_days(validated_data['year'], validated_data['week'])
+        return {
+            'days': [asdict(day) for day in days]
+        }
+
+
 class WeeksSerializer(serializers.Serializer):
 
     year = serializers.IntegerField(write_only=True)
@@ -67,3 +86,33 @@ class WeeksSerializer(serializers.Serializer):
         return {
             'weeks': [asdict(week) for week in weeks]
         }
+
+
+class NavigateWeekSerializer(serializers.Serializer):
+
+    year = serializers.IntegerField(write_only=True)
+
+    week = serializers.IntegerField(write_only=True)
+
+    def to_representation(self, validated_data):
+        year, month, week = self._navigate(validated_data)
+        return {
+            'year': year,
+            'month': month,
+            'week': week
+        }
+
+    def _navigate(self, data):
+        raise NotImplementedError()
+
+
+class PrevWeekSerializer(NavigateWeekSerializer):
+
+    def _navigate(self, data):
+        return CalendarServiceFactory.create().get_prev_week(data['year'], data['week'])
+
+
+class NextWeekSerializer(NavigateWeekSerializer):
+
+    def _navigate(self, data):
+        return CalendarServiceFactory.create().get_next_week(data['year'], data['week'])
