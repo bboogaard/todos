@@ -14,8 +14,18 @@
   <div class="collapse navbar-collapse" id="navbarsExampleDefault">
     <ul class="navbar-nav mr-auto">
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Wallpapers</a>
+        <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Galleries</a>
         <div class="dropdown-menu" aria-labelledby="dropdown01">
+            {% for gallery in galleries %}
+            <a class="dropdown-item{% if gallery.active %} active{% endif %}" href="#" data-action="set-gallery" data-gallery-id="{{ gallery.pk }}">
+                {{ gallery }}
+            </a>
+            {% endfor %}
+        </div>
+      </li>
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="dropdown02" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Wallpapers</a>
+        <div class="dropdown-menu" aria-labelledby="dropdown02">
             <a class="dropdown-item" href="#" data-action="next-wallpaper">
                 Next wallpaper
             </a>
@@ -25,8 +35,8 @@
         </div>
       </li>
       <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" href="#" id="dropdown04" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Settings</a>
-        <div class="dropdown-menu" aria-labelledby="dropdown04">
+        <a class="nav-link dropdown-toggle" href="#" id="dropdown03" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Settings</a>
+        <div class="dropdown-menu" aria-labelledby="dropdown03">
           <a class="dropdown-item" href="#" data-action="manage-widgets">
               Manage widgets
           </a>
@@ -50,11 +60,14 @@
 
 {% block javascript %}
   {{ background_vars|json_script:"background-vars" }}
+  {{ gallery_vars|json_script:"gallery-vars" }}
 <script type="text/javascript" src="{% static 'api/background.jquery.js' %}"></script>
 <script type="text/javascript">
   $(function () {
       $('body').Background({
-          provider: apiProviderFactory.createBackground()
+          galleryToggle: $('[data-action="set-gallery"]'),
+          provider: apiProviderFactory.createBackground(),
+          galleryProvider: apiProviderFactory.createGalleries()
       });
       let tModal = $('#todos-modal');
 

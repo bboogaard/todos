@@ -53,8 +53,7 @@
                 let form = self.exportForm;
                 $('#todos-modal').Modal({
                     title: "Export todo's",
-                    form: form,
-                    formAction: 'export-todos'
+                    form: form
                 });
             });
 

@@ -62,8 +62,7 @@
                 let form = self.exportForm;
                 $('#todos-modal').Modal({
                     title: "Export notes",
-                    form: form,
-                    formAction: 'export-notes'
+                    form: form
                 });
             });
 

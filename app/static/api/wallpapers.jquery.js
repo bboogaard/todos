@@ -34,7 +34,6 @@
                 $('#todos-modal').Modal({
                     title: "Add wallpaper",
                     form: form,
-                    formAction: 'add-wallpaper',
                     formHandler: function(form) {
                         let res = form.serializeArray();
                         let data = {};
@@ -60,7 +59,6 @@
                 $('#todos-modal').Modal({
                     title: "Update wallpaper",
                     form: form,
-                    formAction: 'update-wallpaper',
                     formSetUp: function(form) {
                         form.find('#div_id_image').remove();
                         form.find('#div_id_image_current img').attr('src', el.attr('data-image'));

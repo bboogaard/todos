@@ -59,8 +59,7 @@
                 let form = self.exportForm;
                 $('#todos-modal').Modal({
                     title: "Export code snippets",
-                    form: form,
-                    formAction: 'export-snippets'
+                    form: form
                 });
             });
 

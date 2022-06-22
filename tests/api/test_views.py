@@ -13,11 +13,11 @@ from django.utils.timezone import make_aware, now, utc
 from PIL import Image
 from webtest import Upload
 
-from api.data.models import CodeSnippet, Event, Note, PrivateFile, PrivateImage, Todo, Wallpaper, Widget
-from tests.todos.factories import CodeSnippetFactory, EventFactory, PrivateFileFactory, PrivateImageFactory, \
-    NoteFactory, TodoFactory
-from tests.todos.test_views import TodosViewTest
-from tests.todos.utils import generate_image
+from api.data.models import CodeSnippet, Event, Gallery, Note, PrivateFile, PrivateImage, Todo, Wallpaper, Widget
+from tests.api.factories import CodeSnippetFactory, EventFactory, GalleryFactory, PrivateFileFactory, \
+    PrivateImageFactory, NoteFactory, TodoFactory
+from tests.base import TodosViewTest
+from tests.utils import generate_image
 
 
 class TestTodoViewSet(TodosViewTest):
@@ -682,6 +682,35 @@ class TestEventViewSet(TodosViewTest):
         event = Event.objects.filter(pk=self.events[0].pk).first()
         self.assertIsNone(event)
 
+    def test_days(self):
+        response = self.app.get('/api/v1/events/days?year=2022&week=23', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        days = [day['date'] for day in data['days']]
+        self.assertEqual(days, [
+            '2022-06-06', '2022-06-07', '2022-06-08', '2022-06-09', '2022-06-10', '2022-06-11', '2022-06-12'
+        ])
+
+    def test_prev_week(self):
+        response = self.app.get('/api/v1/events/weeks/prev?year=2021&week=1', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        self.assertEqual(data, {
+            'year': 2020,
+            'month': 12,
+            'week': 53
+        })
+
+    def test_next_week(self):
+        response = self.app.get('/api/v1/events/weeks/next?year=2021&week=1', user=self.test_user)
+        self.assertEqual(response.status_code, 200)
+        data = response.json
+        self.assertEqual(data, {
+            'year': 2021,
+            'month': 1,
+            'week': 2
+        })
+
     def test_weeks(self):
         response = self.app.get(
             '/api/v1/events/weeks?year=2022&month=11', user=self.test_user
@@ -796,6 +825,35 @@ class TestBackgroundViewSet(TodosViewTest):
         result = [item['position'] for item in data['results']]
         expected = [2]
         self.assertEqual(result, expected)
+
+
+class TestGalleryViewSet(TodosViewTest):
+
+    csrf_checks = False
+
+    with_fixtures = True
+
+    def test_update_many(self):
+        GalleryFactory(pk=4, name='Wallpapers', active=True)
+        data = [
+            {
+                'id': 3,
+                'active': True
+            },
+            {
+                'id': 4,
+                'active': False
+            }
+        ]
+        response = self.app.post(
+            '/api/v1/galleries/update_many', json.dumps(data), user=self.test_user,
+            content_type='application/json'
+        )
+        self.assertEqual(response.status_code, 200)
+        gallery = Gallery.objects.get(pk=3)
+        self.assertTrue(gallery.active)
+        gallery = Gallery.objects.get(pk=4)
+        self.assertFalse(gallery.active)
 
 
 class TestWidgetViewSet(TodosViewTest):

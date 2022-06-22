@@ -37,16 +37,25 @@
 
 <div class="container-fluid">
   <header>
-    <h4 class="text-center"><a class="btn" id="prevButton" href="">&laquo;</a>
-        <span id="monthYear"></span><a class="btn" id="nextButton" href="">&raquo;</a></h4>
+    <div class="text-center">
+        <h4 style="display: inline">
+            <a class="btn" id="prevButton" href="">&laquo;</a>
+            <span id="monthYear"></span>
+            <a class="btn" id="nextButton" href="">&raquo;</a>
+        </h4>
+        <select id="calendarMode" style="display: inline">
+            <option value="day"{% if mode == 'day' %} selected{% endif %}>Day</option>
+            <option value="week"{% if mode == 'week' %} selected{% endif %}>Week</option>
+        </select>
+    </div>
     <div class="row d-none d-sm-flex p-1 bg-dark text-white">
-      <h5 class="col-sm p-1 text-center">SU</h5>
       <h5 class="col-sm p-1 text-center">MO</h5>
       <h5 class="col-sm p-1 text-center">TU</h5>
       <h5 class="col-sm p-1 text-center">WE</h5>
       <h5 class="col-sm p-1 text-center">TH</h5>
       <h5 class="col-sm p-1 text-center">FR</h5>
       <h5 class="col-sm p-1 text-center">SA</h5>
+      <h5 class="col-sm p-1 text-center">SU</h5>
     </div>
   </header>
   <div class="row border border-right-0 border-bottom-0"></div>

@@ -37,8 +37,7 @@
                 let form = self.exportForm;
                 $('#todos-modal').Modal({
                     title: "Export files",
-                    form: form,
-                    formAction: 'export-files'
+                    form: form
                 });
             });
 

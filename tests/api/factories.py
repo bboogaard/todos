@@ -5,7 +5,7 @@ from django.core.files.images import ImageFile
 from django.utils.timezone import now
 
 from api.data import models as data_models
-from tests.todos.utils import generate_image
+from tests.utils import generate_image
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -62,3 +62,9 @@ class CodeSnippetFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = data_models.CodeSnippet
+
+
+class GalleryFactory(factory.django.DjangoModelFactory):
+
+    class Meta:
+        model = data_models.Gallery

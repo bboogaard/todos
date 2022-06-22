@@ -97,11 +97,20 @@ class GalleryQuerySet(models.QuerySet):
 
 class Gallery(models.Model):
 
+    active = models.BooleanField(default=False)
+
     name = models.CharField(max_length=32, unique=True)
 
     objects = GalleryQuerySet.as_manager()
 
     class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['active'],
+                name='Unique constraint for active gallery',
+                condition=models.Q(active=True)
+            )
+        ]
         ordering = ('name',)
 
     def __str__(self):

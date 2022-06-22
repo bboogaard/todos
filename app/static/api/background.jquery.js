@@ -4,6 +4,8 @@
         this.element = settings.element;
         this.provider = settings.provider;
         this.gallery = this.provider.gallery;
+        this.galleryToggle = settings.galleryToggle;
+        this.galleryProvider = settings.galleryProvider;
 
         this.items = {};
         this.item = null;
@@ -23,6 +25,24 @@
             this.element.on('next-wallpaper', function() {
                 self.nextBackground();
             }).trigger('next-wallpaper');
+
+            this.galleryToggle.click(function(event) {
+                event.preventDefault();
+                let el = $(this);
+                let data = self.galleryToggle.map(function() {
+                    return {
+                        id: $(this).attr('data-gallery-id'),
+                        active: $(this).attr('data-gallery-id') === el.attr('data-gallery-id')
+                    }
+                }).get();
+                $.when(self.galleryProvider.update(data))
+                .then(function() {
+                    self.gallery = el.attr('data-gallery-id');
+                    self.galleryToggle.removeClass('active');
+                    el.addClass('active');
+                    self.loadItems();
+                });
+            });
 
         },
 
@@ -67,7 +87,9 @@
 
         let background = new BackgroundApi({
             element: $(this),
-            provider: settings.provider
+            galleryToggle: settings.galleryToggle,
+            provider: settings.provider,
+            galleryProvider: settings.galleryProvider
         });
         background.init();
 

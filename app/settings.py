@@ -24,7 +24,6 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'todos.apps.TodosConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -75,6 +74,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.request',
+                'app.context_processors.galleries',
                 'app.context_processors.wallpapers',
                 'app.context_processors.widgets'
             ]
@@ -203,7 +203,7 @@ CONSTANCE_CONFIG = {
     'even_weeks_color_active': [False, 'Even weeks color active', bool],
     'even_weeks_current_date_color': ['#FF0000', 'Even weeks current date color', 'constance_color'],
     'even_weeks_current_date_color_active': [False, 'Even weeks current date color active', bool],
-    'gallery': [3, 'Gallery', 'constance_gallery'],
+    'calendar_mode': ['week', 'Calendar mode', str]
 }
 
 REST_FRAMEWORK = {
@@ -211,3 +211,22 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ]
 }
+
+CALENDAR_SLOTS = [
+    {
+        'start_time': '09:00:00',
+        'end_time': '12:00:00'
+    },
+    {
+        'start_time': '12:00:00',
+        'end_time': '15:00:00'
+    },
+    {
+        'start_time': '15:00:00',
+        'end_time': '18:00:00'
+    },
+    {
+        'start_time': '18:00:00',
+        'end_time': '21:00:00'
+    }
+]
